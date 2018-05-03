@@ -8,6 +8,6 @@ if __name__ == "__main__":
     debug = False
     if app.config['DEBUG'] or app.config['ENV'] == 'development':
         debug = True
-    app.run(port=app.config['PORT'], debug=debug)
+    app.run(host=app.config['HOST'], port=app.config['PORT'], debug=debug)
 else:
     app = create_app()
