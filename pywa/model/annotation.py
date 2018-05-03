@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
+from pywa.model.collection import Collection
 
 
 class Annotation(db.Model):
@@ -36,3 +37,6 @@ class Annotation(db.Model):
 
     #: The relationship between the Annotation and the Style.
     stylesheet = Column(JSONB)
+
+    #: The related Collection.
+    collection = relationship(Collection)
