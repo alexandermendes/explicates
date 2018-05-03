@@ -30,11 +30,6 @@ pip-delete-this-directory.txt
 instance/
 .webassets-cache
 
-# Virtual environments
+# Environments
 env/
 .vagrant/
-share/
-bin/
-include/
-local/
-pip-selfcheck.json
