@@ -9,5 +9,7 @@ def make_timestamp(self):
 
 
 from annotation import Annotation
+from collection import Collection
 
 assert Annotation
+assert Collection
