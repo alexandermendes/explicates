@@ -80,7 +80,7 @@
                      lc_ctype='en_US.UTF-8'
                      template='template0'
 
-    - name: populate PyBossa DB
+    - name: populate PYWA DB
       become_user: "{{pywa_user}}"
       command: "{{virtualenv_path}}/bin/python bin/db_create.py"
       args:
