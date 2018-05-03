@@ -2,7 +2,9 @@
 
 import os
 from flask import Flask
+
 from pywa import default_settings
+from pywa.extensions import *
 
 
 def create_app():
@@ -21,3 +23,8 @@ def configure_app(app):
             app.config.from_pyfile(config_path)
     else:
         config_path = os.path.abspath(os.environ.get('PYWA_SETTINGS'))
+
+    # Override DB for testing
+    if app.config.get('SQLALCHEMY_DATABASE_TEST_URI'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = \
+            app.config['SQLALCHEMY_DATABASE_TEST_URI']
