@@ -24,3 +24,11 @@ python run.py
 ```
 
 By default the server will now be available at http://127.0.0.1:3000.
+
+### Production
+
+The requirements for production servers are:
+
+- Ubuntu 18.04 LTS
+- Python >= 3.4
+- PostgreSQL >= 10
