@@ -4,7 +4,11 @@ requirements = [
   "Flask>=1.0.0, <1.1.0",
   "SQLAlchemy>=1.2.0, <1.3.0",
   "Flask-SQLAlchemy>=2.3.0, <2.4.0",
-  "alembic>=0.9.9, <1.0.0"
+  "alembic>=0.9.9, <1.0.0",
+  "factory_boy>=2.4.1, <2.5",
+  "nose",
+  "rednose",
+  "pycodestyle"
 ]
 
 setup(
