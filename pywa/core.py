@@ -8,12 +8,15 @@ from pywa.extensions import *
 
 
 def create_app():
+    """Create app."""
     app = Flask(__name__)
     configure_app(app)
+    setup_blueprints(app)
     return app
 
 
 def configure_app(app):
+    """Configure app."""
     app.config.from_object(default_settings)
     app.config.from_envvar('PYWA_SETTINGS', silent=True)
     if not os.environ.get('PYWA_SETTINGS'):
@@ -28,3 +31,10 @@ def configure_app(app):
     if app.config.get('SQLALCHEMY_DATABASE_TEST_URI'):
         app.config['SQLALCHEMY_DATABASE_URI'] = \
             app.config['SQLALCHEMY_DATABASE_TEST_URI']
+
+
+def setup_blueprints(app):
+    """Setup blueprints."""
+    from pywa.api.index import blueprint as index
+
+    app.register_blueprint(index, url_prefix='/')
