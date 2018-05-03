@@ -5,6 +5,9 @@ from pywa.core import create_app
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(port=app.config['PORT'])
+    debug = False
+    if app.config['DEBUG'] or app.config['ENV'] == 'development':
+        debug = True
+    app.run(port=app.config['PORT'], debug=debug)
 else:
     app = create_app()
