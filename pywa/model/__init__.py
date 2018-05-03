@@ -4,11 +4,11 @@ import uuid
 import datetime
 
 
-def make_timestamp(self):
+def make_timestamp():
     """Return timestamp expressed in the UTC xsd:datetime format."""
     return datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
-def make_uuid(self):
+def make_uuid():
     """Return a UUID."""
     return str(uuid.uuid4())

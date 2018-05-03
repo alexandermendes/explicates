@@ -1,11 +1,11 @@
 # -*- coding: utf8 -*-
 
 from sqlalchemy.schema import Column
-from sqlalchemy import Integer, Text
+from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
 
 from pywa.core import db
-from pywa.model import make_timestamp
+from pywa.model import make_timestamp, make_uuid
 
 
 class Annotation(db.Model):
