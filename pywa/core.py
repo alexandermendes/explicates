@@ -5,11 +5,13 @@ from flask import Flask
 
 from pywa import default_settings
 from pywa.extensions import *
+from pywa.response import process_response
 
 
 def create_app():
     """Create app."""
     app = Flask(__name__)
+    app.process_response = process_response
     configure_app(app)
     setup_blueprints(app)
     return app
