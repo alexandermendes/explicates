@@ -30,5 +30,5 @@ By default the server will now be available at http://127.0.0.1:3000.
 The requirements for production servers are:
 
 - Ubuntu 18.04 LTS
-- Python >= 3.4
+- Python 2.7, >= 3.4
 - PostgreSQL >= 10
