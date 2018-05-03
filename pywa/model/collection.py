@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from pywa.core import db
 from pywa.model import make_timestamp
+from pywa.model.collection import Collection
 
 
 class Collection(db.Model):
@@ -30,3 +31,6 @@ class Collection(db.Model):
 
     #: The time at which the Collection was modified, after creation.
     modified = Column(Text)
+
+    #: The related Collection.
+    collection = relationship(Collection)
