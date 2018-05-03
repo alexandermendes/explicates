@@ -27,6 +27,10 @@
         - python-setuptools
         - python-pip
 
+    - name: upgrade pip
+      become_user: "{{pywa_user}}"
+      pip: name=pip state=latest chdir={{pywa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+
     - name: install PYWA virtualenv packages
       become_user: "{{pywa_user}}"
       pip: chdir={{pywa_path}} requirements={{pywa_path}}/requirements.txt virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
