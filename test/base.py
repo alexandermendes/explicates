@@ -6,12 +6,12 @@ from functools import wraps
 
 from factories import reset_all_pk_sequences
 
-from pywa.core import create_app
+from pywa.core import create_app, db
 
 
 os.environ['PYWA_SETTINGS'] = '../settings_test.py'
 
-flask_app = create_app(run_as_server=False)
+flask_app = create_app()
 
 
 def with_context(f):
@@ -29,6 +29,7 @@ def rebuild_db():
 
 
 class Test(object):
+
     def setUp(self):
         self.flask_app = flask_app
         self.app = flask_app.test_client()
