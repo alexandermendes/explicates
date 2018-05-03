@@ -34,3 +34,22 @@
     - name: install PYWA virtualenv packages
       become_user: "{{pywa_user}}"
       pip: chdir={{pywa_path}} requirements={{pywa_path}}/requirements.txt virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+
+    # activate virtualenv always in .bashrc
+    - name: virtualenv usage by default on bash login
+      become_user: "{{pywa_user}}"
+      lineinfile:
+        dest={{vagrant_home}}/.bashrc
+        line=". {{virtualenv_path}}/bin/activate"
+        owner=vagrant
+        state=present
+        insertafter=EOF
+        create=yes
+
+    - name: go to /vagrant directory on bash login
+      lineinfile:
+        dest={{vagrant_home}}/.bashrc
+        line="cd {{pywa_path}}"
+        owner=vagrant
+        state=present
+        insertafter=EOF
