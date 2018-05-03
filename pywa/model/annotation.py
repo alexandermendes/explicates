@@ -3,6 +3,7 @@
 from sqlalchemy.schema import Column
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
