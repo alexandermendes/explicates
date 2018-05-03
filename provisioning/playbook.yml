@@ -43,6 +43,14 @@
       command: cp -p {{pywa_path}}/alembic.ini.tmpl {{pywa_path}}/alembic.ini
       when: not check_alembic.stat.exists
 
+    - name: check settings.py exists
+      stat: path={{pybossa_path}}/settings_local.py
+      register: check_settings
+
+    - name: copy settings template when it does not exist
+      command: cp -p {{pywa_path}}/settings.py.tmpl {{pywa_path}}/settings.py
+      when: not check_settings.stat.exists
+
     - name: install PostgreSQL
       apt: name={{item}} state=latest
       with_items:
