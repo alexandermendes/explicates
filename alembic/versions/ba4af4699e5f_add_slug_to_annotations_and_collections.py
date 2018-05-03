@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 
 def make_uuid():
-    return str(uuid.uuid4())
+    return unicode(uuid.uuid4())
 
 # revision identifiers, used by Alembic.
 revision = 'ba4af4699e5f'

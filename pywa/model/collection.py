@@ -17,7 +17,7 @@ class Collection(db.Model):
     id = Column(Integer, primary_key=True)
 
     #: The IRI path segement appended to the Collection IRI.
-    slug = Column(Unicode(), unique=True, default=make_uuid())
+    slug = Column(Unicode(), unique=True, default=unicode(make_uuid()))
 
     #: A human readable label for the Collection.
     label = Column(Text)
