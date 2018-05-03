@@ -14,6 +14,7 @@ def create_app():
     app.process_response = process_response
     configure_app(app)
     setup_blueprints(app)
+    setup_repositories(app)
     return app
 
 
@@ -40,3 +41,11 @@ def setup_blueprints(app):
     from pywa.api.index import blueprint as index
 
     app.register_blueprint(index, url_prefix='/')
+
+
+def setup_repositories(app):
+    """Setup repositories."""
+    from pywa.repositories import AnnotationRepository
+    from pywa.repositories import CollectionRepository
+    annotation_repo = AnnotationRepository(db)
+    collection_repo = CollectionRepository(db)
