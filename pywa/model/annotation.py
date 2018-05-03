@@ -16,6 +16,9 @@ class Annotation(db.Model):
     #: The Annotation ID
     id = Column(Integer, primary_key=True)
 
+    #: The IRI path segement appended to the Annotation IRI.
+    slug = Column(Unicode(), unique=True, default=make_uuid())
+
     #: The relationship between the Annotation and its Body.
     body = Column(JSONB, nullable=False)
 

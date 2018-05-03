@@ -16,7 +16,10 @@ class Collection(db.Model):
     #: The Collection ID
     id = Column(Integer, primary_key=True)
 
-    #: A human readable label for the container.
+    #: The IRI path segement appended to the Collection IRI.
+    slug = Column(Unicode(), unique=True, default=make_uuid())
+
+    #: A human readable label for the Collection.
     label = Column(Text)
 
     #: The time at which the Collection was created.
