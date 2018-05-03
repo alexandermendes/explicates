@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: true
+  become_method: sudo
+  vars:
+    pywa_user: "vagrant"
+    pywa_path: "/vagrant"
+    vagrant_home: "/home/vagrant"
+    virtualenv_path: "/home/vagrant/pywa-env"
+
+  tasks:
+    - name: Check Ubuntu 18.04 running
+      assert:
+        that:
+          - ansible_distribution == 'Ubuntu'
+          - ansible_distribution_release == 'bionic'
+
+    - name: update apt cache
+      apt: update_cache=yes
+
+    - name: install Python
+      apt: name={{item}} state=latest
+      with_items:
+        - python
+        - python-dev
+        - python-virtualenv
+        - python-setuptools
+        - python-pip
+
+    - name: install PYWA virtualenv packages
+      become_user: "{{pywa_user}}"
+      pip: chdir={{pywa_path}} requirements={{pywa_path}}/requirements.txt virtualenv={{pywa_path}} virtualenv_site_packages=yes

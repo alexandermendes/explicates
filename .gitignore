@@ -26,9 +26,15 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Flask stuff:
+# Flask stuff
 instance/
 .webassets-cache
 
-# Environments
+# Virtual environments
 env/
+.vagrant/
+share/
+bin/
+include/
+local/
+pip-selfcheck.json
