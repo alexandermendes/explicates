@@ -38,7 +38,7 @@ def configure_app(app):
 
     # Enable missing Slave bind using Master node
     if app.config.get('SQLALCHEMY_BINDS') is None:
-        print "Slave binds are misssing, adding Master as slave too."
+        print " * Database slave binds are misssing, adding Master as slave."
         app.config['SQLALCHEMY_BINDS'] = \
             dict(slave=app.config.get('SQLALCHEMY_DATABASE_URI'))
 
