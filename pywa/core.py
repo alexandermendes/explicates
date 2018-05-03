@@ -23,7 +23,6 @@ def configure_app(app):
     """Configure app."""
     app.config.from_object(default_settings)
     app.config.from_envvar('PYWA_SETTINGS', silent=True)
-    print os.environ.get('PYWA_SETTINGS')
     if not os.environ.get('PYWA_SETTINGS'):
         here = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(os.path.dirname(here), 'settings_local.py')
