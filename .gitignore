@@ -33,3 +33,7 @@ instance/
 # Environments
 env/
 .vagrant/
+
+# Settings
+settings.py
+alembic.ini

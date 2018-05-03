@@ -35,6 +35,58 @@
       become_user: "{{pywa_user}}"
       pip: chdir={{pywa_path}} requirements={{pywa_path}}/requirements.txt virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
 
+    - name: check alembic.ini exists
+      stat: path={{pywa_path}}/alembic.ini
+      register: check_alembic
+
+    - name: copy alembic template when it does not exist
+      command: cp -p {{pywa_path}}/alembic.ini.tmpl {{pywa_path}}/alembic.ini
+      when: not check_alembic.stat.exists
+
+    - name: install PostgreSQL
+      apt: name={{item}} state=latest
+      with_items:
+        - postgresql
+        - postgresql-server-dev-all
+        - libpq-dev
+        - python-psycopg2
+
+    - name: start PostgreSQL service
+      service: name=postgresql state=started
+
+    # http://stackoverflow.com/a/16783253
+    # psql -lqt | cut -d \| -f 1 | grep -w <db_name>
+    - name: check if DB already exists
+      become_user: postgres
+      shell: "psql -lqt | cut -d \\| -f 1 | grep -w pywa"
+      register: pywa_db_exists
+      changed_when: False
+      failed_when: not (pywa_db_exists.rc == 0 or pywa_db_exists.rc == 1)
+
+    - name: create PYWA DB user
+      become_user: postgres
+      postgresql_user: name=pywa password=tester encrypted=yes role_attr_flags=CREATEDB,NOSUPERUSER
+
+    - name: create PYWA DB test user
+      become_user: postgres
+      postgresql_user: name=rtester password=rtester encrypted=yes role_attr_flags=CREATEDB,NOSUPERUSER
+
+    - name: create PYWA DB
+      become_user: postgres
+      postgresql_db: name=pywa
+                     owner=pywa
+                     encoding='UTF-8'
+                     lc_collate='en_US.UTF-8'
+                     lc_ctype='en_US.UTF-8'
+                     template='template0'
+
+    - name: populate PyBossa DB
+      become_user: "{{pywa_user}}"
+      command: "{{virtualenv_path}}/bin/python bin/db_create.py"
+      args:
+        chdir: "{{pywa_path}}"
+      when: pywa_db_exists.rc != 0
+
     # activate virtualenv always in .bashrc
     - name: virtualenv usage by default on bash login
       become_user: "{{pywa_user}}"
