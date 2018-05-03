@@ -13,8 +13,9 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from pywa import model
-target_metadata = model.Annotation.metadata
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
