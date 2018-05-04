@@ -17,3 +17,5 @@ class AnnotationFactory(BaseFactory):
     id = factory.Sequence(lambda n: n)
     collection = factory.SubFactory('factories.CollectionFactory')
     collection_id = factory.LazyAttribute(lambda anno: anno.collection.id)
+    body = 'Simple body'
+    target = 'http://example.com'
