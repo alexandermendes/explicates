@@ -9,10 +9,10 @@ from factories import CollectionFactory, AnnotationFactory
 from pywa.core import collection_repo, annotation_repo
 
 
-class TestApiIndex(Test):
+class TestApi(Test):
 
     def setUp(self):
-        super(TestApiIndex, self).setUp()
+        super(TestApi, self).setUp()
 
     @with_context
     def test_get_collection(self):
