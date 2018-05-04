@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from sqlalchemy.schema import Column
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -38,6 +38,10 @@ class Annotation(db.Model):
 
     #: The relationship between the Annotation and the Style.
     stylesheet = Column(JSONB)
+
+    #: The related Collection ID.
+    collection_id = Column(Integer, ForeignKey('collection.id'),
+                           nullable=False)
 
     #: The related Collection.
     collection = relationship(Collection)
