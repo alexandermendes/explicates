@@ -7,7 +7,9 @@ A PostgreSQL-backed Web Annotation server.
 ### Development
 
 A virtual machine setup is provided for easily getting a development server up
-and running. Download and install
+and running.
+
+Download and install
 [Vagrant](https://www.vagrantup.com/) >= 4.2.10 and
 [VirtualBox](https://www.virtualbox.org/) >= 1.2.1,
 then run:
@@ -30,7 +32,7 @@ By default the server will now be available at http://127.0.0.1:3000.
 The requirements for production servers are:
 
 - Ubuntu 18.04 LTS
-- Python 2.7, >= 3.4
+- Python 2.7 or >= 3.4
 - PostgreSQL >= 10
 
 ## Usage
@@ -58,6 +60,7 @@ Slug: my-container
 
 Response:
 
+```http
 HTTP/1.1 201 CREATED
 
 Accept-Post: application/ld+json; profile="http://www.w3.org/ns/anno.jsonld"
@@ -83,3 +86,4 @@ Vary: Origin, Accept, Prefer
   "last": "http://example.org/w3c/my-container/?page=0",
   "total": 0
 }
+```
