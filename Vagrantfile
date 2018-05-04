@@ -29,6 +29,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
     v.memory = 1024
   end
+  # sync current dir (wasn't happening automatically on Windows)
+  config.vm.synced_folder ".", "/vagrant"
+  # forward ports
   config.vm.network :forwarded_port, host: 3000, guest: 3000
   config.vm.network :forwarded_port, host: 3001, guest: 3001
   # turn off warning message `stdin: is not a tty error`
