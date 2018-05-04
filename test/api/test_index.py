@@ -24,8 +24,8 @@ class TestApiIndex(Test):
     @with_context
     def test_collection_found(self):
         """Test Collection found."""
-        slug = 'foo'
-        collection = CollectionFactory(slug=slug)
+        slug = u'foo'
+        CollectionFactory(slug=slug)
         endpoint = '/{}'.format(slug)
         res = self.app_get_json(endpoint)
         assert_equal(res.status_code, 200)
