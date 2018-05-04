@@ -31,4 +31,3 @@ class Collection(db.Model, BaseDomainObject):
 
     #: The time at which the Collection was modified, after creation.
     modified = Column(Text)
-
