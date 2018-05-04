@@ -37,3 +37,6 @@ env/
 # Settings
 settings.py
 alembic.ini
+
+# Coverage
+htmlcov/*
