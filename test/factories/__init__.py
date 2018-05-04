@@ -25,9 +25,9 @@ class BaseFactory(factory.Factory):
 
     @classmethod
     def _build(cls, model_class, *args, **kwargs):
-        project = model_class(*args, **kwargs)
+        item = model_class(*args, **kwargs)
         db.session.remove()
-        return project
+        return item
 
 
 # Import the factories

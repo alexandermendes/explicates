@@ -15,3 +15,4 @@ class CollectionFactory(BaseFactory):
         return collection
 
     id = factory.Sequence(lambda n: n)
+    slug = factory.Sequence(lambda n: u'✓collection%d' % n)

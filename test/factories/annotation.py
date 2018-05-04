@@ -15,6 +15,7 @@ class AnnotationFactory(BaseFactory):
         return annotation
 
     id = factory.Sequence(lambda n: n)
+    slug = factory.Sequence(lambda n: u'✓annotation%d' % n)
     collection = factory.SubFactory('factories.CollectionFactory')
     collection_id = factory.LazyAttribute(lambda anno: anno.collection.id)
     body = 'Simple body'
