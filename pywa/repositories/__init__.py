@@ -10,7 +10,7 @@ class Repository(object):
         self.model_class = model_class
 
     def get(self, id):
-        return self.db.session.query(self.__class__).get(id)
+        return self.db.session.query(self.model_class).get(id)
 
     def save(self, obj):
         """Save an object."""
@@ -34,7 +34,7 @@ class Repository(object):
 
     def delete(self, obj):
         self._validate_can_be('deleted', obj)
-        result = self.db.session.query(self.__class__).filter(self.__class__.id==obj.id).first()
+        result = self.db.session.query(self.__class__).filter(self.model_class.id==obj.id).first()
         self.db.session.delete(result)
         self.db.session.commit()
 
