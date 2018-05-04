@@ -36,6 +36,7 @@ class Repository(object):
             raise IntegrityError
 
     def delete(self, obj):
+        """Delete an object."""
         self._validate_can_be('deleted', obj)
         result = self.db.session.query(self.__class__).filter(self.model_class.id==obj.id).first()
         self.db.session.delete(result)
