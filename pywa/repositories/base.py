@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 from sqlalchemy.exc import IntegrityError
-
+from jsonschema.exceptions import ValidationError
 
 class BaseRepository(object):
     """Base repository class."""
@@ -24,9 +24,9 @@ class BaseRepository(object):
         try:
             self.db.session.add(obj)
             self.db.session.commit()
-        except IntegrityError as e:
+        except (IntegrityError, ValidationError) as err:
             self.db.session.rollback()
-            raise e
+            raise err
 
     def update(self, obj):
         """Update an object."""
@@ -34,9 +34,9 @@ class BaseRepository(object):
         try:
             self.db.session.merge(obj)
             self.db.session.commit()
-        except IntegrityError as e:
+        except (IntegrityError, ValidationError) as err:
             self.db.session.rollback()
-            raise e
+            raise err
 
     def delete(self, obj):
         """Delete an object."""

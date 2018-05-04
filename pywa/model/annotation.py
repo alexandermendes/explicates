@@ -3,7 +3,7 @@
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
@@ -46,3 +46,13 @@ class Annotation(db.Model, BaseDomainObject):
 
     #: The related Collection.
     collection = relationship(Collection)
+
+    @validates('body')
+    def validate_body(self, key, body):
+        self.validate_json(key, body, 'annotation_body.json')
+        return body
+
+    @validates('target')
+    def validate_target(self, key, target):
+        self.validate_json(key, target, 'annotation_target.json')
+        return target

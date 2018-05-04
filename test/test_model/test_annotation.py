@@ -2,6 +2,7 @@
 
 from nose.tools import assert_equal, assert_not_equal, assert_raises
 from sqlalchemy.exc import IntegrityError
+from jsonschema.exceptions import ValidationError
 
 from base import Test, db, with_context
 from factories import CollectionFactory
@@ -31,14 +32,11 @@ class TestModelAnnotation(Test):
     @with_context
     def test_body_is_not_nullable(self):
         """Test Annotation.body is not nullable."""
-        self.annotation.body = None
-        print self.annotation.__dict__
-        db.session.add(self.annotation)
-        assert_raises(IntegrityError, db.session.commit)
+        with assert_raises(ValidationError):
+            self.annotation.body = None
 
     @with_context
     def test_target_is_not_nullable(self):
         """Test Annotation.target is not nullable."""
-        self.annotation.target = None
-        db.session.add(self.annotation)
-        assert_raises(IntegrityError, db.session.commit)
+        with assert_raises(ValidationError):
+            self.annotation.target = None

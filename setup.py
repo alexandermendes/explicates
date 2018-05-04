@@ -6,6 +6,7 @@ requirements = [
     "Flask-SQLAlchemy>=2.3.0, <2.4.0",
     "alembic>=0.9.9, <1.0.0",
     "factory_boy>=2.4.1, <2.5",
+    "jsonschema>=2.6.0, <3.0.0"
     "nose",
     "rednose",
     "coverage",
