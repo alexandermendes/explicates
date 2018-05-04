@@ -82,8 +82,8 @@ Vary: Origin, Accept, Prefer
     "AnnotationCollection"
   ],
   "label": "A Container for Web Annotations",
-  "first": "http://example.org/w3c/my-container/?page=0",
-  "last": "http://example.org/w3c/my-container/?page=0",
+  "first": "http://example.org/my-container/?page=0",
+  "last": "http://example.org/my-container/?page=0",
   "total": 0
 }
 ```
