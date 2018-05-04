@@ -1,10 +1,11 @@
 # -*- coding: utf8 -*-
 
-from pywa.repositories import Repository
+from pywa.repositories.base import BaseRepository
 from pywa.model.collection import Collection
 
 
-class CollectionRepository(Repository):
+class CollectionRepository(BaseRepository):
+    """Collection repository class."""
 
     def __init__(self, db, model_class):
         self.db = db
