@@ -12,6 +12,9 @@ class Repository(object):
     def get(self, id):
         return self.db.session.query(self.model_class).get(id)
 
+    def get_by(self, **attributes):
+        return self.db.session.query(self.model_class).filter_by(**attributes).first()
+
     def save(self, obj):
         """Save an object."""
         self._validate_can_be('saved', obj)

@@ -5,17 +5,18 @@ from flask import Flask
 
 from pywa import default_settings
 from pywa.extensions import *
-from pywa.response import process_response
+from pywa.response import ContextualResponse, process_response
 
 
 def create_app():
     """Create app."""
     app = Flask(__name__)
-    app.process_response = process_response
     configure_app(app)
     setup_db(app)
-    setup_blueprints(app)
     setup_repositories(app)
+    setup_blueprints(app)
+    app.process_response = process_response
+    app.response_class = ContextualResponse
     return app
 
 

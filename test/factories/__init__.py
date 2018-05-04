@@ -1,15 +1,16 @@
 # -*- coding: utf8 -*-
 
-from pywa.core import db
-
 import factory
 
+from pywa.core import db
 from pywa.repositories import AnnotationRepository
 from pywa.repositories import CollectionRepository
+from pywa.model.annotation import Annotation
+from pywa.model.collection import Collection
 
 
-annotation_repo = AnnotationRepository(db)
-collection_repo = CollectionRepository(db)
+annotation_repo = AnnotationRepository(db, Annotation)
+collection_repo = CollectionRepository(db, Collection)
 
 
 def reset_all_pk_sequences():

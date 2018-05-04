@@ -6,9 +6,10 @@ from sqlalchemy.dialects.postgresql import JSONB
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
+from pywa.model.base import BaseDomainObject
 
 
-class Collection(db.Model):
+class Collection(db.Model, BaseDomainObject):
     """An annotation collection"""
 
     __tablename__ = 'collection'

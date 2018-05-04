@@ -1,6 +1,19 @@
 # -*- coding: utf8 -*-
 
-from flask import request
+from flask import request, jsonify, Response
+
+from pywa.model.base import BaseDomainObject
+
+
+class ContextualResponse(Response):
+
+    @classmethod
+    def force_type(cls, rv, environ=None):
+        if isinstance(rv, BaseDomainObject):
+            rv = rv.dictize()
+        if isinstance(rv, dict):
+            rv = jsonify(rv)
+        return super(ContextualResponse, cls).force_type(rv, environ)
 
 
 def process_response(response):
@@ -15,7 +28,6 @@ def process_response(response):
     response.mimetype = 'application/ld+json; profile={0}'.format(profile)
     link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
     response.headers['Link'] = link
-    response.headers['Allow'] = 'GET,OPTIONS,HEAD'
 
     if request.method in ['HEAD', 'GET']:
         response.headers['Vary'] = 'Accept'

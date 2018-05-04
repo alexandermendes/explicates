@@ -7,10 +7,11 @@ from sqlalchemy.orm import relationship
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
+from pywa.model.base import BaseDomainObject
 from pywa.model.collection import Collection
 
 
-class Annotation(db.Model):
+class Annotation(db.Model, BaseDomainObject):
     """An annotation"""
 
     __tablename__ = 'annotation'
