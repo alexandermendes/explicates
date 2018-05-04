@@ -46,9 +46,8 @@ def configure_app(app):
 
 def setup_blueprints(app):
     """Setup blueprints."""
-    from pywa.api.index import blueprint as index
-
-    app.register_blueprint(index, url_prefix='/')
+    from pywa.api import blueprint as api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/')
 
 
 def setup_repositories(app):
