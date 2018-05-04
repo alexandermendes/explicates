@@ -23,7 +23,7 @@ class Repository(object):
             self.db.session.commit()
         except IntegrityError as e:
             self.db.session.rollback()
-            raise IntegrityError
+            raise e
 
     def update(self, obj):
         """Update an object."""
@@ -33,7 +33,7 @@ class Repository(object):
             self.db.session.commit()
         except IntegrityError as e:
             self.db.session.rollback()
-            raise IntegrityError
+            raise e
 
     def delete(self, obj):
         """Delete an object."""
