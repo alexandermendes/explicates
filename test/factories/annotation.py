@@ -11,7 +11,7 @@ class AnnotationFactory(BaseFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         annotation = model_class(*args, **kwargs)
-        annotation_repo.save(task)
+        annotation_repo.save(annotation)
         return annotation
 
     id = factory.Sequence(lambda n: n)

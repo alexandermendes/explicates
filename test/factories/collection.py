@@ -11,7 +11,7 @@ class CollectionFactory(BaseFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         collection = model_class(*args, **kwargs)
-        collection_repo.save(task)
+        collection_repo.save(collection)
         return collection
 
     id = factory.Sequence(lambda n: n)
