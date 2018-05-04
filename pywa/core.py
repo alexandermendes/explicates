@@ -54,10 +54,15 @@ def setup_repositories(app):
     """Setup repositories."""
     from pywa.repositories import AnnotationRepository
     from pywa.repositories import CollectionRepository
+
+    from pywa.model.annotation import Annotation
+    from pywa.model.collection import Collection
+
     global annotation_repo
     global collection_repo
-    annotation_repo = AnnotationRepository(db)
-    collection_repo = CollectionRepository(db)
+
+    annotation_repo = AnnotationRepository(db, Annotation)
+    collection_repo = CollectionRepository(db, Collection)
 
 
 def setup_db(app):

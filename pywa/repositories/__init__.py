@@ -1,10 +1,13 @@
 # -*- coding: utf8 -*-
 
+from sqlalchemy.exc import IntegrityError
+
 
 class Repository(object):
 
-    def __init__(self, db):
+    def __init__(self, db, model_class):
         self.db = db
+        self.model_class = model_class
 
     def get(self, id):
         return self.db.session.query(self.__class__).get(id)
@@ -37,7 +40,7 @@ class Repository(object):
 
     def _validate_can_be(self, action, obj):
         """Verify that the query is for an object of the right type."""
-        if not isinstance(obj, self.__class__):
+        if not isinstance(obj, self.model_class):
             name = obj.__class__.__name__
             msg = '{0} cannot be {1} by {2}'.format(name,
                                                     action,
