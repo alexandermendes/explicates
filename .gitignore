@@ -40,3 +40,4 @@ alembic.ini
 
 # Coverage
 htmlcov/*
+.coverage
