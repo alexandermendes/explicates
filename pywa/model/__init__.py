@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import uuid
-import datetime
+from datetime import datetime
 
 
 def make_timestamp():
