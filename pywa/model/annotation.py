@@ -63,6 +63,10 @@ class Annotation(db.Model, BaseDomainObject):
         return '{}{}/{}'.format(root_url, collection_slug, annotation_slug)
 
     @hybrid_property
+    def type(self):
+        return 'Annotation'
+
+    @hybrid_property
     def generator(self):
         return current_app.config.get('GENERATOR')
 

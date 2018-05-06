@@ -78,3 +78,11 @@ class TestModelAnnotation(Test):
         annotation_slug = quote(self.annotation.slug.encode('utf8'))
         expected = '{}{}/{}'.format(root_url, collection_slug, annotation_slug)
         assert_equal(tmp.id, expected)
+
+    @with_context
+    def test_id_added(self):
+        """Test Annotation.type is added."""
+        db.session.add(self.annotation)
+        db.session.commit()
+        tmp = db.session.query(Annotation).get(1)
+        assert_equal(tmp.type, 'Annotation')
