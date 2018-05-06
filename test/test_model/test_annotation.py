@@ -1,10 +1,14 @@
 # -*- coding: utf8 -*-
 
-from flask import current_app
+from flask import current_app, url_for
 from mock import patch
 from nose.tools import assert_equal, assert_not_equal, assert_raises
 from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
+try:
+    from urllib import quote
+except ImportError:  # py3
+    from urllib.parse import quote
 
 from base import Test, db, with_context
 from factories import CollectionFactory
@@ -16,10 +20,11 @@ class TestModelAnnotation(Test):
 
     def setUp(self):
         super(TestModelAnnotation, self).setUp()
-        collection = CollectionFactory()
-        self.annotation = Annotation(body="Simple body",
+        self.collection = CollectionFactory()
+        self.annotation = Annotation(slug="foo",
+                                     body="Simple body",
                                      target="http://example.com",
-                                     collection_key=collection.key)
+                                     collection_key=self.collection.key)
 
     @with_context
     def test_defaults(self):
@@ -61,3 +66,15 @@ class TestModelAnnotation(Test):
         db.session.commit()
         tmp = db.session.query(Annotation).get(1)
         assert_equal(tmp.generated, fake_ts)
+
+    @with_context
+    def test_id_added(self):
+        """Test Annotation.id is added."""
+        db.session.add(self.annotation)
+        db.session.commit()
+        tmp = db.session.query(Annotation).get(1)
+        root_url = url_for('api.index')
+        collection_slug = quote(self.collection.slug.encode('utf8'))
+        annotation_slug = quote(self.annotation.slug.encode('utf8'))
+        expected = '{}{}/{}'.format(root_url, collection_slug, annotation_slug)
+        assert_equal(tmp.id, expected)
