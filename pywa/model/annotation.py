@@ -53,6 +53,10 @@ class Annotation(db.Model, BaseDomainObject):
     def generator(self):
         return current_app.config.get('GENERATOR')
 
+    @hybrid_property
+    def generated(self):
+        return make_timestamp()
+
     @validates('body')
     def validate_body(self, key, body):
         self.validate_json(key, body, 'annotation_body.json')

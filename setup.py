@@ -8,6 +8,7 @@ requirements = [
     "factory_boy>=2.4.1, <2.5",
     "jsonschema>=2.6.0, <3.0.0"
     "nose",
+    "mock",
     "rednose",
     "coverage",
     "nose-cov",

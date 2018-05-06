@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
 from flask import current_app
+from mock import patch
 from nose.tools import assert_equal, assert_not_equal, assert_raises
 from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
@@ -49,3 +50,14 @@ class TestModelAnnotation(Test):
         tmp = db.session.query(Annotation).get(1)
         generator = current_app.config.get('GENERATOR')
         assert_equal(tmp.generator, generator)
+
+    @with_context
+    @patch('pywa.model.annotation.make_timestamp')
+    def test_generated_added(self, mock_ts):
+        """Test Annotation.generated is added."""
+        fake_ts = 'foo'
+        mock_ts.return_value = fake_ts
+        db.session.add(self.annotation)
+        db.session.commit()
+        tmp = db.session.query(Annotation).get(1)
+        assert_equal(tmp.generated, fake_ts)
