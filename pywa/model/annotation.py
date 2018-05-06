@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
-import urllib
-from flask import current_app, url_for
+from flask import current_app
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
@@ -12,11 +11,6 @@ from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
 from pywa.model.base import BaseDomainObject
 from pywa.model.collection import Collection
-
-try:
-    from urllib import quote
-except ImportError:  # py3
-    from urllib.parse import quote
 
 
 class Annotation(db.Model, BaseDomainObject):
@@ -55,24 +49,15 @@ class Annotation(db.Model, BaseDomainObject):
     #: The related Collection.
     collection = relationship(Collection)
 
-    @hybrid_property
-    def id(self):
-        root_url = url_for('api.index')
-        collection_slug = quote(self.collection.slug.encode('utf8'))
-        annotation_slug = quote(self.slug.encode('utf8'))
-        return '{}{}/{}'.format(root_url, collection_slug, annotation_slug)
+    def get_id_suffix(self):
+        return u'{0}/{1}'.format(self.collection.slug, self.slug)
 
-    @hybrid_property
-    def type(self):
-        return 'Annotation'
-
-    @hybrid_property
-    def generator(self):
-        return current_app.config.get('GENERATOR')
-
-    @hybrid_property
-    def generated(self):
-        return make_timestamp()
+    def get_extra_info(self):
+        return {
+            'type': 'Annotation',
+            'generated': make_timestamp(),
+            'generator': current_app.config.get('GENERATOR')
+        }
 
     @validates('body')
     def validate_body(self, key, body):

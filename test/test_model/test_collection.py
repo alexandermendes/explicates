@@ -23,12 +23,12 @@ class TestModelCollection(Test):
                                      label="My Collection")
 
     @with_context
-    def test_id_added(self):
-        """Test Collection.id is added."""
+    def test_id_added_when_dicitzed(self):
+        """Test Collection.id is added when dictized."""
         db.session.add(self.collection)
         db.session.commit()
         tmp = db.session.query(Collection).get(1)
         root_url = url_for('api.index')
-        collection_slug = quote(self.collection.slug.encode('utf8'))
-        expected = '{}{}'.format(root_url, collection_slug)
-        assert_equal(tmp.id, expected)
+        slug = quote(self.collection.slug.encode('utf8'))
+        expected = '{0}{1}'.format(root_url, slug)
+        assert_equal(tmp.dictize()['id'], expected)
