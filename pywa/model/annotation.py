@@ -1,9 +1,11 @@
 # -*- coding: utf8 -*-
 
+from flask import current_app
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, validates
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
@@ -46,6 +48,10 @@ class Annotation(db.Model, BaseDomainObject):
 
     #: The related Collection.
     collection = relationship(Collection)
+
+    @hybrid_property
+    def generator(self):
+        return current_app.config.get('GENERATOR')
 
     @validates('body')
     def validate_body(self, key, body):
