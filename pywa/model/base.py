@@ -12,11 +12,12 @@ class BaseDomainObject(object):
 
     def dictize(self):
         """Return the domain object as a dictionary."""
+        filtered = ['slug']
         out = {}
         for col in self.__table__.c:
             obj = getattr(self, col.name)
-            if isinstance(obj, datetime.datetime):
-                obj = obj.isoformat()
+            if not obj or col.name in filtered:
+                continue
             out[col.name] = obj
         return out
 
