@@ -23,7 +23,6 @@ class TestModelAnnotation(Test):
     def test_defaults(self):
         """Test Annotation is created with defaults."""
         db.session.add(self.annotation)
-        db.session.add(self.annotation)
         db.session.commit()
         tmp = db.session.query(Annotation).get(1)
         assert_not_equal(tmp.slug, None)
