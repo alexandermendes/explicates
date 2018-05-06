@@ -1,18 +1,34 @@
 # -*- coding: utf8 -*-
 
 import json
-from flask import Blueprint, abort
+from flask import Blueprint, abort, request
 
+from pywa.model.collection import Collection
 from pywa.core import collection_repo, annotation_repo
 
 
 blueprint = Blueprint('api', __name__)
 
 
+def get_data():
+    """Get request data."""
+    data = request.get_json()
+    data.update({
+        'slug': request.headers.get('Slug')
+    })
+    return data
+
+
 @blueprint.route('/', methods=['GET', 'POST'])
 def index():
     """Render index."""
-    return 'The PYWA server'
+    if request.method == 'GET':
+        return 'The PYWA server'
+
+    data = get_data()
+    collection = Collection(**data)
+    collection_repo.save(collection)
+    return collection
 
 
 @blueprint.route('/<collection_slug>')

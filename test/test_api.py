@@ -2,7 +2,6 @@
 
 import json
 from nose.tools import assert_equal
-
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 
@@ -28,6 +27,18 @@ class TestApi(Test):
         endpoint = u'/foo'
         res = self.app_get_json(endpoint)
         assert_equal(res.status_code, 404)
+
+    @with_context
+    def test_collection_created(self):
+        """Test Collection created with default values."""
+        endpoint = '/'
+        data = dict(label='foo')
+        headers = {
+            'Slug': 'bar'
+        }
+        res = self.app_post_json(endpoint, data=data, headers=headers)
+        collection = collection_repo.get(1)
+        assert_equal(json.loads(res.data), collection.dictize())
 
     @with_context
     def test_get_annotation(self):
