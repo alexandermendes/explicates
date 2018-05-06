@@ -37,4 +37,6 @@ class Collection(db.Model, BaseDomainObject):
         return self.slug
 
     def get_extra_info(self):
-        return {}
+        return {
+            'type': 'AnnotationCollection'
+        }
