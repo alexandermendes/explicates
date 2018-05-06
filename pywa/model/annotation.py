@@ -18,8 +18,8 @@ class Annotation(db.Model, BaseDomainObject):
 
     __tablename__ = 'annotation'
 
-    #: The Annotation ID
-    id = Column(Integer, primary_key=True)
+    #: The Annotation primary key.
+    key = Column(Integer, primary_key=True)
 
     #: The IRI path segement appended to the Annotation IRI.
     slug = Column(Unicode(), unique=True, default=unicode(make_uuid()))
@@ -43,8 +43,8 @@ class Annotation(db.Model, BaseDomainObject):
     stylesheet = Column(JSONB)
 
     #: The related Collection ID.
-    collection_id = Column(Integer, ForeignKey('collection.id'),
-                           nullable=False)
+    collection_key = Column(Integer, ForeignKey('collection.key'),
+                            nullable=False)
 
     #: The related Collection.
     collection = relationship(Collection)

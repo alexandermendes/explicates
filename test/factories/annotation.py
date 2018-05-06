@@ -14,9 +14,9 @@ class AnnotationFactory(BaseFactory):
         annotation_repo.save(annotation)
         return annotation
 
-    id = factory.Sequence(lambda n: n)
+    key = factory.Sequence(lambda n: n)
     slug = factory.Sequence(lambda n: u'✓annotation%d' % n)
     collection = factory.SubFactory('factories.CollectionFactory')
-    collection_id = factory.LazyAttribute(lambda anno: anno.collection.id)
+    collection_key = factory.LazyAttribute(lambda anno: anno.collection.key)
     body = 'Simple body'
     target = 'http://example.com'

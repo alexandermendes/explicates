@@ -14,5 +14,5 @@ class CollectionFactory(BaseFactory):
         collection_repo.save(collection)
         return collection
 
-    id = factory.Sequence(lambda n: n)
+    key = factory.Sequence(lambda n: n)
     slug = factory.Sequence(lambda n: u'✓collection%d' % n)

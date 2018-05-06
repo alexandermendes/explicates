@@ -19,7 +19,7 @@ class TestModelAnnotation(Test):
         collection = CollectionFactory()
         self.annotation = Annotation(body="Simple body",
                                      target="http://example.com",
-                                     collection_id=collection.id)
+                                     collection_key=collection.key)
 
     @with_context
     def test_defaults(self):

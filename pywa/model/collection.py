@@ -14,8 +14,8 @@ class Collection(db.Model, BaseDomainObject):
 
     __tablename__ = 'collection'
 
-    #: The Collection ID
-    id = Column(Integer, primary_key=True)
+    #: The Collection primary key
+    key = Column(Integer, primary_key=True)
 
     #: The IRI path segement appended to the Collection IRI.
     slug = Column(Unicode(), unique=True, default=unicode(make_uuid()))
