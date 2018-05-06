@@ -20,6 +20,7 @@ class TestModelAnnotation(Test):
         self.annotation = Annotation(slug="foo",
                                      body="Simple body",
                                      target="http://example.com",
+                                     collection=self.collection,
                                      collection_key=self.collection.key)
 
     @with_context
@@ -44,22 +45,10 @@ class TestModelAnnotation(Test):
             self.annotation.target = None
 
     @with_context
-    def test_generator_added(self):
-        """Test Annotation.generator is added."""
-        db.session.add(self.annotation)
-        db.session.commit()
-        tmp = db.session.query(Annotation).get(1)
-        generator = current_app.config.get('GENERATOR')
-        assert_equal(tmp.dictize()['generator'], generator)
-
-    @with_context
     def test_get_id_suffix(self):
         """Test Annotation id suffix."""
-        db.session.add(self.annotation)
-        db.session.commit()
-        tmp = db.session.query(Annotation).get(1)
         expected = u'{}/{}'.format(self.collection.slug, self.annotation.slug)
-        id_suffix = tmp.get_id_suffix()
+        id_suffix = self.annotation.get_id_suffix()
         assert_equal(id_suffix, expected)
 
     @with_context
@@ -68,10 +57,7 @@ class TestModelAnnotation(Test):
         """Test Annotation extra info."""
         fake_ts = 'foo'
         mock_ts.return_value = fake_ts
-        db.session.add(self.annotation)
-        db.session.commit()
-        tmp = db.session.query(Annotation).get(1)
-        extra_info = tmp.get_extra_info()
+        extra_info = self.annotation.get_extra_info()
         assert_dict_equal(extra_info, {
             'type': 'Annotation',
             'generated': fake_ts,

@@ -1,14 +1,10 @@
 # -*- coding: utf8 -*-
 
-from flask import current_app, url_for
+from flask import current_app
 from mock import patch
-from nose.tools import assert_equal, assert_raises
+from nose.tools import *
 from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
-try:
-    from urllib import quote
-except ImportError:  # py3
-    from urllib.parse import quote
 
 from base import Test, db, with_context
 
@@ -23,12 +19,15 @@ class TestModelCollection(Test):
                                      label="My Collection")
 
     @with_context
-    def test_id_added_when_dicitzed(self):
-        """Test Collection.id is added when dictized."""
-        db.session.add(self.collection)
-        db.session.commit()
-        tmp = db.session.query(Collection).get(1)
-        root_url = url_for('api.index')
-        slug = quote(self.collection.slug.encode('utf8'))
-        expected = '{0}{1}'.format(root_url, slug)
-        assert_equal(tmp.dictize()['id'], expected)
+    def test_get_id_suffix(self):
+        """Test Collection id suffix."""
+        id_suffix = self.collection.get_id_suffix()
+        assert_equal(id_suffix, self.collection.slug)
+
+    @with_context
+    def test_get_extra_info(self):
+        """Test Collection extra info."""
+        extra_info = self.collection.get_extra_info()
+        assert_dict_equal(extra_info, {
+            'type': 'AnnotationCollection'
+        })
