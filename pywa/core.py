@@ -99,4 +99,4 @@ def setup_error_handler(app):
         code = 500
         if isinstance(e, HTTPException):
             code = e.code
-        return dict(code=code, message=str(e.message)), code
+        return dict(code=code, message=str(e)), code

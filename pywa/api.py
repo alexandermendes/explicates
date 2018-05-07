@@ -2,6 +2,8 @@
 
 import json
 from flask import Blueprint, abort, request
+from jsonschema.exceptions import ValidationError
+from sqlalchemy.exc import IntegrityError
 
 from pywa.model.collection import Collection
 from pywa.model.annotation import Annotation
@@ -18,8 +20,13 @@ def handle_post(model_class, repo, **kwargs):
         'slug': request.headers.get('Slug')
     })
     data.update(kwargs)
-    obj = model_class(**data)
-    repo.save(obj)
+
+    try:
+        obj = model_class(**data)
+        repo.save(obj)
+    except (ValidationError, IntegrityError, TypeError) as err:
+        abort(400, err.message)
+
     return obj
 
 
