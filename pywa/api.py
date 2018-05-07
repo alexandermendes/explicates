@@ -40,7 +40,7 @@ def collection(collection_slug):
     if not coll:
         abort(404)
 
-    page = request.args.pop('page', None)
+    page = request.args.get('page', None)
     if page:
         return respond_page(collection, int(page))
 
