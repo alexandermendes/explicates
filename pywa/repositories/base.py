@@ -18,6 +18,10 @@ class BaseRepository(object):
         """Get an object by given attributes."""
         return self.db.session.query(self.model_class).filter_by(**attributes).first()
 
+    def get_all(self):
+        """Get all objects."""
+        return self.db.session.query(self.model_class).all()
+
     def filter_by(self, **filters):
         """Get all filtered objects."""
         return self.db.session.query(self.model_class).filter_by(**filters).all()

@@ -32,9 +32,14 @@ def handle_post(model_class, repo, **kwargs):
 
 @blueprint.route('/', methods=['GET', 'POST'])
 def index():
-    """Render index."""
+    """Render index page."""
     if request.method == 'GET':
-        return 'The PYWA server'
+        collections = collection_repo.get_all()
+        return {
+            "context": "https://www.w3.org/ns/ldp.jsonld",
+            "type": "BasicContainer",
+            "contains": [c.dictize() for c in collections]
+        }
 
     return handle_post(Collection, collection_repo)
 
