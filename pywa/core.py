@@ -46,6 +46,8 @@ def configure_app(app):
         app.config['SQLALCHEMY_BINDS'] = \
             dict(slave=app.config.get('SQLALCHEMY_DATABASE_URI'))
 
+    app.url_map.strict_slashes = app.config.get('STRICT_SLASHES')
+
 
 def setup_blueprints(app):
     """Setup blueprints."""
