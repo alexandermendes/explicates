@@ -19,6 +19,7 @@ def create_app():
     setup_error_handler(app)
     app.process_response = process_response
     app.response_class = ContextualResponse
+    import pywa.model.event_listeners
     return app
 
 

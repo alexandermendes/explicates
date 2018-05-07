@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "body": {
+      "type": [
+        "string",
+        "array",
+        "object"
+      ]
+    },
+    "target": {
+      "type": [
+        "string",
+        "array",
+        "object"
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "body",
+    "target"
+  ]
+}
