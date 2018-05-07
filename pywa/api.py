@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import json
-from flask import Blueprint, abort, request
+from flask import Blueprint, abort, request, url_for
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -44,7 +44,7 @@ def index():
     return handle_post(Collection, collection_repo)
 
 
-@blueprint.route('/<collection_slug>',
+@blueprint.route('/<collection_slug>/',
                  methods=['GET', 'POST', 'PUT', 'DELETE'])
 def collection(collection_slug):
     """Return a Collection."""
@@ -54,12 +54,15 @@ def collection(collection_slug):
 
     page = request.args.get('page', None)
     if page:
-        return respond_page(collection, int(page))
+        return page_response(coll, int(page), request.query_string)
 
     collection_dict = coll.dictize()
     annotations = annotation_repo.filter_by(collection_key=coll.key)
+    collection_dict['items'] = [a.dictize() for a in annotations]
     if annotations:
-        collection_dict['first'] = url_for('')
+        collection_dict['first'] = url_for('.collection',
+                                           collection_slug=coll.slug,
+                                           page=1, _external=True)
 
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)
@@ -82,11 +85,11 @@ def annotation(collection_slug, annotation_slug):
     return anno
 
 
-def page_response(collection, page):
+def page_response(collection, page, query_str):
     """Respond with a Page of a Collection."""
     collection_dict = collection.dictize()
     page_iri = "{0}/{1}".format(collection_dict['id'], page)
-    next_uri = "{0}/{1}".format(collection_dict['id'], page + 1)
+    next_iri = "{0}/{1}".format(collection_dict['id'], page + 1)
 
     if query_str:
         collection_dict['id'] += "?{}".format(query_str)
@@ -98,3 +101,5 @@ def page_response(collection, page):
         'type': 'AnnotationPage',
         'partOf': collection_dict
     }
+
+    return data
