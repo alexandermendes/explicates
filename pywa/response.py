@@ -29,8 +29,13 @@ def process_response(response):
     link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
     response.headers['Link'] = link
 
+    data = response.get_json(silent=True)
+
     if request.method in ['HEAD', 'GET']:
         response.headers['Vary'] = 'Accept'
         response.add_etag()
+
+    elif request.method == 'POST' and data and 'id' in data:
+        response.headers['Location'] = data['id']
 
     return response

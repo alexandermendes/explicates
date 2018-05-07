@@ -38,7 +38,11 @@ class TestApi(Test):
         }
         res = self.app_post_json(endpoint, data=data, headers=headers)
         collection = collection_repo.get(1)
-        assert_equal(json.loads(res.data), collection.dictize())
+        collection_dict = collection.dictize()
+        assert_equal(json.loads(res.data), collection_dict)
+
+        # Test Location header contains Collection IRI
+        assert_equal(res.headers.get('Location'), collection_dict['id'])
 
     @with_context
     def test_get_annotation(self):
@@ -78,4 +82,8 @@ class TestApi(Test):
         }
         res = self.app_post_json(endpoint, data=data, headers=headers)
         annotation = annotation_repo.get(1)
-        assert_equal(json.loads(res.data), annotation.dictize())
+        annotation_dict = annotation.dictize()
+        assert_equal(json.loads(res.data), annotation_dict)
+
+        # Test Location header contains Annotation IRI
+        assert_equal(res.headers.get('Location'), annotation_dict['id'])

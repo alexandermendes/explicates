@@ -28,6 +28,9 @@ class BaseDomainObject(object):
                 continue
             out[col.name] = obj
 
+        # Add context
+        out['@context'] = "http://www.w3.org/ns/anno.jsonld"
+
         # Add ID
         root_url = url_for('api.index', _external=True)
         safe_suffix = quote(self.get_id_suffix().encode('utf8'))
