@@ -30,7 +30,7 @@ class TestApi(Test):
 
     @with_context
     def test_collection_created(self):
-        """Test Collection created with default values."""
+        """Test Collection created."""
         endpoint = '/'
         data = dict(label='foo')
         headers = {
@@ -66,3 +66,16 @@ class TestApi(Test):
         endpoint = u'/{}/{}'.format(collection2.slug, annotation.slug)
         res = self.app_get_json(endpoint)
         assert_equal(res.status_code, 404)
+
+    @with_context
+    def test_annotation_created(self):
+        """Test Annotation created."""
+        collection = CollectionFactory(slug='foo')
+        endpoint = '/{}'.format(collection.slug)
+        data = dict(body='bar', target='http://example.com')
+        headers = {
+            'Slug': 'baz'
+        }
+        res = self.app_post_json(endpoint, data=data, headers=headers)
+        annotation = annotation_repo.get(1)
+        assert_equal(json.loads(res.data), annotation.dictize())
