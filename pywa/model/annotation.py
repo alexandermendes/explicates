@@ -5,7 +5,6 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
