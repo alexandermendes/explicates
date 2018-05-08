@@ -90,7 +90,7 @@ def collection(collection_slug):
     return collection_dict
 
 
-@blueprint.route('/<collection_slug>/<annotation_slug>',
+@blueprint.route('/<collection_slug>/<annotation_slug>/',
                  methods=['GET', 'PUT', 'DELETE'])
 def annotation(collection_slug, annotation_slug):
     """Return an Annotation."""

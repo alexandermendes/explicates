@@ -165,6 +165,7 @@ class TestApi(Test):
         assert_equal(res.status_code, 404)
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_annotation_created(self):
         """Test Annotation created."""
         collection = CollectionFactory(slug='foo')
@@ -179,5 +180,17 @@ class TestApi(Test):
         annotation_dict = annotation.dictize()
         assert_equal(json.loads(res.data), annotation_dict)
 
+        _id = url_for('api.annotation', collection_slug=collection.slug,
+                      annotation_slug=annotation.slug)
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': _id,
+            'body': data['body'],
+            'target': data['target'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR')
+        })
+
         # Test Location header contains Annotation IRI
-        assert_equal(res.headers.get('Location'), annotation_dict['id'])
+        assert_equal(res.headers.get('Location'), _id)
