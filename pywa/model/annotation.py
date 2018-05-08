@@ -5,6 +5,7 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from pywa.core import db
 from pywa.model import make_timestamp, make_uuid
@@ -23,23 +24,14 @@ class Annotation(db.Model, BaseDomainObject):
     #: The IRI path segement appended to the Annotation IRI.
     slug = Column(Unicode(), unique=True, default=unicode(make_uuid()))
 
-    #: The relationship between the Annotation and its Body.
-    body = Column(JSONB, nullable=False)
-
-    #: The relationship between the Annotation and its Target.
-    target = Column(JSONB, nullable=False)
-
     #: The time at which the Annotation was created.
     created = Column(Text, default=make_timestamp)
-
-    #: The agent responsible for creating the Annotation.
-    creator = Column(JSONB)
 
     #: The time at which the Annotation was modified, after creation.
     modified = Column(Text)
 
-    #: The relationship between the Annotation and the Style.
-    stylesheet = Column(JSONB)
+    #: The modifiable Annotation data
+    _data = Column(JSONB)
 
     #: The related Collection ID.
     collection_key = Column(Integer, ForeignKey('collection.key'),
@@ -62,3 +54,11 @@ class Annotation(db.Model, BaseDomainObject):
             info['generator'] = generator
 
         return info
+
+    @hybrid_property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data

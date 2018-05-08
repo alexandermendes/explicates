@@ -16,13 +16,10 @@ blueprint = Blueprint('api', __name__)
 def handle_post(model_class, repo, **kwargs):
     """Handle POST request."""
     data = request.get_json()
-    data.update({
-        'slug': request.headers.get('Slug')
-    })
-    data.update(kwargs)
+    slug = request.headers.get('Slug')
 
     try:
-        obj = model_class(**data)
+        obj = model_class(data=data, slug=slug, **kwargs)
         repo.save(obj)
     except (ValidationError, IntegrityError, TypeError) as err:
         abort(400, err.message)

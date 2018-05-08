@@ -14,8 +14,8 @@ class BaseDomainObject(object):
 
     def dictize(self):
         """Return the domain object as a dictionary."""
-        filtered = ['key', 'slug', 'collection_key']
-        out = {}
+        filtered = ['key', 'slug', '_data', 'collection_key']
+        out = self._data
         for col in self.__table__.c:
             obj = getattr(self, col.name)
             if not obj or col.name in filtered:

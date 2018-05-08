@@ -18,5 +18,7 @@ class AnnotationFactory(BaseFactory):
     slug = factory.Sequence(lambda n: u'✓annotation%d' % n)
     collection = factory.SubFactory('factories.CollectionFactory')
     collection_key = factory.LazyAttribute(lambda anno: anno.collection.key)
-    body = 'Simple body'
-    target = 'http://example.com'
+    data = {
+        'body': 'Simple body',
+        'target': 'http://example.com'
+    }

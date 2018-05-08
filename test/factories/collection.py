@@ -16,3 +16,6 @@ class CollectionFactory(BaseFactory):
 
     key = factory.Sequence(lambda n: n)
     slug = factory.Sequence(lambda n: u'✓collection%d' % n)
+    data = {
+        'label': 'My collection'
+    }
