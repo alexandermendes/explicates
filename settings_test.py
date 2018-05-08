@@ -1,4 +1,5 @@
 SERVER_NAME = 'localhost'
+PREFERRED_URL_SCHEME = 'http'
 PORT = 3001
 SQLALCHEMY_DATABASE_TEST_URI = 'postgresql://rtester:rtester@localhost/pywa_test'
 GENERATOR = 'http://example.org/client1'
