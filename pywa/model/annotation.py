@@ -43,18 +43,6 @@ class Annotation(db.Model, BaseDomainObject):
     def get_id_suffix(self):
         return u'{0}/{1}'.format(self.collection.slug, self.slug)
 
-    def get_extra_info(self):
-        info = {
-            'type': 'Annotation',
-            'generated': make_timestamp()
-        }
-
-        generator = current_app.config.get('GENERATOR')
-        if generator:
-            info['generator'] = generator
-
-        return info
-
     @hybrid_property
     def data(self):
         return self._data

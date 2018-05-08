@@ -33,11 +33,6 @@ class Collection(db.Model, BaseDomainObject):
     def get_id_suffix(self):
         return self.slug
 
-    def get_extra_info(self):
-        return {
-            'type': 'AnnotationCollection'
-        }
-
     @hybrid_property
     def data(self):
         return self._data
