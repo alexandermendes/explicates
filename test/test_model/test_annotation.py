@@ -18,17 +18,6 @@ class TestModelAnnotation(Test):
         super(TestModelAnnotation, self).setUp()
 
     @with_context
-    def test_defaults(self):
-        """Test Annotation is created with defaults."""
-        annotation = Annotation(body="Simple body",
-                                target="http://example.com")
-        db.session.add(annotation)
-        db.session.commit()
-        tmp = db.session.query(Annotation).get(1)
-        assert_not_equal(tmp.slug, None)
-        assert_not_equal(tmp.created, None)
-
-    @with_context
     def test_get_id_suffix(self):
         """Test Annotation id suffix."""
         collection = CollectionFactory()
