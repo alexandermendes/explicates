@@ -37,7 +37,7 @@ class TestModelEventListeners(Test):
         db.session.merge(updated_annotation)
         db.session.commit()
 
-        schema = self.load_schema('web_annotation.json')
+        schema = self.load_schema('annotation.json')
         assert_equal(mock_validate.call_args_list, [
             call(inserted_dict, schema),
             call(updated_dict, schema)

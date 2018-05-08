@@ -23,4 +23,4 @@ def validate(obj, schema_filename):
 @event.listens_for(Annotation, 'before_update')
 def validate_annotation(mapper, conn, target):
     """Validate an Annotation before INSERT or UPDATE."""
-    validate(target.dictize(), 'web_annotation.json')
+    validate(target.dictize(), 'annotation.json')
