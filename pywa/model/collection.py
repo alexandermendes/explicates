@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from pywa.core import db
@@ -20,3 +21,7 @@ class Collection(db.Model, Base):
 
     def get_id_suffix(self):
         return u'{}/'.format(self.slug)
+
+    @hybrid_property
+    def total(self):
+        return len(self.annotations)

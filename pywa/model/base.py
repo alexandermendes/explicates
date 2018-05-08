@@ -7,6 +7,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import Integer, Text, Unicode
 from sqlalchemy.schema import Column
+from sqlalchemy.inspection import inspect as sa_inspect
 
 from pywa.model import make_timestamp, make_uuid
 
@@ -50,11 +51,19 @@ class BaseDomainObject(object):
         """Return the domain object as a dictionary."""
         filtered = ['key', 'slug', '_data', 'collection_key']
         out = self._data or {}
+
+        # Add column values
         for col in self.__table__.c:
             obj = getattr(self, col.name)
             if not obj or col.name in filtered:
                 continue
             out[col.name] = obj
+
+        # Add hybrid properties
+        for item in sa_inspect(self.__class__).all_orm_descriptors:
+            if type(item) == hybrid_property and item.__name__ != 'data':
+                obj = getattr(self, item.__name__)
+                out[item.__name__] = obj
 
         # Add context
         out['@context'] = "http://www.w3.org/ns/anno.jsonld"
