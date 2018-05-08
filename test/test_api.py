@@ -14,12 +14,14 @@ class TestApi(Test):
         super(TestApi, self).setUp()
 
     @with_context
-    def test_get_collection(self):
-        """Test Collection returned."""
+    def test_get_empty_collection(self):
+        """Test empty Collection returned."""
         collection = CollectionFactory()
+        collection_dict = collection.dictize()
+        collection_dict['items'] = []
         endpoint = u'/{}'.format(collection.slug)
         res = self.app_get_json(endpoint)
-        assert_equal(json.loads(res.data), collection.dictize())
+        assert_equal(json.loads(res.data), collection_dict)
 
     @with_context
     def test_404_when_collection_does_not_exist(self):
