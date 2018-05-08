@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import json
-from flask import Blueprint, abort, request, url_for
+from flask import Blueprint, abort, request, url_for, current_app
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -67,8 +67,17 @@ def collection(collection_slug):
     if annotations:
         collection_dict['first'] = url_for('.collection',
                                            collection_slug=coll.slug,
-                                           page=0, _external=True)
+                                           page=0,
+                                           _external=True)
     # Add last page
+    count = len(annotations)
+    per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+    last_page = 0 if count <= 0 else count // per_page - 1
+    if last_page:
+        collection_dict['last'] = url_for('.collection',
+                                          collection_slug=coll.slug,
+                                          page=last_page,
+                                          _external=True)
 
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)

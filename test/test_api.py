@@ -70,10 +70,37 @@ class TestApi(Test):
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
-            'total': per_page,
+            'total': len(annotations),
             'items': [anno.dictize() for anno in collection.annotations],
             'first': url_for('api.collection', collection_slug=collection.slug,
                              page=0)
+        })
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_collection_with_last_page(self):
+        """Test Collection returned with last page."""
+        collection = CollectionFactory()
+        n_pages = 3
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        last_page = n_pages - 1
+        annotations = AnnotationFactory.create_batch(per_page * n_pages,
+                                                     collection=collection)
+        endpoint = u'/{}'.format(collection.slug)
+        res = self.app_get_json(endpoint)
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collection', collection_slug=collection.slug),
+            'type': collection.data['type'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR'),
+            'total': len(annotations),
+            'items': [anno.dictize() for anno in collection.annotations],
+            'first': url_for('api.collection', collection_slug=collection.slug,
+                             page=0),
+            'last': url_for('api.collection', collection_slug=collection.slug,
+                             page=last_page)
         })
 
     @with_context
