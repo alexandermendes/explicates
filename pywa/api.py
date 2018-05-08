@@ -55,11 +55,20 @@ def collection(collection_slug):
 
     collection_dict = coll.dictize()
     annotations = annotation_repo.filter_by(collection_key=coll.key)
-    collection_dict['items'] = [a.dictize() for a in annotations]
+
+    # Add items
+    items = [a.dictize() for a in annotations]
+    iris = request.args.get('iris', None)
+    if iris:
+        items = [item['id'] for item in items]
+    collection_dict['items'] = items
+
+    # Add first page
     if annotations:
         collection_dict['first'] = url_for('.collection',
                                            collection_slug=coll.slug,
-                                           page=1, _external=True)
+                                           page=0, _external=True)
+    # Add last page
 
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)

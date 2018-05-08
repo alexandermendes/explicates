@@ -53,24 +53,28 @@ class TestApi(Test):
         # Test Location header contains Collection IRI
         assert_equal(res.headers.get('Location'), _id)
 
-    # @with_context
-    # def test_get_populated_collection(self):
-    #     """Test populated Collection returned."""
-    #     collection = CollectionFactory()
-    #     collection_dict = collection.dictize()
-    #     collection_dict['items'] = []
-    #     endpoint = u'/{}'.format(collection.slug)
-    #     res = self.app_get_json(endpoint)
-    #     assert_equal(json.loads(res.data), collection_dict)
-    #     _id = url_for('api.collection', collection_slug=collection.slug)
-    #     assert_equal(json.loads(res.data), {
-    #         '@context': 'http://www.w3.org/ns/anno.jsonld',
-    #         'id': _id,
-    #         'type': data['type'],
-    #         'created': '1984-11-19T00:00:00Z',
-    #         'generated': '1984-11-19T00:00:00Z',
-    #         'generator': current_app.config.get('GENERATOR')
-    #     })
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_collection_with_first_page(self):
+        """Test Collection returned with first page."""
+        collection = CollectionFactory()
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        annotations = AnnotationFactory.create_batch(per_page,
+                                                     collection=collection)
+        endpoint = u'/{}'.format(collection.slug)
+        res = self.app_get_json(endpoint)
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collection', collection_slug=collection.slug),
+            'type': collection.data['type'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR'),
+            'total': per_page,
+            'items': [anno.dictize() for anno in collection.annotations],
+            'first': url_for('api.collection', collection_slug=collection.slug,
+                             page=0)
+        })
 
     @with_context
     def test_get_annotation(self):
