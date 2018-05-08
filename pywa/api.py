@@ -83,6 +83,18 @@ def handle_post(model_class, repo, **kwargs):
     return respond(obj.dictize(), status_code=201)
 
 
+def handle_put(obj, repo):
+    """Handle PUT request."""
+    data = request.get_json()
+    try:
+        obj.data = data
+        repo.update(obj)
+    except (ValidationError, IntegrityError, TypeError) as err:
+        abort(400, err.message)
+
+    return respond(obj.dictize(), status_code=200)
+
+
 def handle_delete(obj, repo):
     """Handle DELETE request."""
     try:
@@ -151,6 +163,9 @@ def collection(collection_slug):
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)
 
+    elif request.method == 'PUT':
+        return handle_put(coll, collection_repo)
+
     elif request.method == 'DELETE':
         count = collection_repo.count()
         if count <= 1:
@@ -184,9 +199,10 @@ def annotation(collection_slug, annotation_slug):
 
     if request.method == 'DELETE':
         return handle_delete(anno, annotation_repo)
+    elif request.method == 'PUT':
+        return handle_put(anno, annotation_repo)
 
-    annotation_dict = anno.dictize()
-    return respond(annotation_dict)
+    return respond(anno.dictize())
 
 
 def page_response(collection, page, query_str):

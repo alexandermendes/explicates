@@ -79,6 +79,24 @@ class Test(object):
                                  headers=headers,
                                  content_type=content_type)
 
+    def app_put_json_ld(self, url, data=None, follow_redirects=False,
+                        headers=None):
+        content_type = 'application/ld+json'
+        if not headers:
+            headers = {}
+        headers['Accept'] = content_type
+        if data:
+            return self.app.put(url,
+                                data=json.dumps(data),
+                                follow_redirects=follow_redirects,
+                                headers=headers,
+                                content_type=content_type)
+        else:
+            return self.app.put(url,
+                                follow_redirects=follow_redirects,
+                                headers=headers,
+                                content_type=content_type)
+
     def app_delete_json_ld(self, url, follow_redirects=False,
                             headers=None):
         content_type = 'application/ld+json'

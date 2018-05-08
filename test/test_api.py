@@ -218,6 +218,19 @@ class TestApi(Test):
         assert_equal(collection.deleted, True)
 
     @with_context
+    def test_collection_updated(self):
+        """Test Collection updated."""
+        collection = CollectionFactory()
+        data = collection.dictize().copy()
+        data['label'] = "My new label"
+        assert_not_equal(collection.dictize(), data)
+        endpoint = u'/{}/'.format(collection.slug)
+        res = self.app_put_json_ld(endpoint, data=data)
+
+        assert_equal(res.status_code, 200)
+        assert_equal(collection.dictize(), data)
+
+    @with_context
     @freeze_time("1984-11-19")
     def test_get_annotation(self):
         """Test Annotation returned."""
@@ -312,14 +325,27 @@ class TestApi(Test):
         """Test Annotation deleted."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
-
         endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 204)
 
+        assert_equal(res.status_code, 204)
         assert_equal(annotation.deleted, True)
 
     @with_context
     def test_deleted_annotations_no_longer_returned_in_collection(self):
         """Test deleted Annotations are not returned in the Collection."""
         pass
+
+    @with_context
+    def test_annotation_updated(self):
+        """Test Annotation updated."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+        data = annotation.dictize().copy()
+        data['body'] = "My new body"
+        assert_not_equal(annotation.dictize(), data)
+        endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
+        res = self.app_put_json_ld(endpoint, data=data)
+
+        assert_equal(res.status_code, 200)
+        assert_equal(annotation.dictize(), data)
