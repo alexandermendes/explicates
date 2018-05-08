@@ -9,6 +9,11 @@ from pywa.model.collection import Collection
 from pywa.model.annotation import Annotation
 from pywa.core import collection_repo, annotation_repo
 
+try:
+    from urllib import urlencode
+except ImportError:  # py3
+    from urllib.parse import urlencode
+
 
 blueprint = Blueprint('api', __name__)
 
@@ -44,7 +49,7 @@ def index():
 @blueprint.route('/<collection_slug>/',
                  methods=['GET', 'POST', 'PUT', 'DELETE'])
 def collection(collection_slug):
-    """Return a Collection."""
+    """Collection endpoint."""
     coll = collection_repo.get_by(slug=collection_slug)
     if not coll:
         abort(404)
@@ -56,12 +61,18 @@ def collection(collection_slug):
     collection_dict = coll.dictize()
     annotations = annotation_repo.filter_by(collection_key=coll.key)
 
+    kwargs = get_valid_request_args()
+    if kwargs:
+        query_str = urlencode(kwargs)
+        collection_dict['id'] += "?{}".format(query_str)
+
     # Add first page
     if annotations:
         collection_dict['first'] = url_for('.collection',
                                            collection_slug=coll.slug,
                                            page=0,
-                                           _external=True)
+                                           _external=True,
+                                           **kwargs)
     # Add last page
     count = len(annotations)
     per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
@@ -70,7 +81,8 @@ def collection(collection_slug):
         collection_dict['last'] = url_for('.collection',
                                           collection_slug=coll.slug,
                                           page=last_page,
-                                          _external=True)
+                                          _external=True,
+                                          **kwargs)
 
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)
@@ -111,3 +123,11 @@ def page_response(collection, page, query_str):
     }
 
     return data
+
+
+def get_valid_request_args():
+    """Return valid request args to be appended to IRIs."""
+    kwargs = {
+        'iris': request.args.get('iris', None)
+    }
+    return dict((k,v) for k,v in kwargs.iteritems() if v is not None)

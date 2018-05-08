@@ -9,6 +9,11 @@ from flask import current_app, url_for
 
 from pywa.core import collection_repo, annotation_repo
 
+try:
+    from urllib import urlencode
+except ImportError:  # py3
+    from urllib.parse import urlencode
+
 
 class TestApi(Test):
 
@@ -99,6 +104,37 @@ class TestApi(Test):
                              page=0),
             'last': url_for('api.collection', collection_slug=collection.slug,
                              page=last_page)
+        })
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_collection_with_query_string(self):
+        """Test Collection returned with query string."""
+        collection = CollectionFactory()
+        n_pages = 3
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        last_page = n_pages - 1
+        annotations = AnnotationFactory.create_batch(per_page * n_pages,
+                                                     collection=collection)
+        endpoint = u'/{}'.format(collection.slug)
+        kwargs = {
+            'iris': 1
+        }
+        query_str = urlencode(kwargs)
+        res = self.app_get_json(endpoint + "?" + query_str)
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collection', collection_slug=collection.slug,
+                          **kwargs),
+            'type': collection.data['type'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR'),
+            'total': len(annotations),
+            'first': url_for('api.collection', collection_slug=collection.slug,
+                             page=0, **kwargs),
+            'last': url_for('api.collection', collection_slug=collection.slug,
+                             page=last_page, **kwargs)
         })
 
     @with_context
