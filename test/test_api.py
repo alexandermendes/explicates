@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import json
-from nose.tools import assert_equal
+from nose.tools import *
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 
@@ -40,6 +40,7 @@ class TestApi(Test):
         }
         res = self.app_post_json(endpoint, data=data, headers=headers)
         collection = collection_repo.get(1)
+        assert_not_equal(collection, None)
         collection_dict = collection.dictize()
         assert_equal(json.loads(res.data), collection_dict)
 
@@ -84,6 +85,7 @@ class TestApi(Test):
         }
         res = self.app_post_json(endpoint, data=data, headers=headers)
         annotation = annotation_repo.get(1)
+        assert_not_equal(annotation, None)
         annotation_dict = annotation.dictize()
         assert_equal(json.loads(res.data), annotation_dict)
 

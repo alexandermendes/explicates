@@ -19,6 +19,7 @@ class AnnotationFactory(BaseFactory):
     collection = factory.SubFactory('factories.CollectionFactory')
     collection_key = factory.LazyAttribute(lambda anno: anno.collection.key)
     data = {
+        'type': 'Annotation',
         'body': 'Simple body',
         'target': 'http://example.com'
     }

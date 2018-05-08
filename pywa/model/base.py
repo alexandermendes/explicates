@@ -1,7 +1,14 @@
 # -*- coding: utf8 -*-
 
 import os
-from flask import url_for
+from flask import url_for, current_app
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Integer, Text, Unicode
+from sqlalchemy.schema import Column
+
+from pywa.model import make_timestamp, make_uuid
 
 try:
     from urllib import quote
@@ -12,10 +19,37 @@ except ImportError:  # py3
 class BaseDomainObject(object):
     """Base domain object class."""
 
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
+    #: The object's primary key.
+    key = Column(Integer, primary_key=True)
+
+    #: The IRI path segement appended to the object's IRI.
+    slug = Column(Unicode, unique=True, default=unicode(make_uuid()))
+
+    #: The time at which the object was created.
+    created = Column(Text, default=make_timestamp)
+
+    #: The time at which the object was modified, after creation.
+    modified = Column(Text)
+
+    #: The modifiable JSON data.
+    _data = Column(JSONB)
+
+    @hybrid_property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
+
     def dictize(self):
         """Return the domain object as a dictionary."""
         filtered = ['key', 'slug', '_data', 'collection_key']
-        out = self._data
+        out = self._data or {}
         for col in self.__table__.c:
             obj = getattr(self, col.name)
             if not obj or col.name in filtered:
@@ -30,8 +64,12 @@ class BaseDomainObject(object):
         safe_suffix = quote(self.get_id_suffix().encode('utf8'))
         out['id'] = root_url + safe_suffix
 
-        # Add extra info
-        extra = self.get_extra_info()
-        out.update(extra)
+        # Add generated
+        out['generated'] = make_timestamp()
+
+        # Add generator
+        generator = current_app.config.get('GENERATOR')
+        if generator:
+            out['generator'] = generator
 
         return out
