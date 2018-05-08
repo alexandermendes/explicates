@@ -34,7 +34,7 @@ class BaseDomainObject(object):
     created = Column(Text, default=make_timestamp)
 
     #: The time at which the object was modified, after creation.
-    modified = Column(Text)
+    modified = Column(Text, onupdate=make_timestamp)
 
     #: The time at which the object was deleted.
     deleted = Column(Boolean, default=False)

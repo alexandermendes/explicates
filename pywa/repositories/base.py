@@ -3,8 +3,6 @@
 from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
 
-from pywa.model.utils import make_timestamp
-
 
 class BaseRepository(object):
     """Base repository class."""
@@ -46,6 +44,7 @@ class BaseRepository(object):
     def update(self, obj):
         """Update an object."""
         self._validate_can_be('updated', obj)
+        obj.modified
         try:
             self.db.session.merge(obj)
             self.db.session.commit()

@@ -218,15 +218,20 @@ class TestApi(Test):
         assert_equal(collection.deleted, True)
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_collection_updated(self):
         """Test Collection updated."""
         collection = CollectionFactory()
         data = collection.dictize().copy()
         data['label'] = "My new label"
+
         assert_not_equal(collection.dictize(), data)
+        assert_equal(collection.modified, None)
+
         endpoint = u'/{}/'.format(collection.slug)
         res = self.app_put_json_ld(endpoint, data=data)
 
+        data['modified'] = '1984-11-19T00:00:00Z'
         assert_equal(res.status_code, 200)
         assert_equal(collection.dictize(), data)
 
@@ -337,15 +342,20 @@ class TestApi(Test):
         pass
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_annotation_updated(self):
         """Test Annotation updated."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
         data = annotation.dictize().copy()
         data['body'] = "My new body"
+
         assert_not_equal(annotation.dictize(), data)
+        assert_equal(annotation.modified, None)
+
         endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
         res = self.app_put_json_ld(endpoint, data=data)
 
+        data['modified'] = '1984-11-19T00:00:00Z'
         assert_equal(res.status_code, 200)
         assert_equal(annotation.dictize(), data)
