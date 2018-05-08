@@ -80,7 +80,7 @@ def handle_post(model_class, repo, **kwargs):
     except (ValidationError, IntegrityError, TypeError) as err:
         abort(400, err.message)
 
-    return respond(obj.dictize())
+    return respond(obj.dictize(), status_code=201)
 
 
 def handle_delete(obj, repo):

@@ -70,6 +70,9 @@ class TestApi(Test):
             'total': 0
         })
 
+        # Test 201
+        assert_equal(res.status_code, 201)
+
         # Test Location header contains Collection IRI
         assert_equal(res.headers.get('Location'), _id)
 
@@ -297,6 +300,9 @@ class TestApi(Test):
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR')
         })
+
+        # Test 201
+        assert_equal(res.status_code, 201)
 
         # Test Location header contains Annotation IRI
         assert_equal(res.headers.get('Location'), _id)
