@@ -12,6 +12,7 @@ requirements = [
     "rednose",
     "coverage",
     "nose-cov",
+    "freezegun",
     "pycodestyle"
 ]
 

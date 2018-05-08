@@ -2,8 +2,10 @@
 
 import json
 from nose.tools import *
+from freezegun import freeze_time
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
+from flask import current_app, url_for
 
 from pywa.core import collection_repo, annotation_repo
 
@@ -31,10 +33,11 @@ class TestApi(Test):
         assert_equal(res.status_code, 404)
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_collection_created(self):
         """Test Collection created."""
         endpoint = '/'
-        data = dict(label='foo')
+        data = dict(type='AnnotationCollection', label='foo')
         headers = {
             'Slug': 'bar'
         }
@@ -44,8 +47,20 @@ class TestApi(Test):
         collection_dict = collection.dictize()
         assert_equal(json.loads(res.data), collection_dict)
 
+        # Test response contains the new collection
+        _id = url_for('api.collection', collection_slug=collection.slug)
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': _id,
+            'type': data['type'],
+            'label': data['label'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR')
+        })
+
         # Test Location header contains Collection IRI
-        assert_equal(res.headers.get('Location'), collection_dict['id'])
+        assert_equal(res.headers.get('Location'), _id)
 
     @with_context
     def test_get_annotation(self):
