@@ -33,7 +33,7 @@ class TestModelEventListeners(Test):
         db.session.commit()
 
         updated_annotation = db.session.query(Annotation).get(1)
-        updated_annotation.body = 'foo'
+        updated_annotation._data = {}
         updated_dict = updated_annotation.dictize()
         db.session.merge(updated_annotation)
         db.session.commit()
@@ -52,7 +52,7 @@ class TestModelEventListeners(Test):
         db.session.commit()
 
         updated_collection = db.session.query(Collection).get(1)
-        updated_collection.body = 'foo'
+        updated_collection._data = {}
         updated_dict = updated_collection.dictize()
         db.session.merge(updated_collection)
         db.session.commit()
