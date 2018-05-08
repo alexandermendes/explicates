@@ -1,11 +1,12 @@
 # -*- coding: utf8 -*-
 
-from flask_sqlalchemy import SQLAlchemy
-
-
-__all__ = ['db']
+__all__ = ['db', 'flask_profiler']
 
 
 # DB
+from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 db.slave_session = db.session
+
+# Flask Profiler
+import flask_profiler

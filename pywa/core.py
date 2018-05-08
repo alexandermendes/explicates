@@ -17,6 +17,7 @@ def create_app():
     setup_repositories(app)
     setup_blueprints(app)
     setup_error_handler(app)
+    setup_profiler(app)
     app.response_class = ContextualResponse
     import pywa.model.event_listeners
     return app
@@ -41,7 +42,7 @@ def configure_app(app):
 
     # Enable missing Slave bind using Master node
     if app.config.get('SQLALCHEMY_BINDS') is None:
-        print " * Database slave binds are misssing, adding Master as slave."
+        print " * Database slave binds are misssing, adding Master as slave"
         app.config['SQLALCHEMY_BINDS'] = \
             dict(slave=app.config.get('SQLALCHEMY_DATABASE_URI'))
 
@@ -101,3 +102,9 @@ def setup_error_handler(app):
         if isinstance(e, HTTPException):
             code = e.code
         return dict(code=code, message=str(e)), code
+
+
+def setup_profiler(app):
+    if app.config.get('FLASK_PROFILER'):
+        print " * Flask Profiler is enabled"
+        flask_profiler.init_app(app)

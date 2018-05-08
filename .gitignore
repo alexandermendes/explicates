@@ -41,3 +41,6 @@ alembic.ini
 # Coverage
 htmlcov/*
 .coverage
+
+# Flask profiler
+flask_profiler.sql

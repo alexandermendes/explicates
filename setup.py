@@ -9,6 +9,7 @@ requirements = [
     "jsonschema>=2.6.0, <3.0.0",
     "rdflib>=4.2.2, <5.0.0",
     "rdflib-jsonld>=0.4.0, 0.5.0",
+    "flask_profiler >= 1.6, <1.6.1",
     "nose",
     "mock",
     "rednose",
