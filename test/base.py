@@ -78,3 +78,14 @@ class Test(object):
                                  follow_redirects=follow_redirects,
                                  headers=headers,
                                  content_type=content_type)
+
+    def app_delete_json_ld(self, url, follow_redirects=False,
+                            headers=None):
+        content_type = 'application/ld+json'
+        if not headers:
+            headers = {}
+        headers['Accept'] = content_type
+        return self.app.delete(url,
+                                follow_redirects=follow_redirects,
+                                headers=headers,
+                                content_type=content_type)

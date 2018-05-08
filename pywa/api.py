@@ -138,6 +138,15 @@ def collection(collection_slug):
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)
 
+    if request.method == 'DELETE':
+        count = collection_repo.count()
+        if count <= 1:
+            # The server must retain at least one container
+            # https://www.w3.org/TR/annotation-protocol/#annotation-containers
+            msg = 'This is the last collection on the server and cannot ', \
+                  'be deleted'
+            abort(400, msg)
+
     return respond(collection_dict)
 
 

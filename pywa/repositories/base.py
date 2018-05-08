@@ -22,6 +22,10 @@ class BaseRepository(object):
         """Get all objects."""
         return self.db.session.query(self.model_class).all()
 
+    def count(self):
+        """Count all objects."""
+        return self.db.session.query(self.model_class).count()
+
     def filter_by(self, **filters):
         """Get all filtered objects."""
         return self.db.session.query(self.model_class).filter_by(**filters).all()
