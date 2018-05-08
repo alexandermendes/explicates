@@ -71,7 +71,6 @@ class TestApi(Test):
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
-            'items': [anno.dictize() for anno in collection.annotations],
             'first': url_for('api.collection', collection_slug=collection.slug,
                              page=0)
         })
@@ -96,7 +95,6 @@ class TestApi(Test):
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
-            'items': [anno.dictize() for anno in collection.annotations],
             'first': url_for('api.collection', collection_slug=collection.slug,
                              page=0),
             'last': url_for('api.collection', collection_slug=collection.slug,
