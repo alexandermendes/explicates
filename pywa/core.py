@@ -6,7 +6,7 @@ from werkzeug.exceptions import HTTPException
 
 from pywa import default_settings
 from pywa.extensions import *
-from pywa.response import ContextualResponse, process_response
+from pywa.response import ContextualResponse
 
 
 def create_app():
@@ -17,7 +17,6 @@ def create_app():
     setup_repositories(app)
     setup_blueprints(app)
     setup_error_handler(app)
-    app.process_response = process_response
     app.response_class = ContextualResponse
     import pywa.model.event_listeners
     return app

@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
+from rdflib import *
 
 from pywa.core import collection_repo, annotation_repo
 
@@ -20,11 +21,17 @@ class TestApi(Test):
     def setUp(self):
         super(TestApi, self).setUp()
 
+    def convert_json(self, json, out_format):
+        """Convert JSON to an alternative representation."""
+        g = ConjunctiveGraph()
+        g.parse(data=json, format="json-ld")
+        return g.serialize(format=out_format)
+
     @with_context
     def test_404_when_collection_does_not_exist(self):
         """Test 404 when Collection does not exist."""
         endpoint = u'/foo'
-        res = self.app_get_json(endpoint)
+        res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
     @with_context
@@ -36,7 +43,7 @@ class TestApi(Test):
         headers = {
             'Slug': 'bar'
         }
-        res = self.app_post_json(endpoint, data=data, headers=headers)
+        res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         collection = collection_repo.get(1)
         assert_not_equal(collection, None)
         collection_dict = collection.dictize()
@@ -66,9 +73,8 @@ class TestApi(Test):
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
         annotations = AnnotationFactory.create_batch(per_page,
                                                      collection=collection)
-        endpoint = u'/{}'.format(collection.slug)
-        res = self.app_get_json(endpoint)
-        assert_equal(json.loads(res.data), {
+
+        expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('api.collection', collection_slug=collection.slug),
             'type': collection.data['type'],
@@ -78,7 +84,17 @@ class TestApi(Test):
             'total': len(annotations),
             'first': url_for('api.collection', collection_slug=collection.slug,
                              page=0)
-        })
+        }
+
+        # Test JSON response
+        endpoint = u'/{}'.format(collection.slug)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(json.loads(res.data), expected)
+
+        # Test Turtle response
+        res = self.app_get_turtle(endpoint)
+        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
+        assert_equal(res.data, expected_turtle)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -90,9 +106,8 @@ class TestApi(Test):
         last_page = n_pages - 1
         annotations = AnnotationFactory.create_batch(per_page * n_pages,
                                                      collection=collection)
-        endpoint = u'/{}'.format(collection.slug)
-        res = self.app_get_json(endpoint)
-        assert_equal(json.loads(res.data), {
+
+        expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('api.collection', collection_slug=collection.slug),
             'type': collection.data['type'],
@@ -104,7 +119,17 @@ class TestApi(Test):
                              page=0),
             'last': url_for('api.collection', collection_slug=collection.slug,
                              page=last_page)
-        })
+        }
+
+        # Test JSON response
+        endpoint = u'/{}'.format(collection.slug)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(json.loads(res.data), expected)
+
+        # Test Turtle response
+        res = self.app_get_turtle(endpoint)
+        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
+        assert_equal(res.data, expected_turtle)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -121,8 +146,8 @@ class TestApi(Test):
             'iris': 1
         }
         query_str = urlencode(kwargs)
-        res = self.app_get_json(endpoint + "?" + query_str)
-        assert_equal(json.loads(res.data), {
+
+        expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('api.collection', collection_slug=collection.slug,
                           **kwargs),
@@ -135,7 +160,17 @@ class TestApi(Test):
                              page=0, **kwargs),
             'last': url_for('api.collection', collection_slug=collection.slug,
                              page=last_page, **kwargs)
-        })
+        }
+
+        # Test JSON response
+        endpoint = u'/{}'.format(collection.slug)
+        res = self.app_get_json_ld(endpoint + "?" + query_str)
+        assert_equal(json.loads(res.data), expected)
+
+        # Test Turtle response
+        res = self.app_get_turtle(endpoint + "?" + query_str)
+        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
+        assert_equal(res.data, expected_turtle)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -143,10 +178,8 @@ class TestApi(Test):
         """Test Annotation returned."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
-        endpoint = u'/{}/{}'.format(collection.slug, annotation.slug)
-        res = self.app_get_json(endpoint)
-        assert_equal(json.loads(res.data), annotation.dictize())
-        assert_equal(json.loads(res.data), {
+
+        expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': annotation.data['id'],
             'type': 'Annotation',
@@ -155,14 +188,24 @@ class TestApi(Test):
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR')
-        })
+        }
+
+        # Test JSON response
+        endpoint = u'/{}/{}'.format(collection.slug, annotation.slug)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(json.loads(res.data), expected)
+
+        # Test Turtle response
+        res = self.app_get_turtle(endpoint)
+        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
+        assert_equal(res.data, expected_turtle)
 
     @with_context
     def test_404_when_annotation_not_found(self):
         """Test 404 when Annotation does not exist."""
         collection = CollectionFactory()
         endpoint = u'/{}/{}'.format(collection.slug, 'foo')
-        res = self.app_get_json(endpoint)
+        res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
     @with_context
@@ -172,7 +215,7 @@ class TestApi(Test):
         collection2 = CollectionFactory()
         annotation = AnnotationFactory(collection=collection1)
         endpoint = u'/{}/{}'.format(collection2.slug, annotation.slug)
-        res = self.app_get_json(endpoint)
+        res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
     @with_context
@@ -181,11 +224,11 @@ class TestApi(Test):
         """Test Annotation created."""
         collection = CollectionFactory(slug='foo')
         endpoint = '/{}'.format(collection.slug)
-        data = dict(type='Annotation', body='bar', target='http://example.com')
+        data = dict(type='Annotation', body='bar', target='http://example.org')
         headers = {
             'Slug': 'baz'
         }
-        res = self.app_post_json(endpoint, data=data, headers=headers)
+        res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         annotation = annotation_repo.get(1)
         assert_not_equal(annotation, None)
         annotation_dict = annotation.dictize()

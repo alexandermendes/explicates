@@ -1,7 +1,9 @@
 # -*- coding: utf8 -*-
 
 import json
+from rdflib import *
 from flask import Blueprint, abort, request, url_for, current_app
+from flask import make_response
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -18,6 +20,54 @@ except ImportError:  # py3
 blueprint = Blueprint('api', __name__)
 
 
+def respond(data):
+    """Return a response.
+
+    See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
+    """
+    accepted_types = [
+        'application/ld+json',
+        'text/turtle'
+    ]
+    best = request.accept_mimetypes.best_match(accepted_types,
+                                               default='application/ld+json')
+
+    # Content negotiation
+    if best == 'text/turtle':
+        try:
+            data = convert_json_ld(json.dumps(data), 'turtle')
+        except Exception as err:
+            abort(406, err)
+        response = make_response(data)
+        response.mimetype = 'text/turtle'
+    else:
+        response = make_response(data)
+        profile = '"http://www.w3.org/ns/anno.jsonld"'
+        response.mimetype = 'application/ld+json; profile={0}'.format(profile)
+
+    # Add Link headers
+    link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
+    response.headers['Link'] = link
+
+    # Add Vary header for HEAD and GET requests
+    if request.method in ['HEAD', 'GET']:
+        response.headers['Vary'] = 'Accept'
+        response.add_etag()
+
+    # Add Location of newly created objects
+    elif request.method == 'POST' and data and 'id' in data:
+        response.headers['Location'] = data['id']
+
+    return response
+
+
+def convert_json_ld(json, out_format):
+    """Convert JSON-LD to an alternative representation."""
+    g = ConjunctiveGraph()
+    g.parse(data=json, format="json-ld")
+    return g.serialize(format=out_format)
+
+
 def handle_post(model_class, repo, **kwargs):
     """Handle POST request."""
     data = request.get_json()
@@ -29,7 +79,7 @@ def handle_post(model_class, repo, **kwargs):
     except (ValidationError, IntegrityError, TypeError) as err:
         abort(400, err.message)
 
-    return obj
+    return respond(obj.dictize())
 
 
 @blueprint.route('/', methods=['GET', 'POST'])
@@ -37,11 +87,12 @@ def index():
     """Render index page."""
     if request.method == 'GET':
         collections = collection_repo.get_all()
-        return {
+        data = {
             "context": "https://www.w3.org/ns/ldp.jsonld",
             "type": "BasicContainer",
             "contains": [c.dictize() for c in collections]
         }
+        return respond(data)
 
     return handle_post(Collection, collection_repo)
 
@@ -87,7 +138,7 @@ def collection(collection_slug):
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)
 
-    return collection_dict
+    return respond(collection_dict)
 
 
 @blueprint.route('/<collection_slug>/<annotation_slug>/',
@@ -102,7 +153,8 @@ def annotation(collection_slug, annotation_slug):
     if not anno:
         abort(404)
 
-    return anno
+    annotation_dict = anno.dictize()
+    return respond(annotation_dict)
 
 
 def page_response(collection, page, query_str):
@@ -122,7 +174,7 @@ def page_response(collection, page, query_str):
         'partOf': collection_dict
     }
 
-    return data
+    return respond(data)
 
 
 def get_valid_request_args():
