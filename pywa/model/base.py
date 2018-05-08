@@ -1,13 +1,7 @@
 # -*- coding: utf8 -*-
 
 import os
-import json
-import datetime
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError
-from flask import current_app, url_for
-
-from pywa.model import make_timestamp
+from flask import url_for
 
 try:
     from urllib import quote
