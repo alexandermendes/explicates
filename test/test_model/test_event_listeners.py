@@ -9,6 +9,7 @@ from factories import CollectionFactory, AnnotationFactory
 
 from pywa.model import event_listeners
 from pywa.model.annotation import Annotation
+from pywa.model.collection import Collection
 
 class TestModelEventListeners(Test):
 
@@ -38,7 +39,24 @@ class TestModelEventListeners(Test):
         db.session.commit()
 
         schema = self.load_schema('annotation.json')
-        assert_equal(mock_validate.call_args_list, [
-            call(inserted_dict, schema),
-            call(updated_dict, schema)
-        ])
+        assert_in(call(inserted_dict, schema), mock_validate.call_args_list)
+        assert_in(call(updated_dict, schema), mock_validate.call_args_list)
+
+    @with_context
+    @patch('pywa.model.event_listeners.validate_json')
+    def test_collection_validated_before_insert_or_update(self, mock_validate):
+        """Test that an Collection is validated before INSERT or UPDATE."""
+        collection = CollectionFactory(created='2018-05-08T11:03:38Z')
+        inserted_dict = collection.dictize()
+        db.session.add(collection)
+        db.session.commit()
+
+        updated_collection = db.session.query(Collection).get(1)
+        updated_collection.body = 'foo'
+        updated_dict = updated_collection.dictize()
+        db.session.merge(updated_collection)
+        db.session.commit()
+
+        schema = self.load_schema('collection.json')
+        assert_in(call(inserted_dict, schema), mock_validate.call_args_list)
+        assert_in(call(updated_dict, schema), mock_validate.call_args_list)

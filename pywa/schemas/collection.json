@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "type": {
+      "oneOf" : [
+        {
+          "type": "string",
+          "pattern": "^AnnotationCollection$"
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string"
+          },
+          "contains": {
+            "type": "string",
+            "pattern": "^AnnotationCollection$"
+          }
+        }
+      ]
+    },
+    "label": {
+      "oneOf" : [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "type"
+  ]
+}
