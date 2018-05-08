@@ -52,8 +52,13 @@ class Annotation(db.Model, BaseDomainObject):
         return u'{0}/{1}'.format(self.collection.slug, self.slug)
 
     def get_extra_info(self):
-        return {
+        info = {
             'type': 'Annotation',
-            'generated': make_timestamp(),
-            'generator': current_app.config.get('GENERATOR')
+            'generated': make_timestamp()
         }
+
+        generator = current_app.config.get('GENERATOR')
+        if generator:
+            info['generator'] = generator
+
+        return info
