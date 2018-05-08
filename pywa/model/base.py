@@ -5,11 +5,11 @@ from flask import url_for, current_app
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy import Integer, Text, Unicode
+from sqlalchemy import Integer, Text, Unicode, Boolean
 from sqlalchemy.schema import Column
 from sqlalchemy.inspection import inspect as sa_inspect
 
-from pywa.model import make_timestamp, make_uuid
+from pywa.model.utils import make_timestamp, make_uuid
 
 try:
     from urllib import quote
@@ -36,6 +36,9 @@ class BaseDomainObject(object):
     #: The time at which the object was modified, after creation.
     modified = Column(Text)
 
+    #: The time at which the object was deleted.
+    deleted = Column(Boolean, default=False)
+
     #: The modifiable JSON data.
     _data = Column(JSONB)
 
@@ -49,7 +52,7 @@ class BaseDomainObject(object):
 
     def dictize(self):
         """Return the domain object as a dictionary."""
-        filtered = ['key', 'slug', '_data', 'collection_key']
+        filtered = ['key', 'slug', '_data', 'deleted', 'collection_key']
         out = self._data or {}
 
         # Add column values

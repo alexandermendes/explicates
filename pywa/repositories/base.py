@@ -3,6 +3,9 @@
 from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
 
+from pywa.model.utils import make_timestamp
+
+
 class BaseRepository(object):
     """Base repository class."""
 
@@ -10,9 +13,9 @@ class BaseRepository(object):
         self.db = db
         self.model_class = model_class
 
-    def get(self, id):
-        """Get an object by ID."""
-        return self.db.session.query(self.model_class).get(id)
+    def get(self, key):
+        """Get an object by key."""
+        return self.db.session.query(self.model_class).get(key)
 
     def get_by(self, **attributes):
         """Get an object by given attributes."""
@@ -50,12 +53,17 @@ class BaseRepository(object):
             self.db.session.rollback()
             raise err
 
-    def delete(self, obj):
-        """Delete an object."""
+    def delete(self, key):
+        """Mark an object as deleted."""
+        obj = self.db.session.query(self.model_class).get(key)
         self._validate_can_be('deleted', obj)
-        result = self.db.session.query(self.__class__).filter(self.model_class.id == obj.id).first()
-        self.db.session.delete(result)
-        self.db.session.commit()
+        obj.deleted = True
+        try:
+            self.db.session.merge(obj)
+            self.db.session.commit()
+        except (IntegrityError, ValidationError) as err:
+            self.db.session.rollback()
+            raise err
 
     def _validate_can_be(self, action, obj):
         """Verify that the query is for an object of the right type."""

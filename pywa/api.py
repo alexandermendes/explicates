@@ -20,7 +20,7 @@ except ImportError:  # py3
 blueprint = Blueprint('api', __name__)
 
 
-def respond(data):
+def respond(data, status_code=200):
     """Return a response.
 
     See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
@@ -58,6 +58,7 @@ def respond(data):
     elif request.method == 'POST' and data and 'id' in data:
         response.headers['Location'] = data['id']
 
+    response.status_code = status_code
     return response
 
 
@@ -82,6 +83,16 @@ def handle_post(model_class, repo, **kwargs):
     return respond(obj.dictize())
 
 
+def handle_delete(obj, repo):
+    """Handle DELETE request."""
+    try:
+        repo.delete(obj.key)
+    except (ValidationError, IntegrityError, TypeError) as err:
+        abort(400, err.message)
+
+    return respond({}, status_code=204)
+
+
 @blueprint.route('/', methods=['GET', 'POST'])
 def index():
     """Render index page."""
@@ -104,6 +115,8 @@ def collection(collection_slug):
     coll = collection_repo.get_by(slug=collection_slug)
     if not coll:
         abort(404)
+    elif coll.deleted:
+        abort(410)
 
     page = request.args.get('page', None)
     if page:
@@ -138,14 +151,19 @@ def collection(collection_slug):
     if request.method == 'POST':
         return handle_post(Annotation, annotation_repo, collection=coll)
 
-    if request.method == 'DELETE':
+    elif request.method == 'DELETE':
         count = collection_repo.count()
         if count <= 1:
             # The server must retain at least one container
             # https://www.w3.org/TR/annotation-protocol/#annotation-containers
-            msg = 'This is the last collection on the server and cannot ', \
+            msg = 'This is the last collection on the server so cannot ', \
                   'be deleted'
             abort(400, msg)
+        elif annotations:
+            msg = 'The collection is not empty so cannot be deleted'
+            abort(400, msg)
+        else:
+            return handle_delete(coll, collection_repo)
 
     return respond(collection_dict)
 
@@ -161,6 +179,11 @@ def annotation(collection_slug, annotation_slug):
     anno = annotation_repo.get_by(slug=annotation_slug, collection=coll)
     if not anno:
         abort(404)
+    elif anno.deleted:
+        abort(410)
+
+    if request.method == 'DELETE':
+        return handle_delete(anno, annotation_repo)
 
     annotation_dict = anno.dictize()
     return respond(annotation_dict)

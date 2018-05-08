@@ -30,9 +30,17 @@ class TestApi(Test):
     @with_context
     def test_404_when_collection_does_not_exist(self):
         """Test 404 when Collection does not exist."""
-        endpoint = u'/foo'
+        endpoint = u'/foo/'
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
+
+    @with_context
+    def test_410_when_collection_used_to_exist(self):
+        """Test 410 when Collection used to exist."""
+        collection = CollectionFactory(deleted=True)
+        endpoint = u'/{}/'.format(collection.slug)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(res.status_code, 410)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -87,7 +95,7 @@ class TestApi(Test):
         }
 
         # Test JSON response
-        endpoint = u'/{}'.format(collection.slug)
+        endpoint = u'/{}/'.format(collection.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
 
@@ -122,7 +130,7 @@ class TestApi(Test):
         }
 
         # Test JSON response
-        endpoint = u'/{}'.format(collection.slug)
+        endpoint = u'/{}/'.format(collection.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
 
@@ -163,7 +171,7 @@ class TestApi(Test):
         }
 
         # Test JSON response
-        endpoint = u'/{}'.format(collection.slug)
+        endpoint = u'/{}/'.format(collection.slug)
         res = self.app_get_json_ld(endpoint + "?" + query_str)
         assert_equal(json.loads(res.data), expected)
 
@@ -176,13 +184,35 @@ class TestApi(Test):
     def test_last_collection_cannot_be_deleted(self):
         """Test the last Collection cannot be deleted."""
         collection = CollectionFactory()
-        endpoint = u'/{}'.format(collection.slug)
-
+        endpoint = u'/{}/'.format(collection.slug)
         res = self.app_delete_json_ld(endpoint)
         assert_equal(res.status_code, 400)
 
-        collection_after = collection_repo.get(1)
-        assert_equal(collection, collection_after)
+        assert_equal(collection.deleted, False)
+
+    @with_context
+    def test_non_empty_collection_cannot_be_deleted(self):
+        """Test non-empty Collection cannot be deleted."""
+        collection = CollectionFactory()
+
+        annotation = AnnotationFactory(collection=collection)
+        endpoint = u'/{}/'.format(collection.slug)
+        res = self.app_delete_json_ld(endpoint)
+        assert_equal(res.status_code, 400)
+
+        assert_equal(collection.deleted, False)
+
+    @with_context
+    def test_collection_deleted(self):
+        """Test Collection deleted."""
+        collections = CollectionFactory.create_batch(2)
+        collection = collections[0]
+
+        endpoint = u'/{}/'.format(collection.slug)
+        res = self.app_delete_json_ld(endpoint)
+        assert_equal(res.status_code, 204)
+
+        assert_equal(collection.deleted, True)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -203,7 +233,7 @@ class TestApi(Test):
         }
 
         # Test JSON response
-        endpoint = u'/{}/{}'.format(collection.slug, annotation.slug)
+        endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
 
@@ -215,8 +245,8 @@ class TestApi(Test):
     @with_context
     def test_404_when_annotation_not_found(self):
         """Test 404 when Annotation does not exist."""
-        collection = CollectionFactory()
-        endpoint = u'/{}/{}'.format(collection.slug, 'foo')
+        annotation = AnnotationFactory()
+        endpoint = u'/{}/{}/'.format(annotation.slug, 'foo')
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
@@ -226,16 +256,25 @@ class TestApi(Test):
         collection1 = CollectionFactory()
         collection2 = CollectionFactory()
         annotation = AnnotationFactory(collection=collection1)
-        endpoint = u'/{}/{}'.format(collection2.slug, annotation.slug)
+        endpoint = u'/{}/{}/'.format(collection2.slug, annotation.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
+
+    @with_context
+    def test_410_when_annotation_used_to_exist(self):
+        """Test 410 when Annotation used to exist."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection, deleted=True)
+        endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(res.status_code, 410)
 
     @with_context
     @freeze_time("1984-11-19")
     def test_annotation_created(self):
         """Test Annotation created."""
         collection = CollectionFactory(slug='foo')
-        endpoint = '/{}'.format(collection.slug)
+        endpoint = '/{}/'.format(collection.slug)
         data = dict(type='Annotation', body='bar', target='http://example.org')
         headers = {
             'Slug': 'baz'
@@ -261,3 +300,20 @@ class TestApi(Test):
 
         # Test Location header contains Annotation IRI
         assert_equal(res.headers.get('Location'), _id)
+
+    @with_context
+    def test_annotation_deleted(self):
+        """Test Annotation deleted."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+
+        endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
+        res = self.app_delete_json_ld(endpoint)
+        assert_equal(res.status_code, 204)
+
+        assert_equal(annotation.deleted, True)
+
+    @with_context
+    def test_deleted_annotations_no_longer_returned_in_collection(self):
+        """Test deleted Annotations are not returned in the Collection."""
+        pass
