@@ -138,6 +138,7 @@ class TestApi(Test):
         })
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_get_annotation(self):
         """Test Annotation returned."""
         collection = CollectionFactory()
@@ -145,6 +146,16 @@ class TestApi(Test):
         endpoint = u'/{}/{}'.format(collection.slug, annotation.slug)
         res = self.app_get_json(endpoint)
         assert_equal(json.loads(res.data), annotation.dictize())
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': annotation.data['id'],
+            'type': 'Annotation',
+            'body': annotation.data['body'],
+            'target': annotation.data['target'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR')
+        })
 
     @with_context
     def test_404_when_annotation_not_found(self):
@@ -170,7 +181,7 @@ class TestApi(Test):
         """Test Annotation created."""
         collection = CollectionFactory(slug='foo')
         endpoint = '/{}'.format(collection.slug)
-        data = dict(body='bar', target='http://example.com')
+        data = dict(type='Annotation', body='bar', target='http://example.com')
         headers = {
             'Slug': 'baz'
         }
@@ -185,6 +196,7 @@ class TestApi(Test):
         assert_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
+            'type': 'Annotation',
             'body': data['body'],
             'target': data['target'],
             'created': '1984-11-19T00:00:00Z',
