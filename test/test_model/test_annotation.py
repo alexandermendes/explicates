@@ -33,18 +33,6 @@ class TestModelAnnotation(Test):
         assert_not_equal(tmp.created, None)
 
     @with_context
-    def test_body_is_not_nullable(self):
-        """Test Annotation.body is not nullable."""
-        with assert_raises(ValidationError):
-            self.annotation.body = None
-
-    @with_context
-    def test_target_is_not_nullable(self):
-        """Test Annotation.target is not nullable."""
-        with assert_raises(ValidationError):
-            self.annotation.target = None
-
-    @with_context
     def test_get_id_suffix(self):
         """Test Annotation id suffix."""
         expected = u'{}/{}'.format(self.collection.slug, self.annotation.slug)
