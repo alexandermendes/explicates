@@ -22,6 +22,6 @@ class TestModelAnnotation(Test):
         """Test Annotation id suffix."""
         collection = CollectionFactory()
         annotation = Annotation(collection=collection)
-        expected = u'{}/{}'.format(collection.slug, annotation.slug)
+        expected = u'{}/{}/'.format(collection.slug, annotation.slug)
         id_suffix = annotation.get_id_suffix()
         assert_equal(id_suffix, expected)

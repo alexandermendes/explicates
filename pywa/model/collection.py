@@ -15,4 +15,4 @@ class Collection(db.Model, Base):
     __tablename__ = 'collection'
 
     def get_id_suffix(self):
-        return self.slug
+        return u'{}/'.format(self.slug)
