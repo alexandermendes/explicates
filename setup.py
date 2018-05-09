@@ -20,7 +20,7 @@ requirements = [
 ]
 
 setup(
-    name='pywa',
+    name='libanno',
     version='0.1.0',
     packages=find_packages(),
     install_requires=requirements,
@@ -28,5 +28,5 @@ setup(
     author_email='alexanderhmendes@gmail.com',
     description='A PostgreSQL-backed Web Annotation server',
     license='MIT',
-    download_url='https://github.com/alexandermendes/pywa'
+    download_url='https://github.com/alexandermendes/libanno'
 )

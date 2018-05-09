@@ -7,9 +7,9 @@ from nose.tools import *
 from base import Test, db, with_context
 from factories import CollectionFactory, AnnotationFactory
 
-from pywa.model import event_listeners
-from pywa.model.annotation import Annotation
-from pywa.model.collection import Collection
+from libanno.model import event_listeners
+from libanno.model.annotation import Annotation
+from libanno.model.collection import Collection
 
 class TestModelEventListeners(Test):
 
@@ -24,7 +24,7 @@ class TestModelEventListeners(Test):
         return json.load(open(schema_path))
 
     @with_context
-    @patch('pywa.model.event_listeners.validate_json')
+    @patch('libanno.model.event_listeners.validate_json')
     def test_annotation_validated_before_insert_or_update(self, mock_validate):
         """Test that an Annotation is validated before INSERT or UPDATE."""
         annotation = AnnotationFactory(created='2018-05-08T11:03:38Z')
@@ -43,7 +43,7 @@ class TestModelEventListeners(Test):
         assert_in(call(updated_dict, schema), mock_validate.call_args_list)
 
     @with_context
-    @patch('pywa.model.event_listeners.validate_json')
+    @patch('libanno.model.event_listeners.validate_json')
     def test_collection_validated_before_insert_or_update(self, mock_validate):
         """Test that an Collection is validated before INSERT or UPDATE."""
         collection = CollectionFactory(created='2018-05-08T11:03:38Z')

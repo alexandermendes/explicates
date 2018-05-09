@@ -7,9 +7,9 @@ from flask import make_response
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
-from pywa.model.collection import Collection
-from pywa.model.annotation import Annotation
-from pywa.core import collection_repo, annotation_repo
+from libanno.model.collection import Collection
+from libanno.model.annotation import Annotation
+from libanno.core import collection_repo, annotation_repo
 
 try:
     from urllib import urlencode

@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
-from pywa.repositories.base import BaseRepository
-from pywa.model.collection import Collection
+from libanno.repositories.base import BaseRepository
+from libanno.model.collection import Collection
 
 
 class CollectionRepository(BaseRepository):

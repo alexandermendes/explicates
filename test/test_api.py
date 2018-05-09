@@ -8,7 +8,7 @@ from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
 from rdflib import *
 
-from pywa.core import collection_repo, annotation_repo
+from libanno.core import collection_repo, annotation_repo
 
 try:
     from urllib import urlencode

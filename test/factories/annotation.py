@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from pywa.model.annotation import Annotation
+from libanno.model.annotation import Annotation
 from . import BaseFactory, factory, annotation_repo
 
 

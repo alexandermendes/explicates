@@ -6,8 +6,8 @@ from jsonschema import validate as validate_json
 from jsonschema.exceptions import ValidationError
 from sqlalchemy import event
 
-from pywa.model.annotation import Annotation
-from pywa.model.collection import Collection
+from libanno.model.annotation import Annotation
+from libanno.model.collection import Collection
 
 
 def validate(obj, schema_filename):

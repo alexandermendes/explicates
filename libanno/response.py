@@ -4,7 +4,7 @@ import json
 from rdflib import *
 from flask import request, jsonify, Response, abort
 
-from pywa.model.base import BaseDomainObject
+from libanno.model.base import BaseDomainObject
 
 
 class ContextualResponse(Response):

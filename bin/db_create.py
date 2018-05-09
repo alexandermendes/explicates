@@ -2,8 +2,8 @@
 
 from alembic.config import Config
 
-from pywa.core import db, create_app
-from pywa.model.collection import Collection
+from libanno.core import db, create_app
+from libanno.model.collection import Collection
 
 app = create_app()
 

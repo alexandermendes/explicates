@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
-from pywa.repositories.base import BaseRepository
-from pywa.model.annotation import Annotation
+from libanno.repositories.base import BaseRepository
+from libanno.model.annotation import Annotation
 
 
 class AnnotationRepository(BaseRepository):

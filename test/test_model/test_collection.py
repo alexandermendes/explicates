@@ -8,7 +8,7 @@ from jsonschema.exceptions import ValidationError
 
 from base import Test, db, with_context
 
-from pywa.model.collection import Collection
+from libanno.model.collection import Collection
 
 
 class TestModelCollection(Test):

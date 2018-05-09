@@ -1,4 +1,4 @@
-# pywa
+# LibAnno
 
 A PostgreSQL-backed Web Annotation server.
 

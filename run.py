@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from pywa.core import create_app
+from libanno.core import create_app
 
 
 if __name__ == "__main__":

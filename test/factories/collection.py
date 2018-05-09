@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from pywa.model.collection import Collection
+from libanno.model.collection import Collection
 from . import BaseFactory, factory, collection_repo
 
 

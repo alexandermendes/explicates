@@ -5,9 +5,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
-from pywa.core import db
-from pywa.model.base import BaseDomainObject
-from pywa.model.annotation import Annotation
+from libanno.core import db
+from libanno.model.base import BaseDomainObject
+from libanno.model.annotation import Annotation
 
 
 Base = declarative_base(cls=BaseDomainObject)

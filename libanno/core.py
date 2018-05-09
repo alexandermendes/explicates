@@ -4,9 +4,9 @@ import os
 from flask import Flask
 from werkzeug.exceptions import HTTPException
 
-from pywa import default_settings
-from pywa.extensions import *
-from pywa.response import ContextualResponse
+from libanno import default_settings
+from libanno.extensions import *
+from libanno.response import ContextualResponse
 
 
 def create_app():
@@ -19,21 +19,21 @@ def create_app():
     setup_error_handler(app)
     setup_profiler(app)
     app.response_class = ContextualResponse
-    import pywa.model.event_listeners
+    import libanno.model.event_listeners
     return app
 
 
 def configure_app(app):
     """Configure app."""
     app.config.from_object(default_settings)
-    app.config.from_envvar('PYWA_SETTINGS', silent=True)
-    if not os.environ.get('PYWA_SETTINGS'):
+    app.config.from_envvar('LIBANNO_SETTINGS', silent=True)
+    if not os.environ.get('LIBANNO_SETTINGS'):
         here = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(os.path.dirname(here), 'settings.py')
         if os.path.exists(config_path):
             app.config.from_pyfile(config_path)
     else:
-        config_path = os.path.abspath(os.environ.get('PYWA_SETTINGS'))
+        config_path = os.path.abspath(os.environ.get('LIBANNO_SETTINGS'))
 
     # Override DB for testing
     if app.config.get('SQLALCHEMY_DATABASE_TEST_URI'):
@@ -51,17 +51,17 @@ def configure_app(app):
 
 def setup_blueprints(app):
     """Setup blueprints."""
-    from pywa.api import blueprint as api_blueprint
+    from libanno.api import blueprint as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/')
 
 
 def setup_repositories(app):
     """Setup repositories."""
-    from pywa.repositories import AnnotationRepository
-    from pywa.repositories import CollectionRepository
+    from libanno.repositories import AnnotationRepository
+    from libanno.repositories import CollectionRepository
 
-    from pywa.model.annotation import Annotation
-    from pywa.model.collection import Collection
+    from libanno.model.annotation import Annotation
+    from libanno.model.collection import Collection
 
     global annotation_repo
     global collection_repo

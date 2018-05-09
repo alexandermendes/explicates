@@ -2,11 +2,11 @@
 
 import factory
 
-from pywa.core import db
-from pywa.repositories import AnnotationRepository
-from pywa.repositories import CollectionRepository
-from pywa.model.annotation import Annotation
-from pywa.model.collection import Collection
+from libanno.core import db
+from libanno.repositories import AnnotationRepository
+from libanno.repositories import CollectionRepository
+from libanno.model.annotation import Annotation
+from libanno.model.collection import Collection
 
 
 annotation_repo = AnnotationRepository(db, Annotation)
