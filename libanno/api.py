@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
 import json
-from rdflib import *
 from flask import Blueprint, abort, request, url_for, current_app
 from flask import make_response
 from jsonschema.exceptions import ValidationError
@@ -25,25 +24,9 @@ def respond(data, status_code=200):
 
     See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
     """
-    accepted_types = [
-        'application/ld+json',
-        'text/turtle'
-    ]
-    best = request.accept_mimetypes.best_match(accepted_types,
-                                               default='application/ld+json')
-
-    # Content negotiation
-    if best == 'text/turtle':
-        try:
-            data = convert_json_ld(json.dumps(data), 'turtle')
-        except Exception as err:
-            abort(406, err)
-        response = make_response(data)
-        response.mimetype = 'text/turtle'
-    else:
-        response = make_response(data)
-        profile = '"http://www.w3.org/ns/anno.jsonld"'
-        response.mimetype = 'application/ld+json; profile={0}'.format(profile)
+    response = make_response(data)
+    profile = '"http://www.w3.org/ns/anno.jsonld"'
+    response.mimetype = 'application/ld+json; profile={0}'.format(profile)
 
     # Add Link headers
     link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'

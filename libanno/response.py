@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
 import json
-from rdflib import *
 from flask import request, jsonify, Response, abort
 
 from libanno.model.base import BaseDomainObject

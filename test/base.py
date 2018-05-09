@@ -51,16 +51,6 @@ class Test(object):
                             headers=headers,
                             content_type=content_type)
 
-    def app_get_turtle(self, url, follow_redirects=False, headers=None):
-        content_type = 'text/turtle'
-        if not headers:
-            headers = {}
-        headers['Accept'] = content_type
-        return self.app.get(url,
-                            follow_redirects=follow_redirects,
-                            headers=headers,
-                            content_type=content_type)
-
     def app_post_json_ld(self, url, data=None, follow_redirects=False,
                          headers=None):
         content_type = 'application/ld+json'

@@ -6,7 +6,6 @@ from freezegun import freeze_time
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
-from rdflib import *
 
 from libanno.core import collection_repo, annotation_repo
 
@@ -101,11 +100,6 @@ class TestApi(Test):
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
 
-        # Test Turtle response
-        res = self.app_get_turtle(endpoint)
-        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
-        assert_equal(res.data, expected_turtle)
-
     @with_context
     @freeze_time("1984-11-19")
     def test_get_collection_with_last_page(self):
@@ -135,11 +129,6 @@ class TestApi(Test):
         endpoint = u'/{}/'.format(collection.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
-
-        # Test Turtle response
-        res = self.app_get_turtle(endpoint)
-        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
-        assert_equal(res.data, expected_turtle)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -176,11 +165,6 @@ class TestApi(Test):
         endpoint = u'/{}/'.format(collection.slug)
         res = self.app_get_json_ld(endpoint + "?" + query_str)
         assert_equal(json.loads(res.data), expected)
-
-        # Test Turtle response
-        res = self.app_get_turtle(endpoint + "?" + query_str)
-        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
-        assert_equal(res.data, expected_turtle)
 
     @with_context
     def test_last_collection_cannot_be_deleted(self):
@@ -256,11 +240,6 @@ class TestApi(Test):
         endpoint = u'/{}/{}/'.format(collection.slug, annotation.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
-
-        # Test Turtle response
-        res = self.app_get_turtle(endpoint)
-        expected_turtle = self.convert_json(json.dumps(expected), 'turtle')
-        assert_equal(res.data, expected_turtle)
 
     @with_context
     def test_404_when_annotation_not_found(self):
