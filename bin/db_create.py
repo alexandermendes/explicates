@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 from alembic.config import Config
+from alembic import command
 
 from libanno.core import db, create_app
 from libanno.model.collection import Collection
+
 
 app = create_app()
 
