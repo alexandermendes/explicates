@@ -82,8 +82,7 @@ class TestApi(Test):
         """Test Collection returned with first page."""
         collection = CollectionFactory()
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        annotations = AnnotationFactory.create_batch(per_page,
-                                                     collection=collection)
+        annotation = AnnotationFactory(collection=collection)
 
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
@@ -92,7 +91,7 @@ class TestApi(Test):
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
-            'total': len(annotations),
+            'total': 1,
             'first': url_for('api.collection', collection_slug=collection.slug,
                              page=0)
         }

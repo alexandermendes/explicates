@@ -152,8 +152,8 @@ def collection(collection_slug):
     # Add last page
     count = len(annotations)
     per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-    last_page = 0 if count <= 0 else count // per_page - 1
-    if last_page:
+    last_page = 0 if count <= 0 else (count - 1) // per_page
+    if last_page > 0:
         collection_dict['last'] = url_for('.collection',
                                           collection_slug=coll.slug,
                                           page=last_page,
