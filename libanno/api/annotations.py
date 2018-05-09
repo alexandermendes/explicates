@@ -1,4 +1,13 @@
 # -*- coding: utf8 -*-
+"""Annotations API endpoint.
+
+See https://www.w3.org/TR/annotation-protocol/
+
+Design notes:
+
+- Content Negotiation: All responses are in the JSON-LD format.
+
+"""
 
 import json
 from flask import Blueprint, abort, request, url_for, current_app
