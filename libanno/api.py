@@ -22,6 +22,9 @@ blueprint = Blueprint('api', __name__)
 def respond(data, status_code=200):
     """Return a response.
 
+    Currently the server only supports the JSON-LD representation using
+    the Web Annotation profile.
+
     See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
     """
     response = make_response(data)
