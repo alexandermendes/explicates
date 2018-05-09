@@ -246,6 +246,25 @@ class TestApi(Test):
                                                  annotation.slug)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
+        assert_equal(res.status_code, 200)
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_annotation_headers(self):
+        """Test Annotation headers."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+        endpoint = u'/annotations/{}/{}/'.format(collection.slug,
+                                                 annotation.slug)
+        res = self.app_get_json_ld(endpoint)
+
+        link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
+        assert_equal(res.headers.get('Link'), link)
+        ct = 'application/ld+json; profile="http://www.w3.org/ns/anno.jsonld"'
+        assert_equal(res.headers.get('Content-Type'), ct)
+        allow = 'GET,POST,PUT,OPTIONS,HEAD'
+        assert_equal(res.headers.get('Allow'), allow)
+        assert_not_equal(res.headers.get('ETag'), None)
 
     @with_context
     def test_404_when_annotation_not_found(self):
@@ -312,6 +331,10 @@ class TestApi(Test):
         # Test Location header contains Annotation IRI
         assert_equal(res.headers.get('Location'), _id)
 
+        # Test Link header
+        link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
+        assert_equal(res.headers.get('Link'), link)
+
     @with_context
     def test_annotation_deleted(self):
         """Test Annotation deleted."""
@@ -321,8 +344,8 @@ class TestApi(Test):
                                                  annotation.slug)
         res = self.app_delete_json_ld(endpoint)
 
-        assert_equal(res.status_code, 204)
         assert_equal(annotation.deleted, True)
+        assert_equal(res.status_code, 204)
 
     @with_context
     def test_deleted_annotations_no_longer_returned_in_collection(self):
@@ -345,6 +368,13 @@ class TestApi(Test):
                                                  annotation.slug)
         res = self.app_put_json_ld(endpoint, data=data)
 
+        # Test data
         data['modified'] = '1984-11-19T00:00:00Z'
-        assert_equal(res.status_code, 200)
         assert_equal(annotation.dictize(), data)
+
+        # Test 200
+        assert_equal(res.status_code, 200)
+
+        # Test Link header
+        link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
+        assert_equal(res.headers.get('Link'), link)
