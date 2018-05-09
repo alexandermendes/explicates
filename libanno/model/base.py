@@ -60,6 +60,8 @@ class BaseDomainObject(object):
             obj = getattr(self, col.name)
             if not obj or col.name in filtered:
                 continue
+            elif isinstance(obj, datetime.datetime):
+                obj = obj.isoformat()
             out[col.name] = obj
 
         # Add hybrid properties
