@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-__all__ = ['db', 'flask_profiler']
+__all__ = ['db', 'flask_profiler', 'cors']
 
 
 # DB
@@ -10,3 +10,7 @@ db.slave_session = db.session
 
 # Flask Profiler
 import flask_profiler
+
+# CORS
+from flask_cors import CORS
+cors = CORS()

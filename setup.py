@@ -8,6 +8,7 @@ requirements = [
     "factory_boy>=2.4.1, <2.5",
     "jsonschema>=2.6.0, <3.0.0",
     "flask_profiler>= 1.6, <1.6.1",
+    "flask-cors>=3.0.2, <3.0.3",
     "nose",
     "mock",
     "rednose",

@@ -18,6 +18,7 @@ def create_app():
     setup_blueprints(app)
     setup_error_handler(app)
     setup_profiler(app)
+    setup_cors(app)
     app.response_class = ContextualResponse
     import libanno.model.event_listeners
     return app
@@ -108,3 +109,7 @@ def setup_profiler(app):
     if app.config.get('FLASK_PROFILER'):
         print " * Flask Profiler is enabled"
         flask_profiler.init_app(app)
+
+def setup_cors(app):
+    """Setup CORS."""
+    cors.init_app(app, resources=app.config.get('CORS_RESOURCES'))
