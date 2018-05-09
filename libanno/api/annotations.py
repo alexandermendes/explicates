@@ -37,7 +37,6 @@ def respond(data, status_code=200):
 
     # Add Vary header for HEAD and GET requests
     if request.method in ['HEAD', 'GET']:
-        response.headers['Vary'] = 'Accept'
         response.add_etag()
 
     # Add Location of newly created objects
