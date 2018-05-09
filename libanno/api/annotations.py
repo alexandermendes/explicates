@@ -16,7 +16,7 @@ except ImportError:  # py3
     from urllib.parse import urlencode
 
 
-blueprint = Blueprint('api', __name__)
+blueprint = Blueprint('annotations', __name__)
 
 
 def respond(data, status_code=200):

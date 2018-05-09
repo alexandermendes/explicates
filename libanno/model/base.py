@@ -72,7 +72,7 @@ class BaseDomainObject(object):
         out['@context'] = "http://www.w3.org/ns/anno.jsonld"
 
         # Add ID
-        root_url = url_for('api.index', _external=True)
+        root_url = url_for('annotations.index', _external=True)
         safe_suffix = quote(self.get_id_suffix().encode('utf8'))
         out['id'] = root_url + safe_suffix
 

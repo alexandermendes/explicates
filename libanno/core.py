@@ -51,8 +51,8 @@ def configure_app(app):
 
 def setup_blueprints(app):
     """Setup blueprints."""
-    from libanno.api import blueprint as api_blueprint
-    app.register_blueprint(api_blueprint, url_prefix='/')
+    from libanno.api.annotations import blueprint as annotations_bp
+    app.register_blueprint(annotations_bp, url_prefix='/annotations')
 
 
 def setup_repositories(app):
