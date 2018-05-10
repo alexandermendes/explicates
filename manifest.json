@@ -1,27 +1,27 @@
 {
-  "@context": "http://iiif.io/api/presentation/2/context.json", 
-  "@id": "http://www.libcrowds.com/tags/playbills/manifest.json", 
-  "@type": "sc:Manifest", 
-  "label": "Example Manifest", 
+  "@context": "http://iiif.io/api/presentation/2/context.json",
+  "@id": "https://rawgit.com/alexandermendes/libanno/master/manifest.json",
+  "@type": "sc:Manifest",
+  "label": "Example Manifest",
   "sequences": [
     {
-      "@type": "sc:Sequence", 
+      "@type": "sc:Sequence",
       "canvases": [
         {
-          "@id": "http://www.libcrowds.com/tags/playbills/canvas/page-1.json", 
-          "@type": "sc:Canvas", 
-          "label": "Page 1", 
-          "height": 800, 
-          "width": 800, 
+          "@id": "https://rawgit.com/alexandermendes/libanno/master/canvas/page-1.json",
+          "@type": "sc:Canvas",
+          "label": "Page 1",
+          "height": 800,
+          "width": 800,
           "images": [
             {
-              "@type": "oa:Annotation", 
-              "motivation": "sc:painting", 
+              "@type": "oa:Annotation",
+              "motivation": "sc:painting",
               "resource": {
-                "@id": "https://farm9.staticflickr.com/8801/17536205943_d4fbc68bb0.jpg", 
+                "@id": "https://farm9.staticflickr.com/8801/17536205943_d4fbc68bb0.jpg",
                 "@type": "dctypes:Image"
-              }, 
-              "on": "http://www.libcrowds.com/tags/playbills/canvas/page-1.json"
+              },
+              "on": "https://rawgit.com/alexandermendes/libanno/master/canvas/page-1.json"
             }
           ]
         }
