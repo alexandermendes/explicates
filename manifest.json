@@ -1,27 +1,36 @@
 {
-  "@context": "http://iiif.io/api/presentation/2/context.json",
-  "@id": "https://rawgit.com/alexandermendes/libanno/master/manifest.json",
-  "@type": "sc:Manifest",
-  "label": "Example Manifest",
+  "@context": "http://iiif.io/api/presentation/2/context.json", 
+  "@id": "http://www.example.org/path/to/object/manifest.json", 
+  "@type": "sc:Manifest", 
+  "label": "Example Manifest", 
+  "description": "This is a longer description of the manifest", 
   "sequences": [
     {
-      "@type": "sc:Sequence",
+      "@type": "sc:Sequence", 
       "canvases": [
         {
-          "@id": "https://rawgit.com/alexandermendes/libanno/master/canvas/page-1.json",
-          "@type": "sc:Canvas",
-          "label": "Page 1",
-          "height": 800,
-          "width": 800,
+          "@id": "http://www.example.org/path/to/object/canvas/page-1.json", 
+          "@type": "sc:Canvas", 
+          "label": "Page 1", 
+          "height": 3838, 
+          "width": 2433, 
           "images": [
             {
-              "@type": "oa:Annotation",
-              "motivation": "sc:painting",
+              "@type": "oa:Annotation", 
+              "motivation": "sc:painting", 
               "resource": {
-                "@id": "https://farm9.staticflickr.com/8801/17536205943_d4fbc68bb0.jpg",
-                "@type": "dctypes:Image"
-              },
-              "on": "https://rawgit.com/alexandermendes/libanno/master/canvas/page-1.json"
+                "@id": "https://api.bl.uk/image/iiif/ark:/81055/vdc_100022589157.0x000003/full/full/0/default.jpg", 
+                "@type": "dctypes:Image", 
+                "format": "image/jpeg", 
+                "height": 3838, 
+                "width": 2433, 
+                "service": {
+                  "@context": "http://iiif.io/api/image/2/context.json", 
+                  "@id": "https://api.bl.uk/image/iiif/ark:/81055/vdc_100022589157.0x000003", 
+                  "profile": "http://iiif.io/api/image/2/level2.json"
+                }
+              }, 
+              "on": "http://www.example.org/path/to/object/canvas/page-1.json"
             }
           ]
         }
