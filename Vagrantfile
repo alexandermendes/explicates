@@ -34,6 +34,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # forward ports
   config.vm.network :forwarded_port, host: 3000, guest: 3000
   config.vm.network :forwarded_port, host: 3001, guest: 3001
+  # Share SSH locally by default
+  config.vm.network :forwarded_port, guest: 22, host: 2201, id: "ssh", auto_correct: true
   # turn off warning message `stdin: is not a tty error`
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
   # be sure that there  is Ansible for local provisioning
