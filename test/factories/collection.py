@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from libanno.model.collection import Collection
+from explicates.model.collection import Collection
 from . import BaseFactory, factory, collection_repo
 
 

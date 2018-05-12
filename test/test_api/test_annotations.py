@@ -7,7 +7,7 @@ from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
 
-from libanno.core import collection_repo, annotation_repo
+from explicates.core import collection_repo, annotation_repo
 
 try:
     from urllib import urlencode

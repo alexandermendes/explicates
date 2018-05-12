@@ -6,10 +6,10 @@ from functools import wraps
 
 from factories import reset_all_pk_sequences
 
-from libanno.core import create_app, db
+from explicates.core import create_app, db
 
 
-os.environ['LIBANNO_SETTINGS'] = '../settings_test.py'
+os.environ['EXPLICATES_SETTINGS'] = '../settings_test.py'
 
 flask_app = create_app()
 

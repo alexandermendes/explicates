@@ -3,10 +3,10 @@
   become: true
   become_method: sudo
   vars:
-    libanno_user: "vagrant"
-    libanno_path: "/vagrant"
+    explicates_user: "vagrant"
+    explicates_path: "/vagrant"
     vagrant_home: "/home/vagrant"
-    virtualenv_path: "/home/vagrant/libanno-env"
+    virtualenv_path: "/home/vagrant/explicates-env"
 
   tasks:
     - name: Check Ubuntu 18.04 running
@@ -28,27 +28,27 @@
         - python-pip
 
     - name: upgrade pip
-      become_user: "{{libanno_user}}"
-      pip: name=pip state=latest chdir={{libanno_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+      become_user: "{{explicates_user}}"
+      pip: name=pip state=latest chdir={{explicates_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
 
-    - name: install LibAnno virtualenv packages
-      become_user: "{{libanno_user}}"
-      pip: chdir={{libanno_path}} requirements={{libanno_path}}/requirements.txt virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+    - name: install Explicates virtualenv packages
+      become_user: "{{explicates_user}}"
+      pip: chdir={{explicates_path}} requirements={{explicates_path}}/requirements.txt virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
 
     - name: check alembic.ini exists
-      stat: path={{libanno_path}}/alembic.ini
+      stat: path={{explicates_path}}/alembic.ini
       register: check_alembic
 
     - name: copy alembic template when it does not exist
-      command: cp -p {{libanno_path}}/alembic.ini.tmpl {{libanno_path}}/alembic.ini
+      command: cp -p {{explicates_path}}/alembic.ini.tmpl {{explicates_path}}/alembic.ini
       when: not check_alembic.stat.exists
 
     - name: check settings.py exists
-      stat: path={{libanno_path}}/settings.py
+      stat: path={{explicates_path}}/settings.py
       register: check_settings
 
     - name: copy settings template when it does not exist
-      command: cp -p {{libanno_path}}/settings.py.tmpl {{libanno_path}}/settings.py
+      command: cp -p {{explicates_path}}/settings.py.tmpl {{explicates_path}}/settings.py
       when: not check_settings.stat.exists
 
     - name: install PostgreSQL
@@ -66,47 +66,47 @@
     # psql -lqt | cut -d \| -f 1 | grep -w <db_name>
     - name: check if DB already exists
       become_user: postgres
-      shell: "psql -lqt | cut -d \\| -f 1 | grep -w libanno"
-      register: libanno_db_exists
+      shell: "psql -lqt | cut -d \\| -f 1 | grep -w explicates"
+      register: explicates_db_exists
       changed_when: False
-      failed_when: not (libanno_db_exists.rc == 0 or libanno_db_exists.rc == 1)
+      failed_when: not (explicates_db_exists.rc == 0 or explicates_db_exists.rc == 1)
 
-    - name: create LibAnno DB user
+    - name: create Explicates DB user
       become_user: postgres
-      postgresql_user: name=libanno password=tester encrypted=yes role_attr_flags=CREATEDB,NOSUPERUSER
+      postgresql_user: name=explicates password=tester encrypted=yes role_attr_flags=CREATEDB,NOSUPERUSER
 
-    - name: create LibAnno DB test user
+    - name: create Explicates DB test user
       become_user: postgres
       postgresql_user: name=rtester password=rtester encrypted=yes role_attr_flags=CREATEDB,NOSUPERUSER
 
-    - name: create LibAnno DB
+    - name: create Explicates DB
       become_user: postgres
-      postgresql_db: name=libanno
-                     owner=libanno
+      postgresql_db: name=explicates
+                     owner=explicates
                      encoding='UTF-8'
                      lc_collate='en_US.UTF-8'
                      lc_ctype='en_US.UTF-8'
                      template='template0'
 
-    - name: create LibAnno Test DB
+    - name: create Explicates Test DB
       become_user: postgres
-      postgresql_db: name=libanno_test
+      postgresql_db: name=explicates_test
                      owner=rtester
                      encoding='UTF-8'
                      lc_collate='en_US.UTF-8'
                      lc_ctype='en_US.UTF-8'
                      template='template0'
 
-    - name: populate LibAnno DB
-      become_user: "{{libanno_user}}"
+    - name: populate Explicates DB
+      become_user: "{{explicates_user}}"
       command: "{{virtualenv_path}}/bin/python bin/db_create.py"
       args:
-        chdir: "{{libanno_path}}"
-      when: libanno_db_exists.rc != 0
+        chdir: "{{explicates_path}}"
+      when: explicates_db_exists.rc != 0
 
     # activate virtualenv always in .bashrc
     - name: virtualenv usage by default on bash login
-      become_user: "{{libanno_user}}"
+      become_user: "{{explicates_user}}"
       lineinfile:
         dest={{vagrant_home}}/.bashrc
         line=". {{virtualenv_path}}/bin/activate"
@@ -118,7 +118,7 @@
     - name: go to /vagrant directory on bash login
       lineinfile:
         dest={{vagrant_home}}/.bashrc
-        line="cd {{libanno_path}}"
+        line="cd {{explicates_path}}"
         owner=vagrant
         state=present
         insertafter=EOF

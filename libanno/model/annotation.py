@@ -4,8 +4,8 @@ from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy.ext.declarative import declarative_base
 
-from libanno.core import db
-from libanno.model.base import BaseDomainObject
+from explicates.core import db
+from explicates.model.base import BaseDomainObject
 
 
 Base = declarative_base(cls=BaseDomainObject)

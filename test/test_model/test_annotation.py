@@ -9,7 +9,7 @@ from jsonschema.exceptions import ValidationError
 from base import Test, db, with_context
 from factories import CollectionFactory
 
-from libanno.model.annotation import Annotation
+from explicates.model.annotation import Annotation
 
 
 class TestModelAnnotation(Test):

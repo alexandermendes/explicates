@@ -3,7 +3,7 @@
 import json
 from flask import request, jsonify, Response, abort
 
-from libanno.model.base import BaseDomainObject
+from explicates.model.base import BaseDomainObject
 
 
 class ContextualResponse(Response):

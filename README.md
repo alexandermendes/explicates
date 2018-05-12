@@ -1,4 +1,4 @@
-# LibAnno
+# Explicates
 
 > A PostgreSQL-backed Web Annotation server.
 

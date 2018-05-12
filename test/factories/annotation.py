@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-from libanno.model.annotation import Annotation
+from explicates.model.annotation import Annotation
 from . import BaseFactory, factory, annotation_repo
 
 

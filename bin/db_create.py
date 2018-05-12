@@ -3,8 +3,8 @@
 from alembic.config import Config
 from alembic import command
 
-from libanno.core import db, create_app
-from libanno.model.collection import Collection
+from explicates.core import db, create_app
+from explicates.model.collection import Collection
 
 
 app = create_app()

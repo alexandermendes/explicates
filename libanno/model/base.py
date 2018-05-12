@@ -10,7 +10,7 @@ from sqlalchemy import Integer, Text, Unicode, Boolean
 from sqlalchemy.schema import Column
 from sqlalchemy.inspection import inspect as sa_inspect
 
-from libanno.model.utils import make_timestamp, make_uuid
+from explicates.model.utils import make_timestamp, make_uuid
 
 try:
     from urllib import quote

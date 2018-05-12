@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
-from libanno.repositories.base import BaseRepository
-from libanno.model.annotation import Annotation
+from explicates.repositories.base import BaseRepository
+from explicates.model.annotation import Annotation
 
 
 class AnnotationRepository(BaseRepository):

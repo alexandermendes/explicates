@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# LibAnno Vagrantfile
+# Explicates Vagrantfile
 
 VAGRANTFILE_API_VERSION = "2"
 

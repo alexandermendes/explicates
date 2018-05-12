@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
-from libanno.repositories.base import BaseRepository
-from libanno.model.collection import Collection
+from explicates.repositories.base import BaseRepository
+from explicates.model.collection import Collection
 
 
 class CollectionRepository(BaseRepository):

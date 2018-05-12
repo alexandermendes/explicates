@@ -16,9 +16,9 @@ from flask import make_response
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
-from libanno.model.collection import Collection
-from libanno.model.annotation import Annotation
-from libanno.core import collection_repo, annotation_repo
+from explicates.model.collection import Collection
+from explicates.model.annotation import Annotation
+from explicates.core import collection_repo, annotation_repo
 
 try:
     from urllib import urlencode

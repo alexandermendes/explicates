@@ -2,11 +2,11 @@
 
 import factory
 
-from libanno.core import db
-from libanno.repositories import AnnotationRepository
-from libanno.repositories import CollectionRepository
-from libanno.model.annotation import Annotation
-from libanno.model.collection import Collection
+from explicates.core import db
+from explicates.repositories import AnnotationRepository
+from explicates.repositories import CollectionRepository
+from explicates.model.annotation import Annotation
+from explicates.model.collection import Collection
 
 
 annotation_repo = AnnotationRepository(db, Annotation)

@@ -4,9 +4,9 @@ import os
 from flask import Flask
 from werkzeug.exceptions import HTTPException
 
-from libanno import default_settings
-from libanno.extensions import *
-from libanno.response import ContextualResponse
+from explicates import default_settings
+from explicates.extensions import *
+from explicates.response import ContextualResponse
 
 
 def create_app():
@@ -20,21 +20,21 @@ def create_app():
     setup_profiler(app)
     setup_cors(app)
     app.response_class = ContextualResponse
-    import libanno.model.event_listeners
+    import explicates.model.event_listeners
     return app
 
 
 def configure_app(app):
     """Configure app."""
     app.config.from_object(default_settings)
-    app.config.from_envvar('LIBANNO_SETTINGS', silent=True)
-    if not os.environ.get('LIBANNO_SETTINGS'):
+    app.config.from_envvar('EXPLICATES_SETTINGS', silent=True)
+    if not os.environ.get('EXPLICATES_SETTINGS'):
         here = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(os.path.dirname(here), 'settings.py')
         if os.path.exists(config_path):
             app.config.from_pyfile(config_path)
     else:
-        config_path = os.path.abspath(os.environ.get('LIBANNO_SETTINGS'))
+        config_path = os.path.abspath(os.environ.get('EXPLICATES_SETTINGS'))
 
     # Override DB for testing
     if app.config.get('SQLALCHEMY_DATABASE_TEST_URI'):
@@ -52,17 +52,17 @@ def configure_app(app):
 
 def setup_blueprints(app):
     """Setup blueprints."""
-    from libanno.api.annotations import blueprint as annotations_bp
+    from explicates.api.annotations import blueprint as annotations_bp
     app.register_blueprint(annotations_bp, url_prefix='/annotations')
 
 
 def setup_repositories(app):
     """Setup repositories."""
-    from libanno.repositories import AnnotationRepository
-    from libanno.repositories import CollectionRepository
+    from explicates.repositories import AnnotationRepository
+    from explicates.repositories import CollectionRepository
 
-    from libanno.model.annotation import Annotation
-    from libanno.model.collection import Collection
+    from explicates.model.annotation import Annotation
+    from explicates.model.collection import Collection
 
     global annotation_repo
     global collection_repo

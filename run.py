@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from libanno.core import create_app
+from explicates.core import create_app
 
 
 if __name__ == "__main__":
