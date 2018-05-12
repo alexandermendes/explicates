@@ -70,7 +70,7 @@ def handle_post(model_class, repo, **kwargs):
     slug = request.headers.get('Slug')
 
     try:
-        obj = model_class(data=data, slug=slug, **kwargs)
+        obj = model_class(data=data, id=slug, **kwargs)
         repo.save(obj)
     except (ValidationError, IntegrityError, TypeError) as err:
         abort(400, err.message)
@@ -115,11 +115,11 @@ def index():
     return handle_post(Collection, collection_repo)
 
 
-@blueprint.route('/<collection_slug>/',
+@blueprint.route('/<collection_id>/',
                  methods=['GET', 'POST', 'PUT', 'DELETE'])
-def collection(collection_slug):
+def collection(collection_id):
     """Collection endpoint."""
-    coll = collection_repo.get_by(slug=collection_slug)
+    coll = collection_repo.get_by(id=collection_id)
     if not coll:
         abort(404)
     elif coll.deleted:
@@ -140,7 +140,7 @@ def collection(collection_slug):
     # Add first page
     if annotations:
         collection_dict['first'] = url_for('.collection',
-                                           collection_slug=coll.slug,
+                                           collection_id=coll.id,
                                            page=0,
                                            _external=True,
                                            **kwargs)
@@ -150,7 +150,7 @@ def collection(collection_slug):
     last_page = 0 if count <= 0 else (count - 1) // per_page
     if last_page > 0:
         collection_dict['last'] = url_for('.collection',
-                                          collection_slug=coll.slug,
+                                          collection_id=coll.id,
                                           page=last_page,
                                           _external=True,
                                           **kwargs)
@@ -178,15 +178,15 @@ def collection(collection_slug):
     return respond(collection_dict)
 
 
-@blueprint.route('/<collection_slug>/<annotation_slug>/',
+@blueprint.route('/<collection_id>/<annotation_id>/',
                  methods=['GET', 'PUT', 'DELETE'])
-def annotation(collection_slug, annotation_slug):
+def annotation(collection_id, annotation_id):
     """Return an Annotation."""
-    coll = collection_repo.get_by(slug=collection_slug)
+    coll = collection_repo.get_by(id=collection_id)
     if not coll:
         abort(404)
 
-    anno = annotation_repo.get_by(slug=annotation_slug, collection=coll)
+    anno = annotation_repo.get_by(id=annotation_id, collection=coll)
     if not anno:
         abort(404)
     elif anno.deleted:

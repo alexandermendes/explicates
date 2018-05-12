@@ -21,7 +21,7 @@ class Collection(db.Model, Base):
     annotations = relationship(Annotation, backref='collection')
 
     def get_id_suffix(self):
-        return u'{}/'.format(self.slug)
+        return u'{}/'.format(self.id)
 
     @hybrid_property
     def total(self):

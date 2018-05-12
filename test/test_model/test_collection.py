@@ -21,4 +21,4 @@ class TestModelCollection(Test):
         """Test Collection id suffix."""
         collection = Collection()
         id_suffix = collection.get_id_suffix()
-        assert_equal(id_suffix, '{}/'.format(collection.slug))
+        assert_equal(id_suffix, '{}/'.format(collection.id))

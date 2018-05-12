@@ -37,7 +37,7 @@ class TestApi(Test):
     def test_410_when_collection_used_to_exist(self):
         """Test 410 when Collection used to exist."""
         collection = CollectionFactory(deleted=True)
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 410)
 
@@ -58,7 +58,7 @@ class TestApi(Test):
 
         # Test response contains the new collection
         _id = url_for('annotations.collection',
-                      collection_slug=collection.slug)
+                      collection_id=collection.id)
         assert_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
@@ -87,18 +87,18 @@ class TestApi(Test):
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('annotations.collection',
-                          collection_slug=collection.slug),
+                          collection_id=collection.id),
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': url_for('annotations.collection',
-                             collection_slug=collection.slug,
+                             collection_id=collection.id,
                              page=0)
         }
 
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
 
@@ -116,21 +116,21 @@ class TestApi(Test):
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('annotations.collection',
-                          collection_slug=collection.slug),
+                          collection_id=collection.id),
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
             'first': url_for('annotations.collection',
-                             collection_slug=collection.slug,
+                             collection_id=collection.id,
                              page=0),
             'last': url_for('annotations.collection',
-                            collection_slug=collection.slug,
+                            collection_id=collection.id,
                             page=last_page)
         }
 
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
 
@@ -153,7 +153,7 @@ class TestApi(Test):
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('annotations.collection',
-                          collection_slug=collection.slug,
+                          collection_id=collection.id,
                           **kwargs),
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
@@ -161,14 +161,14 @@ class TestApi(Test):
             'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
             'first': url_for('annotations.collection',
-                             collection_slug=collection.slug,
+                             collection_id=collection.id,
                              page=0, **kwargs),
             'last': url_for('annotations.collection',
-                            collection_slug=collection.slug,
+                            collection_id=collection.id,
                             page=last_page, **kwargs)
         }
 
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint + "?" + query_str)
         assert_equal(json.loads(res.data), expected)
 
@@ -176,7 +176,7 @@ class TestApi(Test):
     def test_last_collection_cannot_be_deleted(self):
         """Test the last Collection cannot be deleted."""
         collection = CollectionFactory()
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
         assert_equal(res.status_code, 400)
 
@@ -188,7 +188,7 @@ class TestApi(Test):
         collection = CollectionFactory()
 
         annotation = AnnotationFactory(collection=collection)
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
         assert_equal(res.status_code, 400)
 
@@ -200,7 +200,7 @@ class TestApi(Test):
         collections = CollectionFactory.create_batch(2)
         collection = collections[0]
 
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
         assert_equal(res.status_code, 204)
 
@@ -217,7 +217,7 @@ class TestApi(Test):
         assert_not_equal(collection.dictize(), data)
         assert_equal(collection.modified, None)
 
-        endpoint = u'/annotations/{}/'.format(collection.slug)
+        endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_put_json_ld(endpoint, data=data)
 
         data['modified'] = '1984-11-19T00:00:00Z'
@@ -242,8 +242,8 @@ class TestApi(Test):
             'generator': current_app.config.get('GENERATOR')
         }
 
-        endpoint = u'/annotations/{}/{}/'.format(collection.slug,
-                                                 annotation.slug)
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), expected)
         assert_equal(res.status_code, 200)
@@ -254,8 +254,8 @@ class TestApi(Test):
         """Test Annotation headers."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
-        endpoint = u'/annotations/{}/{}/'.format(collection.slug,
-                                                 annotation.slug)
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
         res = self.app_get_json_ld(endpoint)
 
         link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
@@ -270,7 +270,7 @@ class TestApi(Test):
     def test_404_when_annotation_not_found(self):
         """Test 404 when Annotation does not exist."""
         annotation = AnnotationFactory()
-        endpoint = u'/annotations/{}/{}/'.format(annotation.slug, 'foo')
+        endpoint = u'/annotations/{}/{}/'.format(annotation.id, 'foo')
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
@@ -280,8 +280,8 @@ class TestApi(Test):
         collection1 = CollectionFactory()
         collection2 = CollectionFactory()
         annotation = AnnotationFactory(collection=collection1)
-        endpoint = u'/annotations/{}/{}/'.format(collection2.slug,
-                                                 annotation.slug)
+        endpoint = u'/annotations/{}/{}/'.format(collection2.id,
+                                                 annotation.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
@@ -290,8 +290,8 @@ class TestApi(Test):
         """Test 410 when Annotation used to exist."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection, deleted=True)
-        endpoint = u'/annotations/{}/{}/'.format(collection.slug,
-                                                 annotation.slug)
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 410)
 
@@ -299,8 +299,8 @@ class TestApi(Test):
     @freeze_time("1984-11-19")
     def test_annotation_created(self):
         """Test Annotation created."""
-        collection = CollectionFactory(slug='foo')
-        endpoint = '/annotations/{}/'.format(collection.slug)
+        collection = CollectionFactory(id='foo')
+        endpoint = '/annotations/{}/'.format(collection.id)
         data = dict(type='Annotation', body='bar', target='http://example.org')
         headers = {
             'Slug': 'baz'
@@ -312,8 +312,8 @@ class TestApi(Test):
         assert_equal(json.loads(res.data), annotation_dict)
 
         _id = url_for('annotations.annotation',
-                      collection_slug=collection.slug,
-                      annotation_slug=annotation.slug)
+                      collection_id=collection.id,
+                      annotation_id=annotation.id)
         assert_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
@@ -340,8 +340,8 @@ class TestApi(Test):
         """Test Annotation deleted."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
-        endpoint = u'/annotations/{}/{}/'.format(collection.slug,
-                                                 annotation.slug)
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
         res = self.app_delete_json_ld(endpoint)
 
         assert_equal(annotation.deleted, True)
@@ -364,8 +364,8 @@ class TestApi(Test):
         assert_not_equal(annotation.dictize(), data)
         assert_equal(annotation.modified, None)
 
-        endpoint = u'/annotations/{}/{}/'.format(collection.slug,
-                                                 annotation.slug)
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
         res = self.app_put_json_ld(endpoint, data=data)
 
         # Test data

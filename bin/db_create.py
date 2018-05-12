@@ -18,7 +18,7 @@ def db_create():
         command.stamp(alembic_cfg, "head")
 
         # Annotation servers must provide at least one container
-        collection = Collection(slug="default", label="Default container")
+        collection = Collection(id="default", label="Default container")
         db.session.add(collection)
         db.session.commit()
 

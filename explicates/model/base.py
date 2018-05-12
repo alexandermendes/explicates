@@ -28,8 +28,8 @@ class BaseDomainObject(object):
     #: The object's primary key.
     key = Column(Integer, primary_key=True)
 
-    #: The IRI path segement appended to the object's IRI.
-    slug = Column(Unicode, unique=True, default=unicode(make_uuid()))
+    #: The resource ID.
+    id = Column(Unicode, unique=True, default=unicode(make_uuid()))
 
     #: The time at which the object was created.
     created = Column(Text, default=make_timestamp)
@@ -53,7 +53,7 @@ class BaseDomainObject(object):
 
     def dictize(self):
         """Return the domain object as a dictionary."""
-        filtered = ['key', 'slug', '_data', 'deleted', 'collection_key']
+        filtered = ['key', 'id', '_data', 'deleted', 'collection_key']
         out = self._data or {}
 
         # Add column values

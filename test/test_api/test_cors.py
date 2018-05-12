@@ -15,7 +15,7 @@ class TestCors(Test):
     def test_origin(self):
         """Test CORS Access-Control-Allow-Origin."""
         collection = CollectionFactory()
-        endpoint = u'/annotations/{}'.format(collection.slug)
+        endpoint = u'/annotations/{}'.format(collection.id)
         headers = {
             'Access-Control-Request-Method': 'GET',
             'Access-Control-Request-Headers': 'Authorization'
@@ -27,7 +27,7 @@ class TestCors(Test):
     def test_methods(self):
         """Test CORS Access-Control-Allow-Methods."""
         collection = CollectionFactory()
-        endpoint = u'/annotations/{}'.format(collection.slug)
+        endpoint = u'/annotations/{}'.format(collection.id)
         headers = {
             'Access-Control-Request-Method': 'GET',
             'Access-Control-Request-Headers': 'Authorization'
@@ -43,7 +43,7 @@ class TestCors(Test):
     def test_max_age(self):
         """Test CORS Access-Control-Max-Age."""
         collection = CollectionFactory()
-        endpoint = u'/annotations/{}'.format(collection.slug)
+        endpoint = u'/annotations/{}'.format(collection.id)
         headers = {
             'Access-Control-Request-Method': 'GET',
             'Access-Control-Request-Headers': 'Authorization'
@@ -55,7 +55,7 @@ class TestCors(Test):
     def test_headers(self):
         """Test CORS headers."""
         collection = CollectionFactory()
-        endpoint = u'/annotations/{}'.format(collection.slug)
+        endpoint = u'/annotations/{}'.format(collection.id)
         test_headers = ['Content-Type', 'Authorization']
         for hdr in test_headers:
             headers = {

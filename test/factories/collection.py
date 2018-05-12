@@ -15,7 +15,7 @@ class CollectionFactory(BaseFactory):
         return collection
 
     key = factory.Sequence(lambda n: n)
-    slug = factory.Sequence(lambda n: u'✓collection%d' % n)
+    id = factory.Sequence(lambda n: u'✓collection%d' % n)
     data = {
         'type': 'AnnotationCollection'
     }

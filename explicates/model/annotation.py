@@ -21,4 +21,4 @@ class Annotation(db.Model, Base):
                             nullable=False)
 
     def get_id_suffix(self):
-        return u'{0}/{1}/'.format(self.collection.slug, self.slug)
+        return u'{0}/{1}/'.format(self.collection.id, self.id)
