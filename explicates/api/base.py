@@ -113,7 +113,6 @@ class APIBase(object):
                 out['id'] = self._get_iri(rv)
             else:
                 out['id'] = self._get_iri()
-            out['@context'] = "http://www.w3.org/ns/anno.jsonld"
 
         response = jsonify(out)
 

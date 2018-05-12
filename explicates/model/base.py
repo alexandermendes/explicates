@@ -82,4 +82,7 @@ class BaseDomainObject(object):
         if generator:
             out['generator'] = generator
 
+        # Add context
+        out['@context'] = "http://www.w3.org/ns/anno.jsonld"
+
         return out
