@@ -2,11 +2,6 @@
 
 > A PostgreSQL-backed Web Annotation server.
 
-The server complies with the
-[Web Annotation Protocol](https://www.w3.org/TR/annotation-protocol/), with a
-few extras thrown in.
-
-
 ## Setup
 
 ### Development
@@ -20,10 +15,10 @@ Download and install
 then run:
 
 ```bash
-# setup the virtual machine
+# setup vm
 vagrant up
 
-# enter the virtual machine
+# enter vm
 vagrant ssh
 
 # run
