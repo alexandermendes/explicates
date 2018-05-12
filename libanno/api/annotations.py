@@ -6,7 +6,7 @@ See https://www.w3.org/TR/annotation-protocol/
 Design notes:
 
 - Content Negotiation: All responses are in the JSON-LD format and use the
-  Web Annotation profile.
+  Web Annotation profile, more formats may be added in future.
 
 """
 
@@ -27,6 +27,7 @@ except ImportError:  # py3
 
 
 blueprint = Blueprint('annotations', __name__)
+
 
 def respond(data, status_code=200):
     """Return a response.
