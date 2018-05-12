@@ -1,228 +1,33 @@
 # -*- coding: utf8 -*-
-"""Annotations API endpoint.
+"""Annotations API module."""
 
-See https://www.w3.org/TR/annotation-protocol/
+from flask.views import MethodView
 
-Design notes:
-
-- Content Negotiation: All responses are in the JSON-LD format and use the
-  Web Annotation profile, more formats may be added in future.
-
-"""
-
-import json
-from flask import Blueprint, abort, request, url_for, current_app
-from flask import make_response
-from jsonschema.exceptions import ValidationError
-from sqlalchemy.exc import IntegrityError
-
-from explicates.model.collection import Collection
-from explicates.model.annotation import Annotation
-from explicates.core import collection_repo, annotation_repo
-
-try:
-    from urllib import urlencode
-except ImportError:  # py3
-    from urllib.parse import urlencode
+from explicates.core import annotation_repo, collection_repo
+from explicates.api.base import APIBase
 
 
-blueprint = Blueprint('annotations', __name__)
+class AnnotationsAPI(APIBase, MethodView):
+    """Annotations API class."""
 
-
-def respond(data, status_code=200):
-    """Return a response.
-
-    Currently the server only supports the JSON-LD representation using
-    the Web Annotation profile.
-
-    See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
-    """
-    response = make_response(data)
-    profile = '"http://www.w3.org/ns/anno.jsonld"'
-    response.mimetype = 'application/ld+json; profile={0}'.format(profile)
-
-    # Add Link headers
-    link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
-    response.headers['Link'] = link
-
-    # Add Vary header for HEAD and GET requests
-    if request.method in ['HEAD', 'GET']:
-        response.add_etag()
-
-    # Add Location of newly created objects
-    elif request.method == 'POST' and data and 'id' in data:
-        response.headers['Location'] = data['id']
-
-    response.status_code = status_code
-    return response
-
-
-def convert_json_ld(json, out_format):
-    """Convert JSON-LD to an alternative representation."""
-    g = ConjunctiveGraph()
-    g.parse(data=json, format="json-ld")
-    return g.serialize(format=out_format)
-
-
-def handle_post(model_class, repo, **kwargs):
-    """Handle POST request."""
-    data = request.get_json()
-    slug = request.headers.get('Slug')
-
-    try:
-        obj = model_class(data=data, id=slug, **kwargs)
-        repo.save(obj)
-    except (ValidationError, IntegrityError, TypeError) as err:
-        abort(400, err.message)
-
-    return respond(obj.dictize(), status_code=201)
-
-
-def handle_put(obj, repo):
-    """Handle PUT request."""
-    data = request.get_json()
-    try:
-        obj.data = data
-        repo.update(obj)
-    except (ValidationError, IntegrityError, TypeError) as err:
-        abort(400, err.message)
-
-    return respond(obj.dictize(), status_code=200)
-
-
-def handle_delete(obj, repo):
-    """Handle DELETE request."""
-    try:
-        repo.delete(obj.key)
-    except (ValidationError, IntegrityError, TypeError) as err:
-        abort(400, err.message)
-
-    return respond({}, status_code=204)
-
-
-@blueprint.route('/', methods=['GET', 'POST'])
-def index():
-    """Render index page."""
-    if request.method == 'GET':
-        collections = collection_repo.get_all()
-        data = {
-            "context": "https://www.w3.org/ns/ldp.jsonld",
-            "type": "BasicContainer",
-            "contains": [c.dictize() for c in collections]
-        }
-        return respond(data)
-
-    return handle_post(Collection, collection_repo)
-
-
-@blueprint.route('/<collection_id>/',
-                 methods=['GET', 'POST', 'PUT', 'DELETE'])
-def collection(collection_id):
-    """Collection endpoint."""
-    coll = collection_repo.get_by(id=collection_id)
-    if not coll:
-        abort(404)
-    elif coll.deleted:
-        abort(410)
-
-    page = request.args.get('page', None)
-    if page:
-        return page_response(coll, int(page), request.query_string)
-
-    collection_dict = coll.dictize()
-    annotations = annotation_repo.filter_by(collection_key=coll.key)
-
-    kwargs = get_valid_request_args()
-    if kwargs:
-        query_str = urlencode(kwargs)
-        collection_dict['id'] += "?{}".format(query_str)
-
-    # Add first page
-    if annotations:
-        collection_dict['first'] = url_for('.collection',
-                                           collection_id=coll.id,
-                                           page=0,
-                                           _external=True,
-                                           **kwargs)
-    # Add last page
-    count = len(annotations)
-    per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-    last_page = 0 if count <= 0 else (count - 1) // per_page
-    if last_page > 0:
-        collection_dict['last'] = url_for('.collection',
-                                          collection_id=coll.id,
-                                          page=last_page,
-                                          _external=True,
-                                          **kwargs)
-
-    if request.method == 'POST':
-        return handle_post(Annotation, annotation_repo, collection=coll)
-
-    elif request.method == 'PUT':
-        return handle_put(coll, collection_repo)
-
-    elif request.method == 'DELETE':
-        count = collection_repo.count()
-        if count <= 1:
-            # The server must retain at least one container
-            # https://www.w3.org/TR/annotation-protocol/#annotation-containers
-            msg = 'This is the last collection on the server so cannot ', \
-                  'be deleted'
-            abort(400, msg)
-        elif annotations:
-            msg = 'The collection is not empty so cannot be deleted'
-            abort(400, msg)
-        else:
-            return handle_delete(coll, collection_repo)
-
-    return respond(collection_dict)
-
-
-@blueprint.route('/<collection_id>/<annotation_id>/',
-                 methods=['GET', 'PUT', 'DELETE'])
-def annotation(collection_id, annotation_id):
-    """Return an Annotation."""
-    coll = collection_repo.get_by(id=collection_id)
-    if not coll:
-        abort(404)
-
-    anno = annotation_repo.get_by(id=annotation_id, collection=coll)
-    if not anno:
-        abort(404)
-    elif anno.deleted:
-        abort(410)
-
-    if request.method == 'DELETE':
-        return handle_delete(anno, annotation_repo)
-    elif request.method == 'PUT':
-        return handle_put(anno, annotation_repo)
-
-    return respond(anno.dictize())
-
-
-def page_response(collection, page, query_str):
-    """Respond with a Page of a Collection."""
-    collection_dict = collection.dictize()
-    page_iri = "{0}/{1}".format(collection_dict['id'], page)
-    next_iri = "{0}/{1}".format(collection_dict['id'], page + 1)
-
-    if query_str:
-        collection_dict['id'] += "?{}".format(query_str)
-        page_iri += "?{}".format(query_str)
-        next_iri += "?{}".format(query_str)
-
-    data = {
-        'id': page_iri,
-        'type': 'AnnotationPage',
-        'partOf': collection_dict
+    common_headers = {
+        'Allow': 'GET,PUT,DELETE,OPTIONS,HEAD'
     }
 
-    return respond(data)
+    def _get_annotation(self, collection_id, annotation_id):
+        collection = self._get_domain_object(collection_repo, collection_id)
+        annotation = self._get_domain_object(annotation_repo, annotation_id,
+                                             collection=collection)
+        return annotation
 
+    def get(self, collection_id, annotation_id):
+        annotation = self._get_annotation(collection_id, annotation_id)
+        return self._create_response(annotation)
 
-def get_valid_request_args():
-    """Return valid request args to be appended to IRIs."""
-    kwargs = {
-        'iris': request.args.get('iris', None)
-    }
-    return dict((k,v) for k,v in kwargs.iteritems() if v is not None)
+    def put(self, collection_id, annotation_id):
+        annotation = self._get_annotation(collection_id, annotation_id)
+        return self._update(annotation, annotation_repo)
+
+    def delete(self, collection_id, annotation_id):
+        annotation = self._get_annotation(collection_id, annotation_id)
+        return self._delete(annotation, annotation_repo)

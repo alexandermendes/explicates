@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from explicates import default_settings
@@ -15,11 +15,10 @@ def create_app():
     configure_app(app)
     setup_db(app)
     setup_repositories(app)
-    setup_blueprints(app)
+    setup_blueprint(app)
     setup_error_handler(app)
     setup_profiler(app)
     setup_cors(app)
-    app.response_class = ContextualResponse
     import explicates.model.event_listeners
     return app
 
@@ -50,10 +49,10 @@ def configure_app(app):
     app.url_map.strict_slashes = app.config.get('STRICT_SLASHES')
 
 
-def setup_blueprints(app):
-    """Setup blueprints."""
-    from explicates.api.annotations import blueprint as annotations_bp
-    app.register_blueprint(annotations_bp, url_prefix='/annotations')
+def setup_blueprint(app):
+    """Setup blueprint."""
+    from explicates.api import blueprint
+    app.register_blueprint(blueprint)
 
 
 def setup_repositories(app):
@@ -102,7 +101,10 @@ def setup_error_handler(app):
         code = 500
         if isinstance(e, HTTPException):
             code = e.code
-        return dict(code=code, message=str(e)), code
+        error_dict = dict(code=code, message=str(e))
+        response = jsonify(error_dict)
+        response.status_code = code
+        return response
 
 
 def setup_profiler(app):

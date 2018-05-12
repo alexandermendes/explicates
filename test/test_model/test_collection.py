@@ -15,10 +15,3 @@ class TestModelCollection(Test):
 
     def setUp(self):
         super(TestModelCollection, self).setUp()
-
-    @with_context
-    def test_get_id_suffix(self):
-        """Test Collection id suffix."""
-        collection = Collection()
-        id_suffix = collection.get_id_suffix()
-        assert_equal(id_suffix, '{}/'.format(collection.id))

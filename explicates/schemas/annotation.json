@@ -1,9 +1,6 @@
 {
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
     "body": {
       "type": [
         "string",
@@ -20,7 +17,6 @@
     }
   },
   "required": [
-    "id",
     "body",
     "target"
   ]

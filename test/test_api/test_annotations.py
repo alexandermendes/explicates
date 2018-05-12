@@ -19,6 +19,7 @@ class TestApi(Test):
 
     def setUp(self):
         super(TestApi, self).setUp()
+        assert_dict_equal.__self__.maxDiff = None
 
     def convert_json(self, json, out_format):
         """Convert JSON to an alternative representation."""
@@ -29,7 +30,7 @@ class TestApi(Test):
     @with_context
     def test_404_when_collection_does_not_exist(self):
         """Test 404 when Collection does not exist."""
-        endpoint = '/annotations/foo/'
+        endpoint = '/annotations/invalid-collection/'
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
@@ -53,12 +54,9 @@ class TestApi(Test):
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         collection = collection_repo.get(1)
         assert_not_equal(collection, None)
-        collection_dict = collection.dictize()
-        assert_equal(json.loads(res.data), collection_dict)
 
         # Test response contains the new collection
-        _id = url_for('annotations.collection',
-                      collection_id=collection.id)
+        _id = url_for('api.collections', collection_id=collection.id)
         assert_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
@@ -86,14 +84,13 @@ class TestApi(Test):
 
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': url_for('annotations.collection',
-                          collection_id=collection.id),
+            'id': url_for('api.collections', collection_id=collection.id),
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': 1,
-            'first': url_for('annotations.collection',
+            'first': url_for('api.collections',
                              collection_id=collection.id,
                              page=0)
         }
@@ -115,17 +112,17 @@ class TestApi(Test):
 
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': url_for('annotations.collection',
+            'id': url_for('api.collections',
                           collection_id=collection.id),
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
-            'first': url_for('annotations.collection',
+            'first': url_for('api.collections',
                              collection_id=collection.id,
                              page=0),
-            'last': url_for('annotations.collection',
+            'last': url_for('api.collections',
                             collection_id=collection.id,
                             page=last_page)
         }
@@ -152,7 +149,7 @@ class TestApi(Test):
 
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': url_for('annotations.collection',
+            'id': url_for('api.collections',
                           collection_id=collection.id,
                           **kwargs),
             'type': collection.data['type'],
@@ -160,10 +157,10 @@ class TestApi(Test):
             'generated': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
-            'first': url_for('annotations.collection',
+            'first': url_for('api.collections',
                              collection_id=collection.id,
                              page=0, **kwargs),
-            'last': url_for('annotations.collection',
+            'last': url_for('api.collections',
                             collection_id=collection.id,
                             page=last_page, **kwargs)
         }
@@ -213,16 +210,60 @@ class TestApi(Test):
         collection = CollectionFactory()
         data = collection.dictize().copy()
         data['label'] = "My new label"
-
-        assert_not_equal(collection.dictize(), data)
         assert_equal(collection.modified, None)
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_put_json_ld(endpoint, data=data)
 
-        data['modified'] = '1984-11-19T00:00:00Z'
+        # Test object updated
+        assert_equal(collection.modified, '1984-11-19T00:00:00Z')
+
+        # Test data
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collections',
+                          collection_id=collection.id),
+            'type': data['type'],
+            'label': data['label'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'modified': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR'),
+            'total': 0
+        })
+
+        # Test 200
         assert_equal(res.status_code, 200)
-        assert_equal(collection.dictize(), data)
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_collection_headers(self):
+        """Test Collection headers."""
+        collection_data = {
+            'type': [
+                'BasicContainer',
+                'AnnotationCollection'
+            ]
+        }
+        collection = CollectionFactory(data=collection_data)
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        res = self.app_get_json_ld(endpoint)
+
+        assert_equal(res.headers.getlist('Link'), [
+            '<http://www.w3.org/ns/oa#AnnotationCollection>; rel="type"',
+            '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"',
+            '<http://www.w3.org/TR/annotation-protocol/>; ' +
+            'rel="http://www.w3.org/ns/ldp#constrainedBy"'
+        ])
+        ct = 'application/ld+json; profile="http://www.w3.org/ns/anno.jsonld"'
+        assert_equal(res.headers.get('Content-Type'), ct)
+        allow = 'GET,POST,PUT,DELETE,OPTIONS,HEAD'
+        assert_equal(res.headers.get('Allow'), allow)
+        assert_not_equal(res.headers.get('ETag'), None)
+
+    def test_different_container_types(self):
+        """Such as Direct and Indirect containers."""
+        pass
 
     @with_context
     @freeze_time("1984-11-19")
@@ -230,10 +271,13 @@ class TestApi(Test):
         """Test Annotation returned."""
         collection = CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
+        _id = url_for('api.annotations',
+                      collection_id=collection.id,
+                      annotation_id=annotation.id)
 
         expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': annotation.data['id'],
+            'id': _id,
             'type': 'Annotation',
             'body': annotation.data['body'],
             'target': annotation.data['target'],
@@ -262,15 +306,15 @@ class TestApi(Test):
         assert_equal(res.headers.get('Link'), link)
         ct = 'application/ld+json; profile="http://www.w3.org/ns/anno.jsonld"'
         assert_equal(res.headers.get('Content-Type'), ct)
-        allow = 'GET,POST,PUT,OPTIONS,HEAD'
+        allow = 'GET,PUT,DELETE,OPTIONS,HEAD'
         assert_equal(res.headers.get('Allow'), allow)
         assert_not_equal(res.headers.get('ETag'), None)
 
     @with_context
     def test_404_when_annotation_not_found(self):
         """Test 404 when Annotation does not exist."""
-        annotation = AnnotationFactory()
-        endpoint = u'/annotations/{}/{}/'.format(annotation.id, 'foo')
+        collection = CollectionFactory()
+        endpoint = u'/annotations/{}/{}/'.format(collection.id, 'foo')
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
 
@@ -306,15 +350,15 @@ class TestApi(Test):
             'Slug': 'baz'
         }
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
+
         annotation = annotation_repo.get(1)
         assert_not_equal(annotation, None)
-        annotation_dict = annotation.dictize()
-        assert_equal(json.loads(res.data), annotation_dict)
 
-        _id = url_for('annotations.annotation',
+        _id = url_for('api.annotations',
                       collection_id=collection.id,
                       annotation_id=annotation.id)
-        assert_equal(json.loads(res.data), {
+
+        assert_dict_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
             'type': 'Annotation',
@@ -360,17 +404,29 @@ class TestApi(Test):
         annotation = AnnotationFactory(collection=collection)
         data = annotation.dictize().copy()
         data['body'] = "My new body"
-
-        assert_not_equal(annotation.dictize(), data)
         assert_equal(annotation.modified, None)
 
         endpoint = u'/annotations/{}/{}/'.format(collection.id,
                                                  annotation.id)
         res = self.app_put_json_ld(endpoint, data=data)
 
+        # Test object updated
+        assert_equal(annotation.modified, '1984-11-19T00:00:00Z')
+
         # Test data
-        data['modified'] = '1984-11-19T00:00:00Z'
-        assert_equal(annotation.dictize(), data)
+        assert_equal(json.loads(res.data), {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.annotations',
+                          collection_id=collection.id,
+                          annotation_id=annotation.id),
+            'type': 'Annotation',
+            'body': data['body'],
+            'target': data['target'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'modified': '1984-11-19T00:00:00Z',
+            'generator': current_app.config.get('GENERATOR')
+        })
 
         # Test 200
         assert_equal(res.status_code, 200)

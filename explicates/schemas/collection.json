@@ -1,9 +1,6 @@
 {
   "type": "object",
   "properties": {
-    "id": {
-      "type": "string"
-    },
     "type": {
       "oneOf" : [
         {
@@ -39,7 +36,6 @@
     }
   },
   "required": [
-    "id",
     "type"
   ]
 }

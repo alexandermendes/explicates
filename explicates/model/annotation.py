@@ -19,6 +19,3 @@ class Annotation(db.Model, Base):
     #: The related Collection ID.
     collection_key = Column(Integer, ForeignKey('collection.key'),
                             nullable=False)
-
-    def get_id_suffix(self):
-        return u'{0}/{1}/'.format(self.collection.id, self.id)

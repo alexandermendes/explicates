@@ -33,7 +33,6 @@ class TestCors(Test):
             'Access-Control-Request-Headers': 'Authorization'
         }
         res = self.app.options(endpoint, headers=headers)
-        print res.headers
         methods = ['PUT', 'HEAD', 'DELETE', 'OPTIONS', 'GET']
         assert_not_equal(res.headers.get('Access-Control-Allow-Methods'), None)
         for m in methods:
