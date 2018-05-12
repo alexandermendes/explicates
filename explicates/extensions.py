@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Extensions module."""
 
 __all__ = ['db', 'flask_profiler', 'cors']
 

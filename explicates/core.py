@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Core module."""
 
 import os
 from flask import Flask, jsonify

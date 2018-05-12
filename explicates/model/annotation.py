@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Annotation model module."""
 
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy import Integer
@@ -12,7 +13,7 @@ Base = declarative_base(cls=BaseDomainObject)
 
 
 class Annotation(db.Model, Base):
-    """An annotation"""
+    """An Annotation"""
 
     __tablename__ = 'annotation'
 

@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Model utilities module."""
 
 import uuid
 from datetime import datetime

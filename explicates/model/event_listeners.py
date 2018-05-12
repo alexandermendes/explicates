@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Event listeners module."""
 
 import os
 import json

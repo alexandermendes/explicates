@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-"""API base module.
+"""Base API module.
 
 Design notes:
 

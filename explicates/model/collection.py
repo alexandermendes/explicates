@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Collection model module."""
 
 from flask import current_app
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,7 +15,7 @@ Base = declarative_base(cls=BaseDomainObject)
 
 
 class Collection(db.Model, Base):
-    """An annotation collection"""
+    """An AnnotationCollection"""
 
     __tablename__ = 'collection'
 

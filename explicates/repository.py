@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+"""Repository module."""
 
 from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
