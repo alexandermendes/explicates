@@ -14,7 +14,7 @@ def create_app():
     app = Flask(__name__)
     configure_app(app)
     setup_db(app)
-    setup_repositories(app)
+    setup_repository(app)
     setup_blueprint(app)
     setup_error_handler(app)
     setup_profiler(app)
@@ -55,19 +55,11 @@ def setup_blueprint(app):
     app.register_blueprint(blueprint)
 
 
-def setup_repositories(app):
-    """Setup repositories."""
-    from explicates.repositories import AnnotationRepository
-    from explicates.repositories import CollectionRepository
-
-    from explicates.model.annotation import Annotation
-    from explicates.model.collection import Collection
-
-    global annotation_repo
-    global collection_repo
-
-    annotation_repo = AnnotationRepository(db, Annotation)
-    collection_repo = CollectionRepository(db, Collection)
+def setup_repository(app):
+    """Setup repository."""
+    from explicates.repository import Repository
+    global repo
+    repo = Repository(db)
 
 
 def setup_db(app):

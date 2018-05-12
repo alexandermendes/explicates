@@ -3,14 +3,10 @@
 import factory
 
 from explicates.core import db
-from explicates.repositories import AnnotationRepository
-from explicates.repositories import CollectionRepository
-from explicates.model.annotation import Annotation
-from explicates.model.collection import Collection
+from explicates.repository import Repository
 
 
-annotation_repo = AnnotationRepository(db, Annotation)
-collection_repo = CollectionRepository(db, Collection)
+repo = Repository(db)
 
 
 def reset_all_pk_sequences():

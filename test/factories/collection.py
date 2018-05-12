@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 from explicates.model.collection import Collection
-from . import BaseFactory, factory, collection_repo
+from . import BaseFactory, factory, repo
 
 
 class CollectionFactory(BaseFactory):
@@ -11,7 +11,7 @@ class CollectionFactory(BaseFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         collection = model_class(*args, **kwargs)
-        collection_repo.save(collection)
+        repo.save(Collection, collection)
         return collection
 
     key = factory.Sequence(lambda n: n)

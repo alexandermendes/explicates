@@ -7,7 +7,9 @@ from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
 
-from explicates.core import collection_repo, annotation_repo
+from explicates.core import repo
+from explicates.model.collection import Collection
+from explicates.model.annotation import Annotation
 
 try:
     from urllib import urlencode
@@ -52,7 +54,7 @@ class TestApi(Test):
             'Slug': 'bar'
         }
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
-        collection = collection_repo.get(1)
+        collection = repo.get(Collection, 1)
         assert_not_equal(collection, None)
 
         # Test response contains the new collection
@@ -351,7 +353,7 @@ class TestApi(Test):
         }
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
 
-        annotation = annotation_repo.get(1)
+        annotation = repo.get(Annotation, 1)
         assert_not_equal(annotation, None)
 
         _id = url_for('api.annotations',

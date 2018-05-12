@@ -18,6 +18,7 @@ except ImportError:  # py3
     from urllib.parse import quote
     from urllib.parse import urlencode
 
+from explicates.core import repo
 from explicates.model.annotation import Annotation
 from explicates.model.collection import Collection
 from explicates.model.base import BaseDomainObject
@@ -25,9 +26,9 @@ from explicates.model.base import BaseDomainObject
 
 class APIBase(object):
 
-    def _get_domain_object(self, repo, id, **kwargs):
+    def _get_domain_object(self, model_class, id, **kwargs):
         """Return a domain object."""
-        obj = repo.get_by(id=id, **kwargs)
+        obj = repo.get_by(model_class, id=id, **kwargs)
         if not obj:
             abort(404)
         elif obj.deleted:
@@ -46,14 +47,14 @@ class APIBase(object):
             iri += '?{}'.format(query_str)
         return iri
 
-    def _create(self, model_class, repo, **kwargs):
+    def _create(self, model_class, **kwargs):
         """Create a domain object and return a Respose."""
         data = request.get_json()
         slug = request.headers.get('Slug')
 
         try:
             obj = model_class(id=slug, data=data, **kwargs)
-            repo.save(obj)
+            repo.save(model_class, obj)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
@@ -62,12 +63,13 @@ class APIBase(object):
         response.status_code = 201
         return response
 
-    def _update(self, obj, repo):
+    def _update(self, obj):
         """Update a domain object and return a Respose."""
         data = request.get_json()
         try:
             obj.data = data
-            repo.update(obj)
+            model_class = obj.__class__
+            repo.update(model_class, obj)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
@@ -75,10 +77,11 @@ class APIBase(object):
         response.status_code = 200
         return response
 
-    def _delete(self, obj, repo):
+    def _delete(self, obj):
         """Delete a domain object and return a Respose."""
         try:
-            repo.delete(obj.key)
+            model_class = obj.__class__
+            repo.delete(model_class, obj.key)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 

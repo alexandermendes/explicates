@@ -4,40 +4,35 @@ from sqlalchemy.exc import IntegrityError
 from jsonschema.exceptions import ValidationError
 
 
-class BaseRepository(object):
-    """Base repository class."""
+class Repository(object):
+    """Repository class for all domain objects."""
 
-    def __init__(self, db, model_class):
+    def __init__(self, db):
         self.db = db
-        self.model_class = model_class
 
-    def get(self, key):
+    def get(self, model_class, key):
         """Get an object by key."""
-        return self.db.session.query(self.model_class).get(key)
+        return self.db.session.query(model_class).get(key)
 
-    def get_by(self, **attributes):
+    def get_by(self, model_class, **attrs):
         """Get an object by given attributes."""
-        return self.db.session.query(self.model_class) \
-                              .filter_by(**attributes) \
-                              .first()
+        return self.db.session.query(model_class).filter_by(**attrs).first()
 
-    def get_all(self):
+    def get_all(self, model_class):
         """Get all objects."""
-        return self.db.session.query(self.model_class).all()
+        return self.db.session.query(model_class).all()
 
-    def count(self):
+    def count(self, model_class):
         """Count all objects."""
-        return self.db.session.query(self.model_class).count()
+        return self.db.session.query(model_class).count()
 
-    def filter_by(self, **filters):
+    def filter_by(self, model_class, **filters):
         """Get all filtered objects."""
-        return self.db.session.query(self.model_class) \
-                              .filter_by(**filters) \
-                              .all()
+        return self.db.session.query(model_class).filter_by(**filters).all()
 
-    def save(self, obj):
+    def save(self, model_class, obj):
         """Save an object."""
-        self._validate_can_be('saved', obj)
+        self._validate_can_be(model_class, 'saved', obj)
         try:
             self.db.session.add(obj)
             self.db.session.commit()
@@ -45,9 +40,9 @@ class BaseRepository(object):
             self.db.session.rollback()
             raise err
 
-    def update(self, obj):
+    def update(self, model_class, obj):
         """Update an object."""
-        self._validate_can_be('updated', obj)
+        self._validate_can_be(model_class, 'updated', obj)
         obj.modified
         try:
             self.db.session.merge(obj)
@@ -56,10 +51,10 @@ class BaseRepository(object):
             self.db.session.rollback()
             raise err
 
-    def delete(self, key):
+    def delete(self, model_class, key):
         """Mark an object as deleted."""
-        obj = self.db.session.query(self.model_class).get(key)
-        self._validate_can_be('deleted', obj)
+        obj = self.db.session.query(model_class).get(key)
+        self._validate_can_be(model_class, 'deleted', obj)
         obj.deleted = True
         try:
             self.db.session.merge(obj)
@@ -68,9 +63,9 @@ class BaseRepository(object):
             self.db.session.rollback()
             raise err
 
-    def _validate_can_be(self, action, obj):
+    def _validate_can_be(self, model_class, action, obj):
         """Verify that the query is for an object of the right type."""
-        if not isinstance(obj, self.model_class):
+        if not isinstance(obj, model_class):
             name = obj.__class__.__name__
             msg = '{0} cannot be {1} by {2}'.format(name,
                                                     action,

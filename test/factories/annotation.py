@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 from explicates.model.annotation import Annotation
-from . import BaseFactory, factory, annotation_repo
+from . import BaseFactory, factory, repo
 
 
 class AnnotationFactory(BaseFactory):
@@ -11,7 +11,7 @@ class AnnotationFactory(BaseFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         annotation = model_class(*args, **kwargs)
-        annotation_repo.save(annotation)
+        repo.save(Annotation, annotation)
         return annotation
 
     key = factory.Sequence(lambda n: n)

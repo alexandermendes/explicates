@@ -4,9 +4,10 @@
 from flask import url_for, current_app, request, abort
 from flask.views import MethodView
 
-from explicates.model.annotation import Annotation
-from explicates.core import collection_repo, annotation_repo
 from explicates.api.base import APIBase
+from explicates.core import repo
+from explicates.model.collection import Collection
+from explicates.model.annotation import Annotation
 
 
 class CollectionsAPI(APIBase, MethodView):
@@ -18,7 +19,7 @@ class CollectionsAPI(APIBase, MethodView):
 
     def _get_collection(self, collection_id):
         """Get a Collection object."""
-        collection = self._get_domain_object(collection_repo, collection_id)
+        collection = self._get_domain_object(Collection, collection_id)
         return collection
 
     def _get_last_page(self, collection):
@@ -79,12 +80,12 @@ class CollectionsAPI(APIBase, MethodView):
     def post(self, collection_id):
         """Create an Annotation."""
         collection = self._get_collection(collection_id)
-        return self._create(Annotation, annotation_repo, collection=collection)
+        return self._create(Annotation, collection=collection)
 
     def put(self, collection_id):
         """Update a Collection."""
         collection = self._get_collection(collection_id)
-        return self._update(collection, collection_repo)
+        return self._update(collection)
 
     def delete(self, collection_id):
         """Delete a Collection.
@@ -93,10 +94,10 @@ class CollectionsAPI(APIBase, MethodView):
         server.
         """
         collection = self._get_collection(collection_id)
-        if collection_repo.count() == 1:
+        if repo.count(Collection) == 1:
             msg = 'The last collection on the server so cannot be deleted'
             abort(400, msg)
         elif collection.annotations:
             msg = 'The collection is not empty so cannot be deleted'
             abort(400, msg)
-        return self._delete(collection, collection_repo)
+        return self._delete(collection)

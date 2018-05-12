@@ -3,8 +3,9 @@
 
 from flask.views import MethodView
 
-from explicates.core import annotation_repo, collection_repo
 from explicates.api.base import APIBase
+from explicates.model.collection import Collection
+from explicates.model.annotation import Annotation
 
 
 class AnnotationsAPI(APIBase, MethodView):
@@ -15,8 +16,8 @@ class AnnotationsAPI(APIBase, MethodView):
     }
 
     def _get_annotation(self, collection_id, annotation_id):
-        collection = self._get_domain_object(collection_repo, collection_id)
-        annotation = self._get_domain_object(annotation_repo, annotation_id,
+        collection = self._get_domain_object(Collection, collection_id)
+        annotation = self._get_domain_object(Annotation, annotation_id,
                                              collection=collection)
         return annotation
 
@@ -26,8 +27,8 @@ class AnnotationsAPI(APIBase, MethodView):
 
     def put(self, collection_id, annotation_id):
         annotation = self._get_annotation(collection_id, annotation_id)
-        return self._update(annotation, annotation_repo)
+        return self._update(annotation)
 
     def delete(self, collection_id, annotation_id):
         annotation = self._get_annotation(collection_id, annotation_id)
-        return self._delete(annotation, annotation_repo)
+        return self._delete(annotation)

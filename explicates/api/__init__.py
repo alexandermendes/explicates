@@ -4,7 +4,6 @@
 from flask.views import MethodView
 from flask import Blueprint
 
-from explicates.core import collection_repo
 from explicates.model.collection import Collection
 from explicates.api.base import APIBase
 from explicates.api.collections import CollectionsAPI
@@ -29,4 +28,4 @@ register_api(AnnotationsAPI, 'annotations',
 def create_collection():
     """Create a Collection."""
     api_base = APIBase()
-    return api_base._create(Collection, collection_repo)
+    return api_base._create(Collection)
