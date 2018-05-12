@@ -19,11 +19,13 @@ def validate(obj, schema_filename):
         schema = json.load(json_file)
         validate_json(obj, schema)
 
+
 @event.listens_for(Annotation, 'before_insert')
 @event.listens_for(Annotation, 'before_update')
 def validate_annotation(mapper, conn, target):
     """Validate an Annotation before INSERT or UPDATE."""
     validate(target.dictize(), 'annotation.json')
+
 
 @event.listens_for(Collection, 'before_insert')
 @event.listens_for(Collection, 'before_update')

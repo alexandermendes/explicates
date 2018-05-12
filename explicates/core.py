@@ -73,8 +73,8 @@ def setup_repositories(app):
 def setup_db(app):
     """Setup database."""
     def create_slave_session(db, bind):
-        if (app.config.get('SQLALCHEMY_BINDS')['slave'] ==
-                app.config.get('SQLALCHEMY_DATABASE_URI')):
+        slave = app.config.get('SQLALCHEMY_BINDS')['slave']
+        if slave == app.config.get('SQLALCHEMY_DATABASE_URI'):
             return db.session
         engine = db.get_engine(db.app, bind=bind)
         options = dict(bind=engine, scopefunc=_app_ctx_stack.__ident_func__)
@@ -111,6 +111,7 @@ def setup_profiler(app):
     if app.config.get('FLASK_PROFILER'):
         print " * Flask Profiler is enabled"
         flask_profiler.init_app(app)
+
 
 def setup_cors(app):
     """Setup CORS."""

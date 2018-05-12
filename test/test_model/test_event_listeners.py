@@ -11,6 +11,7 @@ from explicates.model import event_listeners
 from explicates.model.annotation import Annotation
 from explicates.model.collection import Collection
 
+
 class TestModelEventListeners(Test):
 
     def setUp(self):

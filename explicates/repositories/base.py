@@ -17,7 +17,9 @@ class BaseRepository(object):
 
     def get_by(self, **attributes):
         """Get an object by given attributes."""
-        return self.db.session.query(self.model_class).filter_by(**attributes).first()
+        return self.db.session.query(self.model_class) \
+                              .filter_by(**attributes) \
+                              .first()
 
     def get_all(self):
         """Get all objects."""
@@ -29,7 +31,9 @@ class BaseRepository(object):
 
     def filter_by(self, **filters):
         """Get all filtered objects."""
-        return self.db.session.query(self.model_class).filter_by(**filters).all()
+        return self.db.session.query(self.model_class) \
+                              .filter_by(**filters) \
+                              .all()
 
     def save(self, obj):
         """Save an object."""

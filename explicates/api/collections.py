@@ -44,11 +44,10 @@ class CollectionsAPI(APIBase, MethodView):
         last_p = self._get_last_page(collection)
         if last_p > 0:
             links['last'] = url_for('api.collections', _external=True,
-                                     page=last_p, collection_id=collection.id,
-                                     **kwargs)
+                                    page=last_p, collection_id=collection.id,
+                                    **kwargs)
 
         return links
-
 
     def _get_page(collection, page, query_str):
         """Respond with a Page of a Collection."""

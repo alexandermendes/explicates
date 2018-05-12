@@ -21,7 +21,7 @@ class TestCors(Test):
             'Access-Control-Request-Headers': 'Authorization'
         }
         res = self.app.options(endpoint, headers=headers)
-        assert_equal(res.headers['Access-Control-Allow-Origin'] ,'*')
+        assert_equal(res.headers['Access-Control-Allow-Origin'], '*')
 
     @with_context
     def test_methods(self):
