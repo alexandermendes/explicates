@@ -9,7 +9,7 @@ FLASK_PROFILER = {
   "storage": {
       "engine": "sqlite"
   },
-  "endpointRoot": "services/stats/profiler",
+  "endpointRoot": "server/profiler",
   "basicAuth":{
       "enabled": True,
       "username": "admin",
