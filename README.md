@@ -34,3 +34,12 @@ The requirements for production servers are:
 - Ubuntu 18.04 LTS
 - Python 2.7 or >= 3.4
 - PostgreSQL >= 10
+
+## Configuration
+
+See [settings.py.tmpl](settings.py.tmpl) for all available configuration
+settings. To change any settings make a copy of the template:
+
+```bash
+cp settings.py.tmpl settings.py
+```

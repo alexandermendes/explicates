@@ -3,7 +3,7 @@
 # Development
 PORT = 3000
 
-# Production
+# ** IMPORTANT: Uncomment the lines below in production **
 # ENV = 'production'
 # SERVER_NAME = 'example.com'
 
@@ -16,19 +16,17 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://explicates:tester@localhost/explicates'
 # }
 
 # The agent responsible for generating the serialization of the Annotations.
+# See https://www.w3.org/TR/annotation-model/
 # GENERATOR = 'http://example.org/client1'
 
 # Require strict slashes at the end of all API endpoints (default False)
 # STRICT_SLASHES = False
 
-#	The URL scheme that should be used for URL generation if no URL scheme is
-# available (default 'http').
-# PREFERRED_URL_SCHEME = 'http'
-
 # The number of Annotations to display per page (default 1000)
 # ANNOTATIONS_PER_PAGE = 1000
 
 # Flask profiler settings
+# See https://github.com/muatik/flask-profiler
 # FLASK_PROFILER = {
 #   "enabled": True,
 #   "storage": {
@@ -43,7 +41,7 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://explicates:tester@localhost/explicates'
 # }
 
 # CORS settings (defaults below)
-# See https://flask-cors.readthedocs.io/en/latest/)
+# See https://flask-cors.readthedocs.io/en/latest/
 # CORS_RESOURCES = {
 #     r"*": {
 #         "origins": "*",
