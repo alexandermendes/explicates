@@ -11,5 +11,5 @@ def make_timestamp():
 
 
 def make_uuid():
-    """Return a UUID."""
-    return str(uuid.uuid4())
+    """Return a Unicode UUID."""
+    return unicode(uuid.uuid4())

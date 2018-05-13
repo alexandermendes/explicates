@@ -25,7 +25,7 @@ class BaseDomainObject(object):
     key = Column(Integer, primary_key=True)
 
     #: The object's ID.
-    id = Column(Unicode, unique=True, default=unicode(make_uuid()))
+    id = Column(Unicode, unique=True, default=make_uuid)
 
     #: The time at which the object was created.
     created = Column(Text, default=make_timestamp)
