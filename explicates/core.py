@@ -7,7 +7,6 @@ from werkzeug.exceptions import HTTPException
 
 from explicates import default_settings
 from explicates.extensions import *
-from explicates.response import ContextualResponse
 
 
 def create_app():
