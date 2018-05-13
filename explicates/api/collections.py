@@ -71,7 +71,7 @@ class CollectionsAPI(APIBase, MethodView):
         out = collection.dictize()
         minimal, iris = self._get_container_preferences()
         params = self._get_query_params()
-        params['iris'] = 1 if iris or params.get('iris') else None
+        params['iris'] = 1 if iris or params.get('iris') == 1 else None
 
         out['id'] = self._get_iri2('api.collections',
                                    collection_id=collection.id, **params)
