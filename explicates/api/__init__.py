@@ -28,4 +28,9 @@ register_api(AnnotationsAPI, 'annotations',
 def create_collection():
     """Create a Collection."""
     api_base = APIBase()
-    return api_base._create(Collection)
+    collection = api_base._create(Collection)
+    response = api_base._create_response(collection)
+    iri = api_base._get_iri2('api.collections', collection_id=collection.id)
+    response.headers['Location'] = iri
+    response.status_code = 201
+    return response

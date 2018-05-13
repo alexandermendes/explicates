@@ -23,13 +23,6 @@ class CollectionsAPI(APIBase, MethodView):
         collection = self._get_domain_object(Collection, collection_id)
         return collection
 
-    def _get_iri2(self, endpoint, **kwargs):
-        """Get the IRI for an existing domain object.
-
-        This is much cleaner than the superclass, replace later.
-        """
-        return url_for(endpoint, _external=True, **kwargs)
-
     def _get_container_preferences(self):
         """Get container preferences.
 
@@ -162,7 +155,14 @@ class CollectionsAPI(APIBase, MethodView):
     def post(self, collection_id):
         """Create an Annotation."""
         collection = self._get_collection(collection_id)
-        return self._create(Annotation, collection=collection)
+        annotation = self._create(Annotation, collection=collection)
+        response = self._create_response(annotation)
+        iri = self._get_iri2('api.annotations', collection_id=collection.id,
+                             annotation_id=annotation.id)
+        response.headers['Location'] = iri
+        response.status_code = 201
+        return response
+
 
     def put(self, collection_id):
         """Update a Collection."""
@@ -184,4 +184,7 @@ class CollectionsAPI(APIBase, MethodView):
         elif collection.annotations:
             msg = 'The collection is not empty so cannot be deleted'
             abort(400, msg)
-        return self._delete(collection)
+        self._delete(collection)
+        response = self._create_response(None)
+        response.status_code = 204
+        return response

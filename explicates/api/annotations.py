@@ -36,4 +36,7 @@ class AnnotationsAPI(APIBase, MethodView):
     def delete(self, collection_id, annotation_id):
         """Delete an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
-        return self._delete(annotation)
+        self._delete(annotation)
+        response = self._create_response(None)
+        response.status_code = 204
+        return response

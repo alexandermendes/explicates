@@ -7,7 +7,7 @@ Design notes:
   Web Annotation profile, more formats may be added in future.
 """
 
-from flask import abort, request, jsonify, make_response
+from flask import abort, request, jsonify, make_response, url_for
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -47,24 +47,26 @@ class APIBase(object):
             iri += '?{}'.format(query_str)
         return iri
 
+    def _get_iri2(self, endpoint, **kwargs):
+        """Get the IRI for an existing domain object.
+
+        This is much cleaner than the superclass, replace later.
+        """
+        return url_for(endpoint, _external=True, **kwargs)
+
     def _create(self, model_class, **kwargs):
-        """Create a domain object and return a Respose."""
+        """Create and return a domain object."""
         data = request.get_json()
         slug = request.headers.get('Slug')
-
         try:
             obj = model_class(id=slug, data=data, **kwargs)
             repo.save(model_class, obj)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
-
-        response = self._create_response(obj)
-        response.headers['Location'] = self._get_iri(obj)
-        response.status_code = 201
-        return response
+        return obj
 
     def _update(self, obj):
-        """Update a domain object and return a Respose."""
+        """Update a domain object."""
         data = request.get_json()
         try:
             obj.data = data
@@ -74,16 +76,12 @@ class APIBase(object):
             abort(400, err.message)
 
     def _delete(self, obj):
-        """Delete a domain object and return a Respose."""
+        """Delete a domain object."""
         try:
             model_class = obj.__class__
             repo.delete(model_class, obj.key)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
-
-        response = self._create_response(None)
-        response.status_code = 204
-        return response
 
     def _create_response(self, rv, status_code=200):
         """Return a Response.
