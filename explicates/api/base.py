@@ -32,12 +32,15 @@ class APIBase(object):
     def _get_iri(self, obj, **kwargs):
         """Get the IRI for an existing object."""
         if isinstance(obj, Annotation):
+            kwargs.pop('iris', None)
             return url_for('api.annotations', annotation_id=obj.id,
                            collection_id=obj.collection.id, _external=True,
                            **kwargs)
+
         elif isinstance(obj, Collection):
             return url_for('api.collections', collection_id=obj.id,
                            _external=True, **kwargs)
+
         cls_name = obj.__class__.__name__
         raise TypeError('Cannot generated IRI for {}'.format(cls_name))
 
@@ -250,10 +253,8 @@ class APIBase(object):
         annotations = collection.annotations[page:page + per_page]
         items = []
         for annotation in annotations:
-            anno_params = params.copy()
-            anno_params.pop('iris', None)
             anno_dict = annotation.dictize()
-            anno_dict['id'] = self._get_iri(annotation, **anno_params)
+            anno_dict['id'] = self._get_iri(annotation, **params)
             if params.get('iris'):
                 items.append(anno_dict['id'])
             else:
