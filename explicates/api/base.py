@@ -61,7 +61,7 @@ class APIBase(object):
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
-    def _create_response(self, rv, status_code=200):
+    def _create_response(self, rv, status_code=200, headers=None):
         """Return a Response.
 
         Currently, the server only supports the JSON-LD representation using
@@ -90,9 +90,13 @@ class APIBase(object):
         if request.method in ['HEAD', 'GET']:
             response.add_etag()
 
-        self._add_common_headers(response)
         self._add_link_headers(response, out)
+        common_headers = getattr(self, 'headers', {})
+        response.headers.extend(common_headers)
+        if headers:
+            response.headers.extend(headers)
 
+        response.status_code = status_code
         return response
 
     def _add_link_headers(self, response, out):
@@ -126,8 +130,3 @@ class APIBase(object):
         for link in links:
             link_str = '<{0}>; rel="{1}"'.format(link['url'], link['rel'])
             response.headers.add('Link', link_str)
-
-    def _add_common_headers(self, response):
-        """Add common headers for the API class."""
-        common_headers = getattr(self, 'common_headers', {})
-        response.headers.extend(common_headers)

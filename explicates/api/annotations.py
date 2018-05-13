@@ -11,7 +11,8 @@ from explicates.model.annotation import Annotation
 class AnnotationsAPI(APIBase, MethodView):
     """Annotations API class."""
 
-    common_headers = {
+    # Common headers for all responses
+    headers = {
         'Allow': 'GET,PUT,DELETE,OPTIONS,HEAD'
     }
 
@@ -37,6 +38,4 @@ class AnnotationsAPI(APIBase, MethodView):
         """Delete an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
         self._delete(annotation)
-        response = self._create_response(None)
-        response.status_code = 204
-        return response
+        return self._create_response(None, status_code=204)

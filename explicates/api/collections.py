@@ -14,14 +14,14 @@ from explicates.model.annotation import Annotation
 class CollectionsAPI(APIBase, MethodView):
     """Collections API class."""
 
-    common_headers = {
+    # Common headers for all responses
+    headers = {
         'Allow': 'GET,POST,PUT,DELETE,OPTIONS,HEAD'
     }
 
     def _get_collection(self, collection_id):
         """Get a Collection object."""
-        collection = self._get_domain_object(Collection, collection_id)
-        return collection
+        return self._get_domain_object(Collection, collection_id)
 
     def _get_container_preferences(self):
         """Get container preferences.
@@ -61,6 +61,11 @@ class CollectionsAPI(APIBase, MethodView):
         return params.to_dict(flat=True)
 
     def _get_container_representation(self, collection):
+        """Return the Collection with the requested representation.
+
+        https://www.w3.org/TR/annotation-protocol/#container-representations
+        """
+
         out = collection.dictize()
         minimal, iris = self._get_container_preferences()
         params = self._get_query_params()
@@ -156,10 +161,9 @@ class CollectionsAPI(APIBase, MethodView):
         """Create an Annotation."""
         collection = self._get_collection(collection_id)
         annotation = self._create(Annotation, collection=collection)
-        response = self._create_response(annotation)
-        response.headers['Location'] = annotation.iri
-        response.status_code = 201
-        return response
+        extra_headers = {'Location': annotation.iri}
+        return self._create_response(annotation, status_code=201,
+                                     headers=extra_headers)
 
     def put(self, collection_id):
         """Update a Collection."""
@@ -182,6 +186,4 @@ class CollectionsAPI(APIBase, MethodView):
             msg = 'The collection is not empty so cannot be deleted'
             abort(400, msg)
         self._delete(collection)
-        response = self._create_response(None)
-        response.status_code = 204
-        return response
+        return self._create_response(None, status_code=204)
