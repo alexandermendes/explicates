@@ -1,24 +1,24 @@
 {
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "description": "schema for an AnnotationCollection",
   "type": "object",
   "properties": {
     "type": {
-      "oneOf" : [
-        {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "AnnotationCollection",
+          "BasicContainer",
+          "DirectContainer",
+          "IndirectContainer"
+        ],
+        "uniqueItems": true,
+        "contains": {
           "type": "string",
           "pattern": "^AnnotationCollection$"
-        },
-        {
-          "type": "array",
-          "minItems": 2,
-          "items": {
-            "type": "string"
-          },
-          "contains": {
-            "type": "string",
-            "pattern": "^AnnotationCollection$"
-          }
         }
-      ]
+      }
     },
     "label": {
       "oneOf" : [
