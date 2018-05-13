@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 """Collection model module."""
 
-from flask import current_app
+from flask import url_for
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -24,3 +24,9 @@ class Collection(db.Model, Base):
     @hybrid_property
     def total(self):
         return len(self.annotations)
+
+    @hybrid_property
+    def iri(self):
+        if self.id:
+            return url_for('api.collections', collection_id=self.id,
+                           _external=True)

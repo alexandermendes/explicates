@@ -55,7 +55,8 @@ class BaseDomainObject(object):
             '_data',
             'deleted',
             'collection_key',
-            'data'
+            'data',
+            'iri'
         ]
         out = self._data or {}
 
@@ -76,6 +77,10 @@ class BaseDomainObject(object):
 
         # Add generated
         out['generated'] = make_timestamp()
+
+        # Add base ID
+        if self.iri:
+            out['id'] = self.iri
 
         # Add generator
         generator = current_app.config.get('GENERATOR')

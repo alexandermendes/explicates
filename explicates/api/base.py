@@ -11,13 +11,6 @@ from flask import abort, request, jsonify, make_response, url_for
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
-try:
-    from urllib import quote
-    from urllib import urlencode
-except ImportError:  # py3
-    from urllib.parse import quote
-    from urllib.parse import urlencode
-
 from explicates.core import repo
 from explicates.model.annotation import Annotation
 from explicates.model.collection import Collection
@@ -35,23 +28,8 @@ class APIBase(object):
             abort(410)
         return obj
 
-    def _get_iri(self, obj=None):
-        """Return the IRI for a domain object."""
-        full_path = request.path + obj.id + '/' if obj else request.path
-        safe_path = quote(full_path.encode('utf8'))
-        iri = request.host_url[:-1] + safe_path
-        kwargs = request.args.copy()
-        kwargs.pop('page', None)
-        query_str = urlencode(kwargs)
-        if query_str:
-            iri += '?{}'.format(query_str)
-        return iri
-
-    def _get_iri2(self, endpoint, **kwargs):
-        """Get the IRI for an existing domain object.
-
-        This is much cleaner than the superclass, replace later.
-        """
+    def _get_iri(self, endpoint, **kwargs):
+        """Get the IRI for an existing domain object."""
         return url_for(endpoint, _external=True, **kwargs)
 
     def _create(self, model_class, **kwargs):
@@ -100,12 +78,6 @@ class APIBase(object):
         if not isinstance(out, dict):
             err_msg = '{} is not a valid return value'.format(type(rv))
             raise TypeError(err_msg)
-
-        if isinstance(rv, BaseDomainObject):
-            if request.method == 'POST':
-                out['id'] = self._get_iri(rv)
-            else:
-                out['id'] = self._get_iri()
 
         out['@context'] = "http://www.w3.org/ns/anno.jsonld"
 

@@ -30,7 +30,6 @@ def create_collection():
     api_base = APIBase()
     collection = api_base._create(Collection)
     response = api_base._create_response(collection)
-    iri = api_base._get_iri2('api.collections', collection_id=collection.id)
-    response.headers['Location'] = iri
+    response.headers['Location'] = collection.iri
     response.status_code = 201
     return response

@@ -66,8 +66,8 @@ class CollectionsAPI(APIBase, MethodView):
         params = self._get_query_params()
         params['iris'] = 1 if iris or params.get('iris') == '1' else None
 
-        out['id'] = self._get_iri2('api.collections',
-                                   collection_id=collection.id, **params)
+        out['id'] = self._get_iri('api.collections',
+                                  collection_id=collection.id, **params)
 
         page = request.args.get('page')
         if page:
@@ -98,20 +98,20 @@ class CollectionsAPI(APIBase, MethodView):
     def _get_first_page_iri(self, collection, **params):
         """Return the IRI for the first AnnotationPage in a Collection."""
         if collection.annotations:
-            return self._get_iri2('api.collections', page=0,
-                                  collection_id=collection.id, **params)
+            return self._get_iri('api.collections', page=0,
+                                 collection_id=collection.id, **params)
 
     def _get_last_page_iri(self, collection, **params):
         """Return the IRI for the last AnnotationPage in a Collection."""
         last_page = self._get_last_page(collection)
         if last_page > 0:
-            return self._get_iri2('api.collections', page=last_page,
-                                  collection_id=collection.id, **params)
+            return self._get_iri('api.collections', page=last_page,
+                                 collection_id=collection.id, **params)
 
     def _get_page(self, page, collection, partof=None, **params):
         """Return an AnnotationPage."""
-        page_iri = self._get_iri2('api.collections', page=page,
-                                  collection_id=collection.id, **params)
+        page_iri = self._get_iri('api.collections', page=page,
+                                 collection_id=collection.id, **params)
         data = {
             'type': 'AnnotationPage',
             'id': page_iri,
@@ -120,9 +120,9 @@ class CollectionsAPI(APIBase, MethodView):
 
         last_page = self._get_last_page(collection)
         if last_page > page:
-            data['next'] = self._get_iri2('api.collections', page=page + 1,
-                                          collection_id=collection.id,
-                                          **params)
+            data['next'] = self._get_iri('api.collections', page=page + 1,
+                                         collection_id=collection.id,
+                                         **params)
 
         if partof:
             data['partOf'] = partof
@@ -134,10 +134,10 @@ class CollectionsAPI(APIBase, MethodView):
             anno_params = params.copy()
             anno_params.pop('iris', None)
             anno_dict = annotation.dictize()
-            anno_dict['id'] = self._get_iri2('api.annotations',
-                                             collection_id=collection.id,
-                                             annotation_id=annotation.id,
-                                             **anno_params)
+            anno_dict['id'] = self._get_iri('api.annotations',
+                                            collection_id=collection.id,
+                                            annotation_id=annotation.id,
+                                            **anno_params)
             if params.get('iris'):
                 items.append(anno_dict['id'])
             else:
@@ -157,12 +157,9 @@ class CollectionsAPI(APIBase, MethodView):
         collection = self._get_collection(collection_id)
         annotation = self._create(Annotation, collection=collection)
         response = self._create_response(annotation)
-        iri = self._get_iri2('api.annotations', collection_id=collection.id,
-                             annotation_id=annotation.id)
-        response.headers['Location'] = iri
+        response.headers['Location'] = annotation.iri
         response.status_code = 201
         return response
-
 
     def put(self, collection_id):
         """Update a Collection."""
