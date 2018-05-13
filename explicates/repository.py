@@ -19,17 +19,9 @@ class Repository(object):
         """Get an object by given attributes."""
         return self.db.session.query(model_class).filter_by(**attrs).first()
 
-    def get_all(self, model_class):
-        """Get all objects."""
-        return self.db.session.query(model_class).all()
-
     def count(self, model_class):
         """Count all objects."""
         return self.db.session.query(model_class).count()
-
-    def filter_by(self, model_class, **filters):
-        """Get all filtered objects."""
-        return self.db.session.query(model_class).filter_by(**filters).all()
 
     def save(self, model_class, obj):
         """Save an object."""
