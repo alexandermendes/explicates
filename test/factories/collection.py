@@ -17,5 +17,8 @@ class CollectionFactory(BaseFactory):
     key = factory.Sequence(lambda n: n)
     id = factory.Sequence(lambda n: u'✓collection%d' % n)
     data = {
-        'type': 'AnnotationCollection'
+        'type': [
+            'BasicContainer',
+            'AnnotationCollection'
+        ]
     }

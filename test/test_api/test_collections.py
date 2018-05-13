@@ -43,7 +43,8 @@ class TestCollectionsAPI(Test):
     def test_collection_created(self):
         """Test Collection created."""
         endpoint = '/annotations/'
-        data = dict(type='AnnotationCollection', label='foo')
+        data = dict(type=['AnnotationCollection', 'BasicContainer'],
+                    label='foo')
         res = self.app_post_json_ld(endpoint, data=data)
         collection = repo.get(Collection, 1)
         assert_not_equal(collection, None)
@@ -71,8 +72,8 @@ class TestCollectionsAPI(Test):
     def test_collection_created_with_slug(self):
         """Test Collection created with slug."""
         endpoint = '/annotations/'
-        data = dict(type='AnnotationCollection')
-        slug = 'foo'
+        data = dict(type=['AnnotationCollection', 'BasicContainer'])
+        slug = 'bar'
         headers = dict(slug=slug)
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         collection = repo.get(Collection, 1)
