@@ -29,9 +29,15 @@ class APIBase(object):
             abort(410)
         return obj
 
-    def _get_iri(self, endpoint, **kwargs):
-        """Get the IRI for an existing domain object."""
-        return url_for(endpoint, _external=True, **kwargs)
+    def _get_iri(self, obj, **kwargs):
+        """Get the IRI for an existing object."""
+        if isinstance(obj, Annotation):
+            return url_for('api.annotations', annotation_id=obj.id,
+                           collection_id=obj.collection.id, _external=True,
+                           **kwargs)
+        elif isinstance(obj, Collection):
+            return url_for('api.collections', collection_id=obj.id,
+                           _external=True, **kwargs)
 
     def _create(self, model_class, **kwargs):
         """Create and return a domain object."""
@@ -183,8 +189,7 @@ class APIBase(object):
         params = self._get_query_params()
         params['iris'] = 1 if iris or params.get('iris') == '1' else None
 
-        out['id'] = self._get_iri('api.collections',
-                                  collection_id=collection.id, **params)
+        out['id'] = self._get_iri(collection, **params)
 
         page = request.args.get('page')
         if page:
@@ -215,20 +220,17 @@ class APIBase(object):
     def _get_first_page_iri(self, collection, **params):
         """Return the IRI for the first AnnotationPage in a Collection."""
         if collection.annotations:
-            return self._get_iri('api.collections', page=0,
-                                 collection_id=collection.id, **params)
+            return self._get_iri(collection, page=0, **params)
 
     def _get_last_page_iri(self, collection, **params):
         """Return the IRI for the last AnnotationPage in a Collection."""
         last_page = self._get_last_page(collection)
         if last_page > 0:
-            return self._get_iri('api.collections', page=last_page,
-                                 collection_id=collection.id, **params)
+            return self._get_iri(collection, page=last_page, **params)
 
     def _get_page(self, page, collection, partof=None, **params):
         """Return an AnnotationPage."""
-        page_iri = self._get_iri('api.collections', page=page,
-                                 collection_id=collection.id, **params)
+        page_iri = self._get_iri(collection, page=page, **params)
         data = {
             'type': 'AnnotationPage',
             'id': page_iri,
@@ -237,9 +239,7 @@ class APIBase(object):
 
         last_page = self._get_last_page(collection)
         if last_page > page:
-            data['next'] = self._get_iri('api.collections', page=page + 1,
-                                         collection_id=collection.id,
-                                         **params)
+            data['next'] = self._get_iri(collection, page=page + 1, **params)
 
         if partof:
             data['partOf'] = partof
@@ -251,10 +251,7 @@ class APIBase(object):
             anno_params = params.copy()
             anno_params.pop('iris', None)
             anno_dict = annotation.dictize()
-            anno_dict['id'] = self._get_iri('api.annotations',
-                                            collection_id=collection.id,
-                                            annotation_id=annotation.id,
-                                            **anno_params)
+            anno_dict['id'] = self._get_iri(annotation, **anno_params)
             if params.get('iris'):
                 items.append(anno_dict['id'])
             else:
