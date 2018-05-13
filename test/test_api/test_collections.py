@@ -330,8 +330,12 @@ class TestCollectionsAPI(Test):
     @with_context
     @freeze_time("1984-11-19")
     def test_collection_updated(self):
-        """Test Collection updated."""
+        """Test Collection updated.
+
+        The default container representation should be returned.
+        """
         collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
         data = collection.dictize().copy()
         data['label'] = "My new label"
         assert_equal(collection.modified, None)
@@ -342,19 +346,39 @@ class TestCollectionsAPI(Test):
         # Test object updated
         assert_equal(collection.modified, '1984-11-19T00:00:00Z')
 
-        # Test data
-        assert_equal(json.loads(res.data), {
+        expected = {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': url_for('api.collections',
-                          collection_id=collection.id),
+            'id': url_for('api.collections', collection_id=collection.id),
             'type': data['type'],
             'label': data['label'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'modified': '1984-11-19T00:00:00Z',
             'generator': current_app.config.get('GENERATOR'),
-            'total': 0
-        })
+            'total': 1,
+            'first': {
+                'id': url_for('api.collections', collection_id=collection.id,
+                              page=0),
+                'type': 'AnnotationPage',
+                'startIndex': 0,
+                'items': [
+                    {
+                        'id': url_for('api.annotations',
+                                      collection_id=collection.id,
+                                      annotation_id=annotation.id),
+                        'type': 'Annotation',
+                        'body': annotation.data['body'],
+                        'target': annotation.data['target'],
+                        'created': '1984-11-19T00:00:00Z',
+                        'generated': '1984-11-19T00:00:00Z',
+                        'generator': current_app.config.get('GENERATOR')
+                    }
+                ]
+            }
+        }
+
+        # Test data
+        assert_equal(json.loads(res.data), expected)
 
         # Test 200
         assert_equal(res.status_code, 200)

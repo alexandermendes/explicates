@@ -30,7 +30,8 @@ class AnnotationsAPI(APIBase, MethodView):
     def put(self, collection_id, annotation_id):
         """Update an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
-        return self._update(annotation)
+        self._update(annotation)
+        return self._create_response(annotation)
 
     def delete(self, collection_id, annotation_id):
         """Delete an Annotation."""

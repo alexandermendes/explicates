@@ -167,7 +167,9 @@ class CollectionsAPI(APIBase, MethodView):
     def put(self, collection_id):
         """Update a Collection."""
         collection = self._get_collection(collection_id)
-        return self._update(collection)
+        self._update(collection)
+        container = self._get_container_representation(collection)
+        return self._create_response(container)
 
     def delete(self, collection_id):
         """Delete a Collection.

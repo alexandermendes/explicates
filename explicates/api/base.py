@@ -73,10 +73,6 @@ class APIBase(object):
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
-        response = self._create_response(obj)
-        response.status_code = 200
-        return response
-
     def _delete(self, obj):
         """Delete a domain object and return a Respose."""
         try:
