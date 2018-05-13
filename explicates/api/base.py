@@ -135,27 +135,23 @@ class APIBase(object):
         if isinstance(types, basestring):
             types = [types]
 
-        links = []
+        urls = []
         if 'Annotation' in types:
-            links.append({
-                'url': 'http://www.w3.org/ns/ldp#Resource',
-                'rel': 'type'
-            })
+            urls.append('http://www.w3.org/ns/ldp#Resource')
         if 'AnnotationCollection' in types:
-            links.append({
-                'url': 'http://www.w3.org/ns/oa#AnnotationCollection',
-                'rel': 'type'
-            })
+            urls.append('http://www.w3.org/ns/oa#AnnotationCollection')
         if 'AnnotationPage' in types:
-            links.append({
-                'url': 'http://www.w3.org/ns/oa#AnnotationPage',
-                'rel': 'type'
-            })
+            urls.append('http://www.w3.org/ns/oa#AnnotationPage')
         if 'BasicContainer' in types:
-            links.append({
-                'url': 'http://www.w3.org/ns/ldp#BasicContainer',
-                'rel': 'type'
-            })
+            urls.append('http://www.w3.org/ns/ldp#BasicContainer')
+        if 'DirectContainer' in types:
+            urls.append('http://www.w3.org/ns/ldp#DirectContainer')
+        if 'IndirectContainer' in types:
+            urls.append('http://www.w3.org/ns/ldp#IndirectContainer')
+
+        links = [dict(url=url, rel='type') for url in urls]
+        containers = ['BasicContainer', 'DirectContainer', 'IndirectContainer']
+        if set(containers).intersection(set(types)):
             links.append({
                 'url': 'http://www.w3.org/TR/annotation-protocol/',
                 'rel': 'http://www.w3.org/ns/ldp#constrainedBy'
