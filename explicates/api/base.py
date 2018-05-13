@@ -62,15 +62,12 @@ class APIBase(object):
             abort(400, err.message)
 
     def _create_response(self, rv, status_code=200, headers=None):
-        """Return a Response.
+        """Return a JSON-LD Response.
 
-        Currently, the server only supports the JSON-LD representation using
-        the Web Annotation profile.
+        The Web Annotation profile is used for Web Annotations.
 
         See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
         """
-
-
         out = rv if rv else {}
         if isinstance(rv, BaseDomainObject):
             out = rv.dictize()
@@ -79,17 +76,24 @@ class APIBase(object):
             err_msg = '{} is not a valid return value'.format(type(rv))
             raise TypeError(err_msg)
 
-        out['@context'] = "http://www.w3.org/ns/anno.jsonld"
-
+        # Set context and content-type
+        mimetype = 'application/ld+json'
+        types = out.get('type', [])
+        if isinstance(types, basestring):
+            types = [types]
+        anno_types = ['Annotation', 'AnnotationCollection', 'AnnotationPage']
+        if set(anno_types).intersection(set(types)):
+            out['@context'] = "http://www.w3.org/ns/anno.jsonld"
+            profile = 'profile="http://www.w3.org/ns/anno.jsonld"'
+            mimetype += '; {}'.format(profile)
         response = jsonify(out)
-
-        profile = '"http://www.w3.org/ns/anno.jsonld"'
-        response.mimetype = 'application/ld+json; profile={0}'.format(profile)
+        response.mimetype = mimetype
 
         # Add Etags for HEAD and GET requests
         if request.method in ['HEAD', 'GET']:
             response.add_etag()
 
+        # Add headers
         self._add_link_headers(response, out)
         common_headers = getattr(self, 'headers', {})
         response.headers.extend(common_headers)
