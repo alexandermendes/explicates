@@ -26,16 +26,16 @@ class AnnotationsAPI(APIBase, MethodView):
     def get(self, collection_id, annotation_id):
         """Get an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
-        return self._create_response(annotation)
+        return self._jsonld_response(annotation)
 
     def put(self, collection_id, annotation_id):
         """Update an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
         self._update(annotation)
-        return self._create_response(annotation)
+        return self._jsonld_response(annotation)
 
     def delete(self, collection_id, annotation_id):
         """Delete an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
         self._delete(annotation)
-        return self._create_response(None, status_code=204)
+        return self._jsonld_response(None, status_code=204)

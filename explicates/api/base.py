@@ -73,7 +73,28 @@ class APIBase(object):
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
-    def _create_response(self, rv, status_code=200, headers=None):
+    def _get_context(self, types):
+        """Get context based on object type."""
+        if not isinstance(types, list):
+            types = [types]
+
+        mapping = {
+            'http://www.w3.org/ns/anno.jsonld': [
+                'Annotation',
+                'AnnotationCollection',
+                'AnnotationPage'
+            ],
+            'https://www.w3.org/ns/activitystreams.jsonld': [
+                'Collection'
+            ]
+        }
+
+        for k, v in mapping.items():
+            if set(v).intersection(set(types)):
+                return k
+
+
+    def _jsonld_response(self, rv, status_code=200, headers=None):
         """Return a JSON-LD Response.
 
         The Web Annotation profile is used for Web Annotations.
@@ -88,16 +109,12 @@ class APIBase(object):
             err_msg = '{} is not a valid return value'.format(type(rv))
             raise TypeError(err_msg)
 
-        # Set context and content-type
         mimetype = 'application/ld+json'
-        types = out.get('type', [])
-        if isinstance(types, basestring):
-            types = [types]
-        anno_types = ['Annotation', 'AnnotationCollection', 'AnnotationPage']
-        if set(anno_types).intersection(set(types)):
-            out['@context'] = "http://www.w3.org/ns/anno.jsonld"
-            profile = 'profile="http://www.w3.org/ns/anno.jsonld"'
-            mimetype += '; {}'.format(profile)
+        context = self._get_context(out.get('type'))
+        if context:
+            out['@context'] = context
+            mimetype += '; profile="{}"'.format(context)
+
         response = jsonify(out)
         response.mimetype = mimetype
 
@@ -184,77 +201,62 @@ class APIBase(object):
         params.pop('page', None)
         return params.to_dict(flat=True)
 
-    def _get_container(self, collection):
-        """Return the Collection with the requested representation.
-
-        https://www.w3.org/TR/annotation-protocol/#container-representations
-        """
-        out = collection.dictize()
+    def _get_container(self, obj, items=None):
+        """Return a container for an object."""
+        out = obj.dictize()
         minimal, iris = self._get_container_preferences()
         params = self._get_query_params()
         params['iris'] = 1 if iris or params.get('iris') == '1' else None
 
-        out['id'] = self._get_iri(collection, **params)
+        out['id'] = self._get_iri(obj, **params)
 
         page = request.args.get('page')
         if page:
-            return self._get_page(int(page), collection, partof=out, **params)
+            return self._get_page(int(page), obj, partof=out, items=items,
+                                  **params)
 
-        if collection.annotations:
+        if items:
             if minimal:
-                out['first'] = self._get_first_page_iri(collection, **params)
+                out['first'] = self._get_iri(obj, page=0, **params)
             else:
-                out['first'] = self._get_page(0, collection, **params)
+                out['first'] = self._get_page(0, obj, items=items, **params)
 
-            last = self._get_last_page_iri(collection, **params)
-            if last:
-                out['last'] = last
+            last_page = self._get_last_page(items)
+            if last_page > 0:
+                out['last'] = self._get_iri(obj, page=last_page, **params)
 
         return out
 
-    def _get_last_page(self, collection):
-        """Get the last page number for a Collection.
-
-        Pagination is zero-based.
-        """
-        count = len(collection.annotations)
+    def _get_last_page(self, items):
+        """Get the last page number (zero-based)."""
+        total = len(items)
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        last_page = 0 if count <= 0 else (count - 1) // per_page
+        last_page = 0 if total <= 0 else (total - 1) // per_page
         return last_page
 
-    def _get_first_page_iri(self, collection, **params):
-        """Return the IRI for the first AnnotationPage in a Collection."""
-        if collection.annotations:
-            return self._get_iri(collection, page=0, **params)
-
-    def _get_last_page_iri(self, collection, **params):
-        """Return the IRI for the last AnnotationPage in a Collection."""
-        last_page = self._get_last_page(collection)
-        if last_page > 0:
-            return self._get_iri(collection, page=last_page, **params)
-
-    def _get_page(self, page, collection, partof=None, **params):
+    def _get_page(self, page, obj, partof=None, items=None, **params):
         """Return an AnnotationPage."""
-        page_iri = self._get_iri(collection, page=page, **params)
+        page_iri = self._get_iri(obj, page=page, **params)
         data = {
             'type': 'AnnotationPage',
             'id': page_iri,
             'startIndex': 0
         }
 
-        last_page = self._get_last_page(collection)
+        last_page = self._get_last_page(items)
         if last_page > page:
-            data['next'] = self._get_iri(collection, page=page + 1, **params)
+            data['next'] = self._get_iri(obj, page=page + 1, **params)
 
         if partof:
             data['partOf'] = partof
 
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        annotations = collection.annotations[page:page + per_page]
+        page_items = items[page:page + per_page]
         items = []
-        for annotation in annotations:
-            anno_dict = annotation.dictize()
-            anno_dict['id'] = self._get_iri(annotation, **params)
+        for page_item in page_items:
+            print page_item
+            items_dict = page_item.dictize()
+            anno_dict['id'] = self._get_iri(page_item, **params)
             if params.get('iris'):
                 items.append(anno_dict['id'])
             else:

@@ -25,23 +25,25 @@ class CollectionsAPI(APIBase, MethodView):
     def get(self, collection_id):
         """Get a Collection."""
         collection = self._get_collection(collection_id)
-        container = self._get_container(collection)
-        return self._create_response(container)
+        items = collection.annotations
+        container = self._get_container(collection, items=items)
+        return self._jsonld_response(container)
 
     def post(self, collection_id):
         """Create an Annotation."""
         collection = self._get_collection(collection_id)
         annotation = self._create(Annotation, collection=collection)
         extra_headers = {'Location': annotation.iri}
-        return self._create_response(annotation, status_code=201,
+        return self._jsonld_response(annotation, status_code=201,
                                      headers=extra_headers)
 
     def put(self, collection_id):
         """Update a Collection."""
         collection = self._get_collection(collection_id)
         self._update(collection)
-        container = self._get_container(collection)
-        return self._create_response(container)
+        items = collection.annotations
+        container = self._get_container(collection, items=items)
+        return self._jsonld_response(container)
 
     def delete(self, collection_id):
         """Delete a Collection.
@@ -57,4 +59,4 @@ class CollectionsAPI(APIBase, MethodView):
             msg = 'The collection is not empty so cannot be deleted'
             abort(400, msg)
         self._delete(collection)
-        return self._create_response(None, status_code=204)
+        return self._jsonld_response(None, status_code=204)
