@@ -385,6 +385,134 @@ class TestCollectionsAPI(Test):
         assert_equal(res.headers.get('Allow'), allow)
         assert_not_equal(res.headers.get('ETag'), None)
 
-    def test_different_container_types(self):
-        """Such as Direct and Indirect containers."""
-        pass
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_page(self):
+        """Test get AnnotationPage."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+
+        expected = {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collections', collection_id=collection.id,
+                          page=0),
+            'type': 'AnnotationPage',
+            'startIndex': 0,
+            'items': [
+                {
+                    'id': url_for('api.annotations',
+                                    collection_id=collection.id,
+                                    annotation_id=annotation.id),
+                    'type': 'Annotation',
+                    'body': annotation.data['body'],
+                    'target': annotation.data['target'],
+                    'created': '1984-11-19T00:00:00Z',
+                    'generated': '1984-11-19T00:00:00Z',
+                    'generator': current_app.config.get('GENERATOR')
+                }
+            ],
+            'partOf': {
+                'id': url_for('api.collections', collection_id=collection.id),
+                'total': 1,
+                'type': [
+                    'BasicContainer',
+                    'AnnotationCollection'
+                ],
+                'created': '1984-11-19T00:00:00Z',
+                'generated': '1984-11-19T00:00:00Z',
+                'generator': current_app.config.get('GENERATOR')
+            }
+        }
+
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        res = self.app_get_json_ld(endpoint + '?page=0')
+        assert_equal(json.loads(res.data), expected)
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_multiple_pages(self):
+        """Test get multiple AnnotationPage."""
+        collection = CollectionFactory()
+        n_pages = 3
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        last_page = n_pages - 1
+        annotations = AnnotationFactory.create_batch(per_page * n_pages,
+                                                     collection=collection)
+
+        current_page = 1
+        items = []
+        for anno in annotations[current_page:current_page + per_page]:
+            items.append(
+                {
+                    'id': url_for('api.annotations',
+                                    collection_id=collection.id,
+                                    annotation_id=anno.id),
+                    'type': 'Annotation',
+                    'body': anno.data['body'],
+                    'target': anno.data['target'],
+                    'created': '1984-11-19T00:00:00Z',
+                    'generated': '1984-11-19T00:00:00Z',
+                    'generator': current_app.config.get('GENERATOR')
+                }
+            )
+
+        expected = {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collections', collection_id=collection.id,
+                          page=current_page),
+            'type': 'AnnotationPage',
+            'startIndex': 0,
+            'items': items,
+            'partOf': {
+                'id': url_for('api.collections', collection_id=collection.id),
+                'total': len(annotations),
+                'type': [
+                    'BasicContainer',
+                    'AnnotationCollection'
+                ],
+                'created': '1984-11-19T00:00:00Z',
+                'generated': '1984-11-19T00:00:00Z',
+                'generator': current_app.config.get('GENERATOR')
+            },
+            'next': url_for('api.collections', collection_id=collection.id,
+                            page=current_page + 1),
+        }
+
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        res = self.app_get_json_ld(endpoint + '?page={}'.format(current_page))
+        assert_equal(json.loads(res.data), expected)
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_get_page_with_iris(self):
+        """Test get AnnotationPage with IRIs."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+
+        expected = {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collections', collection_id=collection.id,
+                          **dict(page=0, iris=1)),
+            'type': 'AnnotationPage',
+            'startIndex': 0,
+            'items': [
+                url_for('api.annotations', collection_id=collection.id,
+                        annotation_id=annotation.id)
+            ],
+            'partOf': {
+                'id': url_for('api.collections', collection_id=collection.id,
+                              iris=1),
+                'total': 1,
+                'type': [
+                    'BasicContainer',
+                    'AnnotationCollection'
+                ],
+                'created': '1984-11-19T00:00:00Z',
+                'generated': '1984-11-19T00:00:00Z',
+                'generator': current_app.config.get('GENERATOR')
+            }
+        }
+
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        res = self.app_get_json_ld(endpoint + '?page=0&iris=1')
+        assert_equal(json.loads(res.data), expected)

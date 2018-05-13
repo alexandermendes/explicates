@@ -71,10 +71,14 @@ class CollectionsAPI(APIBase, MethodView):
         out = collection.dictize()
         minimal, iris = self._get_container_preferences()
         params = self._get_query_params()
-        params['iris'] = 1 if iris or params.get('iris') == 1 else None
+        params['iris'] = 1 if iris or params.get('iris') == '1' else None
 
         out['id'] = self._get_iri2('api.collections',
                                    collection_id=collection.id, **params)
+
+        page = request.args.get('page')
+        if page:
+            return self._get_page(int(page), collection, partof=out, **params)
 
         if collection.annotations:
             if minimal:
@@ -111,7 +115,7 @@ class CollectionsAPI(APIBase, MethodView):
             return self._get_iri2('api.collections', page=last_page,
                                   collection_id=collection.id, **params)
 
-    def _get_page(self, page, collection, include_collection=False, **params):
+    def _get_page(self, page, collection, partof=None, **params):
         """Return an AnnotationPage."""
         page_iri = self._get_iri2('api.collections', page=page,
                                   collection_id=collection.id, **params)
@@ -127,13 +131,8 @@ class CollectionsAPI(APIBase, MethodView):
                                           collection_id=collection.id,
                                           **params)
 
-        if include_collection:
-            collection_dict = collection.dictize()
-            collection_iri = self._get_iri2('api.collections',
-                                            collection_id=collection.id,
-                                            **params)
-            collection_dict['id'] = collection_iri
-            data['partOf'] = collection_dict
+        if partof:
+            data['partOf'] = partof
 
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
         annotations = collection.annotations[page:page + per_page]
