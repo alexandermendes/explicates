@@ -5,6 +5,9 @@
   "properties": {
     "type": {
       "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
       "items": {
         "type": "string",
         "enum": [
@@ -13,7 +16,6 @@
           "DirectContainer",
           "IndirectContainer"
         ],
-        "uniqueItems": true,
         "contains": {
           "type": "string",
           "pattern": "^AnnotationCollection$"
