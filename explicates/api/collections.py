@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 """Collections API module."""
 
+import json
 from flask import url_for, current_app, request, abort
 from flask.views import MethodView
 
@@ -22,6 +23,71 @@ class CollectionsAPI(APIBase, MethodView):
         collection = self._get_domain_object(Collection, collection_id)
         return collection
 
+    def _get_iri2(self, endpoint, **kwargs):
+        """Get the IRI for an existing domain object.
+
+        This is much cleaner than the superclass, replace later.
+        """
+        return url_for(endpoint, _external=True, **kwargs)
+
+    def _get_container_preferences(self):
+        """Get container preferences.
+
+        Defaults to PreferContainedDescriptions.
+        """
+        minimal = False
+        iris = False
+        prefer = request.headers.get('Prefer')
+        if not prefer:
+            return minimal, iris
+        try:
+            _return, include = prefer.split(';')
+        except ValueError:
+            return minimal, iris
+        if _return.strip() != 'return=representation':
+            return minimal, iris
+        if not include.strip().startswith('include='):
+            return minimal, iris
+        parts = include.split('=')[1].split()
+        prefs = [part.strip('"') for part in parts]
+
+        if 'http://www.w3.org/ns/ldp#PreferMinimalContainer' in prefs:
+            minimal = True
+        if 'http://www.w3.org/ns/oa#PreferContainedIRIs' in prefs:
+            iris = True
+
+        return minimal, iris
+
+    def _get_query_params(self, iris=None):
+        """Return a copy of the request arguments.
+
+        Remove page as this will be dealt with seperately for each IRI.
+        """
+        params = request.args.copy()
+        params.pop('page', None)
+        return params.to_dict(flat=True)
+
+    def _get_container_representation(self, collection):
+        out = collection.dictize()
+        minimal, iris = self._get_container_preferences()
+        params = self._get_query_params()
+        params['iris'] = 1 if iris or params.get('iris') else None
+
+        out['id'] = self._get_iri2('api.collections',
+                                   collection_id=collection.id, **params)
+
+        if collection.annotations:
+            if minimal:
+                out['first'] = self._get_first_page_iri(collection, **params)
+            else:
+                out['first'] = self._get_page(0, collection, **params)
+
+            last = self._get_last_page_iri(collection, **params)
+            if last:
+                out['last'] = last
+
+        return out
+
     def _get_last_page(self, collection):
         """Get the last page number for a Collection.
 
@@ -32,50 +98,67 @@ class CollectionsAPI(APIBase, MethodView):
         last_page = 0 if count <= 0 else (count - 1) // per_page
         return last_page
 
-    def _get_page_links(self, collection):
-        """Add page links to a Collection."""
-        kwargs = request.args.copy()
-        kwargs.pop('page', None)
-
-        links = {}
+    def _get_first_page_iri(self, collection, **params):
+        """Return the IRI for the first AnnotationPage in a Collection."""
         if collection.annotations:
-            links['first'] = url_for('api.collections', _external=True, page=0,
-                                     collection_id=collection.id, **kwargs)
+            return self._get_iri2('api.collections', page=0,
+                                  collection_id=collection.id, **params)
 
-        last_p = self._get_last_page(collection)
-        if last_p > 0:
-            links['last'] = url_for('api.collections', _external=True,
-                                    page=last_p, collection_id=collection.id,
-                                    **kwargs)
+    def _get_last_page_iri(self, collection, **params):
+        """Return the IRI for the last AnnotationPage in a Collection."""
+        last_page = self._get_last_page(collection)
+        if last_page > 0:
+            return self._get_iri2('api.collections', page=last_page,
+                                  collection_id=collection.id, **params)
 
-        return links
-
-    def _get_page(collection, page, query_str):
-        """Respond with a Page of a Collection."""
-        collection_dict = collection.dictize()
-        page_iri = "{0}/{1}".format(collection_dict['id'], page)
-        next_iri = "{0}/{1}".format(collection_dict['id'], page + 1)
-
-        if query_str:
-            collection_dict['id'] += "?{}".format(query_str)
-            page_iri += "?{}".format(query_str)
-            next_iri += "?{}".format(query_str)
-
+    def _get_page(self, page, collection, include_collection=False, **params):
+        """Return an AnnotationPage."""
+        page_iri = self._get_iri2('api.collections', page=page,
+                                  collection_id=collection.id, **params)
         data = {
-            'id': page_iri,
             'type': 'AnnotationPage',
-            'partOf': collection_dict
+            'id': page_iri,
+            'startIndex': 0
         }
 
+        last_page = self._get_last_page(collection)
+        if last_page > page:
+            data['next'] = self._get_iri2('api.collections', page=page + 1,
+                                          collection_id=collection.id,
+                                          **params)
+
+        if include_collection:
+            collection_dict = collection.dictize()
+            collection_iri = self._get_iri2('api.collections',
+                                            collection_id=collection.id,
+                                            **params)
+            collection_dict['id'] = collection_iri
+            data['partOf'] = collection_dict
+
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        annotations = collection.annotations[page:page + per_page]
+        items = []
+        for annotation in annotations:
+            anno_params = params.copy()
+            anno_params.pop('iris', None)
+            anno_dict = annotation.dictize()
+            anno_dict['id'] = self._get_iri2('api.annotations',
+                                             collection_id=collection.id,
+                                             annotation_id=annotation.id,
+                                             **anno_params)
+            if params.get('iris'):
+                items.append(anno_dict['id'])
+            else:
+                items.append(anno_dict)
+
+        data['items'] = items
         return data
 
     def get(self, collection_id):
         """Get a Collection."""
         collection = self._get_collection(collection_id)
-        page_links = self._get_page_links(collection)
-        collection_dict = collection.dictize()
-        collection_dict.update(page_links)
-        return self._create_response(collection_dict)
+        container = self._get_container_representation(collection)
+        return self._create_response(container)
 
     def post(self, collection_id):
         """Create an Annotation."""

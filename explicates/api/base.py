@@ -98,22 +98,22 @@ class APIBase(object):
         See https://www.w3.org/TR/annotation-protocol/#annotation-retrieval
         """
 
-        if not rv:
-            out = {}
-        elif isinstance(rv, BaseDomainObject):
+
+        out = rv if rv else {}
+        if isinstance(rv, BaseDomainObject):
             out = rv.dictize()
-        elif isinstance(rv, dict):
-            out = rv
-        else:
+
+        if not isinstance(out, dict):
             err_msg = '{} is not a valid return value'.format(type(rv))
             raise TypeError(err_msg)
 
-        if out:
+        if isinstance(rv, BaseDomainObject):
             if request.method == 'POST':
                 out['id'] = self._get_iri(rv)
             else:
                 out['id'] = self._get_iri()
-            out['@context'] = "http://www.w3.org/ns/anno.jsonld"
+
+        out['@context'] = "http://www.w3.org/ns/anno.jsonld"
 
         response = jsonify(out)
 
