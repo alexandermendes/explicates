@@ -153,11 +153,6 @@ class TestAnnotationsAPI(Test):
         assert_equal(res.status_code, 204)
 
     @with_context
-    def test_deleted_annotations_no_longer_returned_in_collection(self):
-        """Test deleted Annotations are not returned in the Collection."""
-        pass
-
-    @with_context
     @freeze_time("1984-11-19")
     def test_annotation_updated(self):
         """Test Annotation updated."""
