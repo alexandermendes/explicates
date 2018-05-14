@@ -2,7 +2,7 @@
 """Core module."""
 
 import os
-from flask import Flask, jsonify
+from flask import Flask, jsonify, _app_ctx_stack
 from werkzeug.exceptions import HTTPException
 
 from explicates import default_settings
@@ -98,6 +98,7 @@ def setup_error_handler(app):
         response.status_code = code
 
         # Re-raise server errors during debugging
+        print app.debug
         if code == 500 and app.debug:
             raise e
         return response
