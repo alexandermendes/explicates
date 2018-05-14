@@ -34,9 +34,10 @@ class SearchAPI(APIBase, MethodView):
             abort(404)
 
         contains = request.args.get('contains')
+        fts = request.args.get('fts')
 
         try:
-            results = repo.search(model_cls, contains=contains)
+            results = repo.search(model_cls, contains=contains, fts=fts)
         except ValueError as err:
             abort(400, err.message)
 

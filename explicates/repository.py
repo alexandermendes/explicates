@@ -2,6 +2,7 @@
 """Repository module."""
 
 import json
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.base import _entity_descriptor
 from jsonschema.exceptions import ValidationError
@@ -58,7 +59,7 @@ class Repository(object):
             self.db.session.rollback()
             raise err
 
-    def search(self, model_class, contains=None):
+    def search(self, model_class, contains=None, fts=None):
         """Search objects."""
         clauses = []
         if contains:
@@ -71,6 +72,16 @@ class Repository(object):
                 raise ValueError(msg)
             clauses.append(_entity_descriptor(model_class,
                                               '_data').contains(contains))
+
+        if fts:
+            pairs = fts.split('|')
+            for pair in pairs:
+                if pair != '':
+                    k, v = pair.split("::")
+                    print k, v
+                    vector = _entity_descriptor(model_class, '_data')[k].astext
+                    clause = func.to_tsvector(vector).match(v, postgresql_regconfig='english')
+                    clauses.append(clause)
 
         return self.db.session.query(model_class).filter(*clauses).all()
 

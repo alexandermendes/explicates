@@ -214,3 +214,54 @@ class TestSearchAPI(Test):
                 ]
             }
         })
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_full_text_search_for_annotations(self):
+        """Test full text search for Annotations."""
+        annotation1 = AnnotationFactory(data={
+            'type': 'Annotation',
+            'body': 'foo',
+            'target': 'bar'
+        })
+        annotation2 = AnnotationFactory(data={
+            'type': 'Annotation',
+            'body': {
+                'value': 'foo'
+            },
+            'target': {
+                'source': 'baz'
+            }
+        })
+        annotation3 = AnnotationFactory(data={
+            'type': 'Annotation',
+            'body': 'qux',
+            'target': 'foo'
+        })
+
+        fts = 'body::foo'
+        endpoint = '/search/annotation/?iris=1&fts={}'.format(fts)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(json.loads(res.data), {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": url_for('api.search', tablename='annotation', fts=fts,
+                          iris=1),
+            "type": "OrderedCollection",
+            "generated": "1984-11-19T00:00:00Z",
+            'generator': current_app.config.get('GENERATOR'),
+            "total": 2,
+            'first': {
+                'id': url_for('api.search', tablename='annotation', page=0,
+                              fts=fts, iris=1),
+                'type': 'AnnotationPage',
+                'startIndex': 0,
+                'items': [
+                    url_for('api.annotations',
+                            collection_id=annotation1.collection.id,
+                            annotation_id=annotation1.id),
+                    url_for('api.annotations',
+                            collection_id=annotation2.collection.id,
+                            annotation_id=annotation2.id)
+                ]
+            }
+        })
