@@ -96,6 +96,10 @@ def setup_error_handler(app):
         error_dict = dict(code=code, message=str(e))
         response = jsonify(error_dict)
         response.status_code = code
+
+        # Re-raise server errors during debugging
+        if code == 500 and app.debug:
+            raise e
         return response
 
 
