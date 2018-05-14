@@ -244,6 +244,8 @@ class APIBase(object):
         last_page = self._get_last_page(items)
         if last_page > page:
             data['next'] = self._get_iri(obj, page=page + 1, **params)
+        if page > 0:
+            data['prev'] = self._get_iri(obj, page=page - 1, **params)
 
         if partof:
             data['partOf'] = partof

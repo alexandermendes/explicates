@@ -500,6 +500,8 @@ class TestCollectionsAPI(Test):
             },
             'next': url_for('api.collections', collection_id=collection.id,
                             page=current_page + 1),
+            'prev': url_for('api.collections', collection_id=collection.id,
+                            page=current_page - 1),
         }
 
         endpoint = u'/annotations/{}/'.format(collection.id)
