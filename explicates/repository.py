@@ -78,7 +78,6 @@ class Repository(object):
             for pair in pairs:
                 if pair != '':
                     k, v = pair.split("::")
-                    print k, v
                     vector = _entity_descriptor(model_class, '_data')[k].astext
                     clause = func.to_tsvector(vector).match(v, postgresql_regconfig='english')
                     clauses.append(clause)
