@@ -227,6 +227,11 @@ class APIBase(object):
         of AnnotationCollections for discovery and potentially other types of
         object in future.
         """
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        page_items = items[page:page + per_page]
+        if not page_items:
+            abort(404)
+
         page_iri = self._get_iri(obj, page=page, **params)
         data = {
             'id': page_iri,

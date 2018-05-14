@@ -540,3 +540,18 @@ class TestCollectionsAPI(Test):
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint + '?page=0&iris=1')
         assert_equal(json.loads(res.data), expected)
+
+    @with_context
+    def test_404_when_page_does_not_exist(self):
+        """Test 404 when AnnotationPage does not exist."""
+        collection = CollectionFactory()
+
+        endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 0)
+        res = self.app_get_json_ld(endpoint)
+        print res.data
+        assert_equal(res.status_code, 404)
+
+        AnnotationFactory.create(collection=collection)
+        endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 1)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(res.status_code, 404)
