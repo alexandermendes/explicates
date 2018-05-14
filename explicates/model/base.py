@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-"""Base model module."""
+"""Base model."""
 
 import os
 import datetime

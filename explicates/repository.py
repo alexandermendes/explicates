@@ -1,7 +1,9 @@
 # -*- coding: utf8 -*-
 """Repository module."""
 
+import json
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.base import _entity_descriptor
 from jsonschema.exceptions import ValidationError
 
 
@@ -55,6 +57,22 @@ class Repository(object):
         except (IntegrityError, ValidationError) as err:
             self.db.session.rollback()
             raise err
+
+    def search(self, model_class, contains=None):
+        """Search objects."""
+        clauses = []
+        if contains:
+            try:
+                contains = json.loads(contains)
+                if type(contains) == int or type(contains) == float:
+                    contains = '"{}"'.format(contains)
+            except ValueError as err:
+                msg = 'Could not parse "contains": {}'.format(err.message)
+                raise ValueError(msg)
+            clauses.append(_entity_descriptor(model_class,
+                                              '_data').contains(contains))
+
+        return self.db.session.query(model_class).filter(*clauses).all()
 
     def _validate_can_be(self, model_class, action, obj):
         """Verify that the query is for an object of the right type."""

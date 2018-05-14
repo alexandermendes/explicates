@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-"""Annotation model module."""
+"""Annotation model."""
 
 from flask import url_for
 from sqlalchemy.schema import Column, ForeignKey

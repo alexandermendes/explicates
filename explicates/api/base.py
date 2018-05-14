@@ -15,6 +15,7 @@ from sqlalchemy.exc import IntegrityError
 from explicates.core import repo
 from explicates.model.annotation import Annotation
 from explicates.model.collection import Collection
+from explicates.model.ordered_collection import OrderedCollection
 from explicates.model.base import BaseDomainObject
 
 
@@ -30,7 +31,8 @@ class APIBase(object):
         return obj
 
     def _get_iri(self, obj, **kwargs):
-        """Get the IRI for an existing object."""
+        """Get the IRI for an object."""
+
         if isinstance(obj, Annotation):
             kwargs.pop('iris', None)
             return url_for('api.annotations', annotation_id=obj.id,
@@ -39,6 +41,10 @@ class APIBase(object):
 
         elif isinstance(obj, Collection):
             return url_for('api.collections', collection_id=obj.id,
+                           _external=True, **kwargs)
+
+        elif isinstance(obj, OrderedCollection):
+            return url_for('api.search', tablename=obj.tablename,
                            _external=True, **kwargs)
 
         cls_name = obj.__class__.__name__
@@ -73,27 +79,6 @@ class APIBase(object):
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
-    def _get_context(self, types):
-        """Get context based on object type."""
-        if not isinstance(types, list):
-            types = [types]
-
-        mapping = {
-            'http://www.w3.org/ns/anno.jsonld': [
-                'Annotation',
-                'AnnotationCollection',
-                'AnnotationPage'
-            ],
-            'https://www.w3.org/ns/activitystreams.jsonld': [
-                'Collection'
-            ]
-        }
-
-        for k, v in mapping.items():
-            if set(v).intersection(set(types)):
-                return k
-
-
     def _jsonld_response(self, rv, status_code=200, headers=None):
         """Return a JSON-LD Response.
 
@@ -109,14 +94,10 @@ class APIBase(object):
             err_msg = '{} is not a valid return value'.format(type(rv))
             raise TypeError(err_msg)
 
-        mimetype = 'application/ld+json'
-        context = self._get_context(out.get('type'))
-        if context:
-            out['@context'] = context
-            mimetype += '; profile="{}"'.format(context)
-
+        context = 'http://www.w3.org/ns/anno.jsonld'
+        out['@context'] = context
         response = jsonify(out)
-        response.mimetype = mimetype
+        response.mimetype = 'application/ld+json; profile="{}"'.format(context)
 
         # Add Etags for HEAD and GET requests
         if request.method in ['HEAD', 'GET']:
@@ -138,21 +119,26 @@ class APIBase(object):
         if isinstance(types, basestring):
             types = [types]
 
-        urls = []
+        namespaces = []
         if 'Annotation' in types:
-            urls.append('http://www.w3.org/ns/ldp#Resource')
+            namespaces.append('ldp#Resource')
         if 'AnnotationCollection' in types:
-            urls.append('http://www.w3.org/ns/oa#AnnotationCollection')
+            namespaces.append('oa#AnnotationCollection')
         if 'AnnotationPage' in types:
-            urls.append('http://www.w3.org/ns/oa#AnnotationPage')
+            namespaces.append('oa#AnnotationPage')
         if 'BasicContainer' in types:
-            urls.append('http://www.w3.org/ns/ldp#BasicContainer')
+            namespaces.append('ldp#BasicContainer')
         if 'DirectContainer' in types:
-            urls.append('http://www.w3.org/ns/ldp#DirectContainer')
+            namespaces.append('ldp#DirectContainer')
         if 'IndirectContainer' in types:
-            urls.append('http://www.w3.org/ns/ldp#IndirectContainer')
+            namespaces.append('ldp#IndirectContainer')
+        if 'OrderedCollection' in types:
+            namespaces.append('activitystreams#OrderedCollection')
+        if 'OrderedCollectionPage' in types:
+            namespaces.append('activitystreams#OrderedCollectionPage')
 
-        links = [dict(url=url, rel='type') for url in urls]
+        links = [dict(url='http://www.w3.org/ns/{}'.format(ns), rel='type')
+                      for ns in namespaces]
         containers = ['BasicContainer', 'DirectContainer', 'IndirectContainer']
         if set(containers).intersection(set(types)):
             links.append({
@@ -212,14 +198,13 @@ class APIBase(object):
 
         page = request.args.get('page')
         if page:
-            return self._get_page(int(page), obj, partof=out, items=items,
-                                  **params)
+            return self._get_page(int(page), obj, items, partof=out, **params)
 
         if items:
             if minimal:
                 out['first'] = self._get_iri(obj, page=0, **params)
             else:
-                out['first'] = self._get_page(0, obj, items=items, **params)
+                out['first'] = self._get_page(0, obj, items, **params)
 
             last_page = self._get_last_page(items)
             if last_page > 0:
@@ -234,14 +219,22 @@ class APIBase(object):
         last_page = 0 if total <= 0 else (total - 1) // per_page
         return last_page
 
-    def _get_page(self, page, obj, partof=None, items=None, **params):
-        """Return an AnnotationPage."""
+    def _get_page(self, page, obj, items, partof=None, **params):
+        """Return a page.
+
+        This will be an AnnotationPage if the items are Annotations, otherwise
+        an OrderedCollectionPage. This is so that we can also return pages
+        of AnnotationCollections for discovery and potentially other types of
+        object in future.
+        """
         page_iri = self._get_iri(obj, page=page, **params)
         data = {
-            'type': 'AnnotationPage',
             'id': page_iri,
+            'type': 'OrderedCollectionPage',
             'startIndex': 0
         }
+        if isinstance(items[0], Annotation):
+            data['type'] = 'AnnotationPage'
 
         last_page = self._get_last_page(items)
         if last_page > page:
@@ -254,13 +247,12 @@ class APIBase(object):
         page_items = items[page:page + per_page]
         items = []
         for page_item in page_items:
-            print page_item
-            items_dict = page_item.dictize()
-            anno_dict['id'] = self._get_iri(page_item, **params)
+            item_dict = page_item.dictize()
+            item_dict['id'] = self._get_iri(page_item)
             if params.get('iris'):
-                items.append(anno_dict['id'])
+                items.append(item_dict['id'])
             else:
-                items.append(anno_dict)
+                items.append(item_dict)
 
         data['items'] = items
         return data

@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-"""Collection model module."""
+"""Collection model."""
 
 from flask import url_for
 from sqlalchemy.ext.declarative import declarative_base
