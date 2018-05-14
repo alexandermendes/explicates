@@ -100,7 +100,7 @@ def setup_error_handler(app):
         # Re-raise server errors during debugging
         print app.debug
         if code == 500 and app.debug:
-            raise e
+            raise
         return response
 
 
