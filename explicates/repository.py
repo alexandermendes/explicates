@@ -109,8 +109,13 @@ class Repository(object):
         pairs = query.split('|') if query else []
         for pair in pairs:
             if pair != '':
-                k, v = pair.split("::")
-                vector = _entity_descriptor(model_cls, '_data')[k].astext
+                if '::' in pair:
+                    k, v = pair.split("::")
+                    vector = _entity_descriptor(model_cls, '_data')[k].astext
+                else:
+                    v = pair
+                    vector = _entity_descriptor(model_cls, '_data')
+
                 clause = func.to_tsvector(vector).match(v, postgresql_regconfig='english')
                 clauses.append(clause)
         return clauses
