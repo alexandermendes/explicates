@@ -98,7 +98,6 @@ def setup_error_handler(app):
         response.status_code = code
 
         # Re-raise server errors during debugging
-        print app.debug
         if code == 500 and app.debug:
             raise
         return response

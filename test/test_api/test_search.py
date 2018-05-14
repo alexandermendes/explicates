@@ -233,7 +233,7 @@ class TestSearchAPI(Test):
                 'source': 'baz'
             }
         })
-        annotation3 = AnnotationFactory(data={
+        AnnotationFactory(data={
             'type': 'Annotation',
             'body': 'qux',
             'target': 'foo'
@@ -262,6 +262,57 @@ class TestSearchAPI(Test):
                     url_for('api.annotations',
                             collection_id=annotation2.collection.id,
                             annotation_id=annotation2.id)
+                ]
+            }
+        })
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_full_text_search_within_category_for_annotations(self):
+        """Test full text within category for Annotations."""
+        collection1 = CollectionFactory()
+        collection2 = CollectionFactory()
+        annotation1 = AnnotationFactory(data={
+            'type': 'Annotation',
+            'body': 'foo',
+            'target': 'bar'
+        }, collection=collection1)
+        AnnotationFactory(data={
+            'type': 'Annotation',
+            'body': {
+                'value': 'foo'
+            },
+            'target': {
+                'source': 'baz'
+            }
+        }, collection=collection2)
+        AnnotationFactory(data={
+            'type': 'Annotation',
+            'body': 'qux',
+            'target': 'foo'
+        })
+
+        fts = 'body::foo'
+        query = u'iris=1&fts={0}&collection.id={1}'.format(fts, collection1.id)
+        query_dict = {'fts': fts, 'iris': 1, 'collection.id': collection1.id}
+        endpoint = u'/search/annotation/?{}'.format(query)
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(json.loads(res.data), {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": url_for('api.search', tablename='annotation', **query_dict),
+            "type": "OrderedCollection",
+            "generated": "1984-11-19T00:00:00Z",
+            'generator': current_app.config.get('GENERATOR'),
+            "total": 1,
+            'first': {
+                'id': url_for('api.search', tablename='annotation', page=0,
+                              **query_dict),
+                'type': 'AnnotationPage',
+                'startIndex': 0,
+                'items': [
+                    url_for('api.annotations',
+                            collection_id=annotation1.collection.id,
+                            annotation_id=annotation1.id)
                 ]
             }
         })

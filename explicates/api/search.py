@@ -27,20 +27,31 @@ class SearchAPI(APIBase, MethodView):
         }
         return mapping.get(tablename)
 
+    def _get_valid_filters(self, model_cls):
+        """Return valid filters for the model."""
+        filters = {}
+        for k in request.args.keys():
+            if k not in ['page', 'iris', 'fts', 'contains']:
+                try:
+                    getattr(model_cls, k)
+                except AttributeError as err:
+                    if len(k.split('.')) == 2:  # Used to model relationships
+                        filters[k] = request.args[k]
+                    else:
+                        abort(415, err.message)
+                filters[k] = request.args[k]
+        return filters
+
     def get(self, tablename):
         """Search for domain objects by table name."""
         model_cls = self._get_model(tablename)
         if not model_cls:
             abort(404)
 
-        contains = request.args.get('contains')
-        fts = request.args.get('fts')
-
-        try:
-            results = repo.search(model_cls, contains=contains, fts=fts)
-        except ValueError as err:
-            abort(400, err.message)
-
+        filters = self._get_valid_filters(model_cls)
+        filters['contains'] = request.args.get('contains')
+        filters['fts'] = request.args.get('fts')
+        results = repo.search(model_cls, **filters)
         tmp_collection = OrderedCollection(tablename, results, 'api.search')
         container = self._get_container(tmp_collection, items=results)
         return self._jsonld_response(container)

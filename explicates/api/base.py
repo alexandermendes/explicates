@@ -21,9 +21,9 @@ from explicates.model.base import BaseDomainObject
 
 class APIBase(object):
 
-    def _get_domain_object(self, model_class, id, **kwargs):
+    def _get_domain_object(self, model_cls, id, **kwargs):
         """Return a domain object."""
-        obj = repo.get_by(model_class, id=id, **kwargs)
+        obj = repo.get_by(model_cls, id=id, **kwargs)
         if not obj:
             abort(404)
         elif obj.deleted:
@@ -50,13 +50,13 @@ class APIBase(object):
         cls_name = obj.__class__.__name__
         raise TypeError('Cannot generated IRI for {}'.format(cls_name))
 
-    def _create(self, model_class, **kwargs):
+    def _create(self, model_cls, **kwargs):
         """Create and return a domain object."""
         data = request.get_json()
         slug = request.headers.get('Slug')
         try:
-            obj = model_class(id=slug, data=data, **kwargs)
-            repo.save(model_class, obj)
+            obj = model_cls(id=slug, data=data, **kwargs)
+            repo.save(model_cls, obj)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
         return obj
@@ -66,16 +66,16 @@ class APIBase(object):
         data = request.get_json()
         try:
             obj.data = data
-            model_class = obj.__class__
-            repo.update(model_class, obj)
+            model_cls = obj.__class__
+            repo.update(model_cls, obj)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 
     def _delete(self, obj):
         """Delete a domain object."""
         try:
-            model_class = obj.__class__
-            repo.delete(model_class, obj.key)
+            model_cls = obj.__class__
+            repo.delete(model_cls, obj.key)
         except (ValidationError, IntegrityError, TypeError) as err:
             abort(400, err.message)
 

@@ -548,7 +548,6 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 0)
         res = self.app_get_json_ld(endpoint)
-        print res.data
         assert_equal(res.status_code, 404)
 
         AnnotationFactory.create(collection=collection)
