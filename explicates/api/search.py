@@ -3,6 +3,7 @@
 
 from flask import abort, request
 from flask.views import MethodView
+from sqlalchemy.exc import ProgrammingError
 
 from explicates.core import repo
 from explicates.api.base import APIBase
@@ -51,7 +52,12 @@ class SearchAPI(APIBase, MethodView):
         filters = self._get_valid_filters(model_cls)
         filters['contains'] = request.args.get('contains')
         filters['fts'] = request.args.get('fts')
-        results = repo.search(model_cls, **filters)
+
+        try:
+            results = repo.search(model_cls, **filters)
+        except (ValueError, ProgrammingError) as err:
+            abort(400, err.message)
+
         tmp_collection = OrderedCollection(tablename, results, 'api.search')
         container = self._get_container(tmp_collection, items=results)
         return self._jsonld_response(container)
