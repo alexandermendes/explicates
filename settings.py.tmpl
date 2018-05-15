@@ -43,12 +43,18 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://explicates:tester@localhost/explicates'
 # CORS settings (defaults below)
 # See https://flask-cors.readthedocs.io/en/latest/
 # CORS_RESOURCES = {
-#     r"*": {
+#     r"/*": {
 #         "origins": "*",
 #         "allow_headers": [
 #             'Content-Type',
-#             'Authorization'
+#             'Content-Length',
+#             'Authorization',
+#             'If-Match',
+#             'Prefer',
+#             'Accept',
+#             'Slug'
 #         ],
-#         "max_age": 21600
+#         "max_age": 21600,
+#         "supports_credentials": True
 #     }
 # }
