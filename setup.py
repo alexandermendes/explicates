@@ -9,6 +9,7 @@ requirements = [
     "jsonschema>=2.6.0, <3.0.0",
     "flask_profiler>= 1.6, <1.6.1",
     "flask-cors>=3.0.2, <3.0.3",
+    "psycopg2>=2.5.2, <3.0",
     "nose",
     "mock",
     "rednose",
