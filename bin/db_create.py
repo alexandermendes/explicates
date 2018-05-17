@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 from alembic.config import Config
 from alembic import command
 
@@ -14,11 +15,16 @@ def db_create():
     """Create the db"""
     with app.app_context():
         db.create_all()
-        alembic_cfg = Config("../alembic.ini")
+        here = os.path.dirname(os.path.abspath(__file__))
+        cfg_path = os.path.join(os.path.dirname(here), "alembic.ini")
+        alembic_cfg = Config(cfg_path)
         command.stamp(alembic_cfg, "head")
 
         # Annotation servers must provide at least one container
-        collection = Collection(id="default", label="Default container")
+        collection = Collection(id="default", data={
+            'type': ['AnnotationCollection', 'BasicContainer'],
+            'label': 'Default Container'
+        })
         db.session.add(collection)
         db.session.commit()
 
