@@ -228,7 +228,8 @@ class APIBase(object):
         object in future.
         """
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        page_items = items[page:page + per_page]
+        start = page * per_page if page > 0 else 0
+        page_items = items[start:start + per_page]
         if not page_items:
             abort(404)
 
