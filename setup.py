@@ -12,6 +12,7 @@ requirements = [
     "flatten_json>=0.1.6, <0.2.0",
     "unidecode>=1.0.22, <2.0.0",
     "zipstream>=1.1.4, <1.2.0",
+    "psycopg2>=2.5.2, <3.0",
     "nose",
     "mock",
     "rednose",
