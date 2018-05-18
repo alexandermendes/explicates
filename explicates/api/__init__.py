@@ -9,6 +9,7 @@ from explicates.api.base import APIBase
 from explicates.api.collections import CollectionsAPI
 from explicates.api.annotations import AnnotationsAPI
 from explicates.api.search import SearchAPI
+from explicates.api.export import ExportAPI
 
 
 blueprint = Blueprint('api', __name__)
@@ -24,6 +25,7 @@ register_api(CollectionsAPI, 'collections', '/annotations/<collection_id>/')
 register_api(AnnotationsAPI, 'annotations',
              '/annotations/<collection_id>/<annotation_id>/')
 register_api(SearchAPI, 'search', '/search/<tablename>/')
+register_api(ExportAPI, 'export', '/export/<collection_id>')
 
 
 @blueprint.route('/annotations/', methods=['POST'])

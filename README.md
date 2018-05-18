@@ -90,3 +90,19 @@ All search endpoints provide the following parameters:
 
 - `contains`: Search for objects that contain some nested value
 (e.g. `contains={"motivation":"commenting", "body":{"value":"foo"}}`)
+
+### Export
+
+The following endpoint is provided to export the data for the purposes of
+migration or offline analysis, where the `collection_id` is the IRI part that
+identifies a particular collection.
+
+```http
+GET /export/<collection_id>
+```
+
+The data is streamed as JSON-LD and the following query parameters are
+available:
+
+- `flatten`: Flatten each Annotation.
+- `zip`: Return the data as a ZIP file.

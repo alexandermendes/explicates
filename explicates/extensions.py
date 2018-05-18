@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 """Extensions module."""
 
-__all__ = ['db', 'flask_profiler', 'cors']
+__all__ = ['db', 'flask_profiler', 'cors', 'exporter']
 
 
 # DB
@@ -15,3 +15,6 @@ import flask_profiler
 # CORS
 from flask_cors import CORS
 cors = CORS()
+
+# Exporter
+exporter = None

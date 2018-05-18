@@ -15,6 +15,7 @@ def create_app():
     configure_app(app)
     setup_db(app)
     setup_repository(app)
+    setup_exporter(app)
     setup_blueprint(app)
     setup_error_handler(app)
     setup_profiler(app)
@@ -112,3 +113,10 @@ def setup_profiler(app):
 def setup_cors(app):
     """Setup CORS."""
     cors.init_app(app, resources=app.config.get('CORS_RESOURCES'))
+
+
+def setup_exporter(app):
+    """Setup exporter."""
+    global exporter
+    from explicates.exporter import Exporter
+    exporter = Exporter()
