@@ -5,7 +5,6 @@ import json
 import string
 import tempfile
 import zipfile
-import pandas
 import unidecode
 import flatten_json
 from werkzeug.utils import secure_filename
