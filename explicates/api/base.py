@@ -252,7 +252,6 @@ class APIBase(object):
             data['partOf'] = partof
 
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        page_items = items[page:page + per_page]
         items = []
         for page_item in page_items:
             item_dict = page_item.dictize()
