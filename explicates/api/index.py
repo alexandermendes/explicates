@@ -1,8 +1,10 @@
 # -*- coding: utf8 -*-
 """Index API module."""
 
+from flask import url_for, request
 from flask.views import MethodView
 
+from explicates.core import repo
 from explicates.api.base import APIBase
 from explicates.model.collection import Collection
 
@@ -17,7 +19,19 @@ class IndexAPI(APIBase, MethodView):
 
     def get(self):
         """Return a list of all AnnotationCollections."""
-        pass
+        collections = repo.filter_by(Collection, deleted=False)
+        iris = True if request.args.get('iris') == '1' else False
+        container = {
+            'id': url_for('api.index', _external=True),
+            'label': 'All collections',
+            'type': [
+                'AnnotationCollection',
+                'BasicContainer'
+            ],
+            'total': len(collections),
+            'items': self._decorate_page_items(collections, iris)
+        }
+        return self._jsonld_response(container)
 
     def post(self):
         """Create an AnnotationCollection."""

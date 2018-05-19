@@ -23,6 +23,10 @@ class Repository(object):
         """Get an object by given attributes."""
         return self.db.session.query(model_cls).filter_by(**attrs).first()
 
+    def filter_by(self, model_cls, **attrs):
+        """Get all objects filtered by given attributes."""
+        return self.db.session.query(model_cls).filter_by(**attrs).all()
+
     def count(self, model_cls):
         """Count all objects."""
         return self.db.session.query(model_cls).count()

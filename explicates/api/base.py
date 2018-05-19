@@ -252,14 +252,18 @@ class APIBase(object):
             data['partOf'] = partof
 
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        items = []
+        items = self._decorate_page_items(page_items, params.get('iris'))
+        data['items'] = items
+        return data
+
+    def _decorate_page_items(self, page_items, iris=False):
+        """Dictize and decorate a list of page items."""
+        out = []
         for page_item in page_items:
             item_dict = page_item.dictize()
             item_dict['id'] = self._get_iri(page_item)
-            if params.get('iris'):
-                items.append(item_dict['id'])
+            if iris:
+                out.append(item_dict['id'])
             else:
-                items.append(item_dict)
-
-        data['items'] = items
-        return data
+                out.append(item_dict)
+        return out
