@@ -4,7 +4,7 @@
 import unidecode
 import zipfile
 import zipstream
-from flask import Response, abort, request
+from flask import Response, abort, request, stream_with_context
 from flask.views import MethodView
 
 from explicates.core import exporter
@@ -57,7 +57,8 @@ class ExportAPI(APIBase, MethodView):
         _zip = request.args.get('zip')
 
         data_gen = exporter.generate_data(collection.id, flatten)
-        if _zip:
+        if _zip == '1':
             return self._zip_response(collection_id, data_gen)
 
-        return Response(data_gen, mimetype='application/ld+json')
+        return Response(stream_with_context(data_gen),
+                                            mimetype='application/ld+json')

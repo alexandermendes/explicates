@@ -7,6 +7,8 @@ import tempfile
 import zipfile
 import unidecode
 import flatten_json
+from flask import current_app
+from sqlalchemy import and_
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 
@@ -17,11 +19,14 @@ from explicates.model.collection import Collection
 
 class Exporter(object):
 
-    def _stream_annotation_data(self, collection_id):
+    def _stream_annotation_data(self, collection):
         """Stream the contents of an AnnotationCollection from the database."""
-        collection = repo.get_by(Collection, id=collection_id)
         table = Annotation.__table__
-        query = table.select().where(table.c.collection_key == collection.key)
+        where_clauses = [
+            table.c.collection_key == collection.key,
+            table.c.deleted == False
+        ]
+        query = table.select().where(and_(*where_clauses))
         exec_opts = dict(stream_results=True)
         res = db.session.connection(execution_options=exec_opts).execute(query)
         while True:
@@ -33,13 +38,17 @@ class Exporter(object):
 
     def generate_data(self, collection_id, flatten=False):
         """Return all Annotations as JSON-LD."""
-        data_gen = self._stream_annotation_data(collection_id)
+        collection = repo.get_by(Collection, id=collection_id)
+        data_gen = self._stream_annotation_data(collection)
         first = True
         yield '['
         for row in data_gen:
+            anno = Annotation(**dict(row))
+            anno.collection = collection
+            anno_dict = anno.dictize()
             if flatten:
-                row = flatten_json.flatten(row)
-            out = json.dumps(row)
+                anno_dict = flatten_json.flatten(anno_dict)
+            out = json.dumps(anno_dict)
             yield out if first else ', ' + out
             first = False
         yield ']'
