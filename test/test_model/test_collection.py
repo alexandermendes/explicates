@@ -24,5 +24,6 @@ class TestModelCollection(Test):
         collection = Collection(data=collection_data)
         db.session.add(collection)
         db.session.commit()
-        expected = url_for('api.collections', collection_id=collection.id)
+        expected = url_for('api.collections', collection_id=collection.id,
+                           _external=True)
         assert_equal(collection.iri, expected)

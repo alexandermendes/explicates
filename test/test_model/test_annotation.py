@@ -33,5 +33,6 @@ class TestModelAnnotation(Test):
         db.session.commit()
         expected = url_for('api.annotations',
                            collection_id=collection.id,
-                           annotation_id=annotation.id)
+                           annotation_id=annotation.id,
+                           _external=True)
         assert_equal(annotation.iri, expected)
