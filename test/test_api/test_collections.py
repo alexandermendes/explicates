@@ -464,8 +464,9 @@ class TestCollectionsAPI(Test):
                                                      collection=collection)
 
         current_page = 1
+        start = current_page * per_page
         items = []
-        for anno in annotations[current_page:current_page + per_page]:
+        for anno in annotations[start:start + per_page]:
             items.append(
                 {
                     'id': url_for('api.annotations',
