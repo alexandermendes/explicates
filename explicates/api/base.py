@@ -15,7 +15,6 @@ from sqlalchemy.exc import IntegrityError
 from explicates.core import repo
 from explicates.model.annotation import Annotation
 from explicates.model.collection import Collection
-from explicates.model.ordered_collection import OrderedCollection
 from explicates.model.base import BaseDomainObject
 
 
@@ -40,11 +39,9 @@ class APIBase(object):
                            **kwargs)
 
         elif isinstance(obj, Collection):
+            if not obj.id:
+                return url_for('api.search', _external=True, **kwargs)
             return url_for('api.collections', collection_id=obj.id,
-                           _external=True, **kwargs)
-
-        elif isinstance(obj, OrderedCollection):
-            return url_for('api.search', tablename=obj.tablename,
                            _external=True, **kwargs)
 
         cls_name = obj.__class__.__name__
@@ -132,10 +129,6 @@ class APIBase(object):
             namespaces.append('ldp#DirectContainer')
         if 'IndirectContainer' in types:
             namespaces.append('ldp#IndirectContainer')
-        if 'OrderedCollection' in types:
-            namespaces.append('activitystreams#OrderedCollection')
-        if 'OrderedCollectionPage' in types:
-            namespaces.append('activitystreams#OrderedCollectionPage')
 
         links = [dict(url='http://www.w3.org/ns/{}'.format(ns), rel='type')
                       for ns in namespaces]
@@ -181,14 +174,14 @@ class APIBase(object):
     def _get_query_params(self, iris=None):
         """Return a copy of the request arguments.
 
-        Remove page as this will be dealt with seperately for each IRI.
+        Remove page as this will be dealt with seperately.
         """
         params = request.args.copy()
         params.pop('page', None)
         return params.to_dict(flat=True)
 
     def _get_container(self, obj, items=None):
-        """Return a container for an object."""
+        """Return a container for Annotations."""
         out = obj.dictize()
         minimal, iris = self._get_container_preferences()
         params = self._get_query_params()
@@ -220,13 +213,7 @@ class APIBase(object):
         return last_page
 
     def _get_page(self, page, obj, items, partof=None, **params):
-        """Return a page.
-
-        This will be an AnnotationPage if the items are Annotations, otherwise
-        an OrderedCollectionPage. This is so that we can also return pages
-        of AnnotationCollections for discovery and potentially other types of
-        object in future.
-        """
+        """Return an AnnotationPage."""
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
         start = page * per_page if page > 0 else 0
         page_items = items[start:start + per_page]
@@ -236,11 +223,9 @@ class APIBase(object):
         page_iri = self._get_iri(obj, page=page, **params)
         data = {
             'id': page_iri,
-            'type': 'OrderedCollectionPage',
+            'type': 'AnnotationPage',
             'startIndex': 0
         }
-        if isinstance(items[0], Annotation):
-            data['type'] = 'AnnotationPage'
 
         last_page = self._get_last_page(items)
         if last_page > page:

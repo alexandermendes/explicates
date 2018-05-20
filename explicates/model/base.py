@@ -58,7 +58,7 @@ class BaseDomainObject(object):
             'data',
             'iri'
         ]
-        out = self._data or {}
+        out = {}
 
         # Add column values
         for col in self.__table__.c:
@@ -78,13 +78,17 @@ class BaseDomainObject(object):
         # Add generated
         out['generated'] = make_timestamp()
 
-        # Add base ID
-        if self.iri:
-            out['id'] = self.iri
-
         # Add generator
         generator = current_app.config.get('GENERATOR')
         if generator:
             out['generator'] = generator
+
+        # Add data
+        if self._data:
+            out.update(self._data)
+        
+        # Add ID
+        if self.iri:
+            out['id'] = self.iri
 
         return out

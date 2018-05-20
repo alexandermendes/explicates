@@ -26,6 +26,6 @@ register_api(IndexAPI, 'index', '/annotations/')
 register_api(CollectionsAPI, 'collections', '/annotations/<collection_id>/')
 register_api(AnnotationsAPI, 'annotations',
              '/annotations/<collection_id>/<annotation_id>/')
-register_api(SearchAPI, 'search', '/search/<tablename>/')
+register_api(SearchAPI, 'search', '/search/')
 register_api(ExportAPI, 'export', '/export/<collection_id>/')
 register_api(BatchAPI, 'batch', '/batch/')

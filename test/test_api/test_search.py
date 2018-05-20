@@ -27,37 +27,41 @@ class TestSearchAPI(Test):
 
     @with_context
     @freeze_time("1984-11-19")
-    def test_all_valid_domain_objects_returned(self):
-        """Test an OrderedCollection is returned for all valid objects."""
-        tables = ['annotation', 'collection']
-        for table in tables:
-            endpoint = '/search/{}/'.format(table)
-            res = self.app_get_json_ld(endpoint)
-            assert_equal(json.loads(res.data), {
-                "@context": "http://www.w3.org/ns/anno.jsonld",
-                "id": url_for('api.search', tablename=table),
-                "type": "OrderedCollection",
-                "generated": "1984-11-19T00:00:00Z",
-                'generator': current_app.config.get('GENERATOR'),
-                "total": 0
-            })
-
-    @with_context
-    @freeze_time("1984-11-19")
-    def test_ordered_collection_with_annotations(self):
-        """Test OrderedCollection with Annotations."""
-        annotation = AnnotationFactory()
-        endpoint = '/search/annotation/'
+    def test_with_no_results(self):
+        """Test an empty AnnotationCollection is returned if no results."""
+        endpoint = '/search/'
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), {
             "@context": "http://www.w3.org/ns/anno.jsonld",
-            "id": url_for('api.search', tablename='annotation'),
-            "type": "OrderedCollection",
+            "id": url_for('api.search'),
+            "type": [
+                "AnnotationCollection",
+                "BasicContainer"
+            ],
+            "generated": "1984-11-19T00:00:00Z",
+            'generator': current_app.config.get('GENERATOR'),
+            "total": 0
+        })
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_with_results_and_no_parameters(self):
+        """Test all Annotations returned when no parameters."""
+        annotation = AnnotationFactory()
+        endpoint = '/search/'
+        res = self.app_get_json_ld(endpoint)
+        assert_equal(json.loads(res.data), {
+            "@context": "http://www.w3.org/ns/anno.jsonld",
+            "id": url_for('api.search'),
+            "type": [
+                'AnnotationCollection', 
+                'BasicContainer'
+            ],
             "generated": "1984-11-19T00:00:00Z",
             'generator': current_app.config.get('GENERATOR'),
             "total": 1,
             'first': {
-                'id': url_for('api.search', tablename='annotation', page=0),
+                'id': url_for('api.search', page=0),
                 'type': 'AnnotationPage',
                 'startIndex': 0,
                 'items': [
@@ -78,46 +82,14 @@ class TestSearchAPI(Test):
 
     @with_context
     @freeze_time("1984-11-19")
-    def test_ordered_collection_with_annotation_collections(self):
-        """Test OrderedCollection with AnnotationCollections."""
-        collection = CollectionFactory()
-        endpoint = '/search/collection/'
-        res = self.app_get_json_ld(endpoint)
-        assert_equal(json.loads(res.data), {
-            "@context": "http://www.w3.org/ns/anno.jsonld",
-            "id": url_for('api.search', tablename='collection'),
-            "type": "OrderedCollection",
-            "generated": "1984-11-19T00:00:00Z",
-            'generator': current_app.config.get('GENERATOR'),
-            "total": 1,
-            'first': {
-                'id': url_for('api.search', tablename='collection', page=0),
-                'type': 'OrderedCollectionPage',
-                'startIndex': 0,
-                'items': [
-                    {
-                        'id': url_for('api.collections',
-                                      collection_id=collection.id),
-                        'type': collection.data['type'],
-                        'created': '1984-11-19T00:00:00Z',
-                        'generated': '1984-11-19T00:00:00Z',
-                        'generator': current_app.config.get('GENERATOR'),
-                        'total': 0
-                    }
-                ]
-            }
-        })
-
-    @with_context
-    @freeze_time("1984-11-19")
     def test_search_page_with_annotations(self):
         """Test search page with Annotations."""
         annotation = AnnotationFactory()
-        endpoint = '/search/annotation/?page=0'
+        endpoint = '/search/?page=0'
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': url_for('api.search', tablename='annotation', page=0),
+            'id': url_for('api.search', page=0),
             'type': 'AnnotationPage',
             'startIndex': 0,
             'items': [
@@ -134,9 +106,12 @@ class TestSearchAPI(Test):
                 }
             ],
             'partOf': {
-                'id': url_for('api.search', tablename='annotation'),
+                'id': url_for('api.search'),
                 'total': 1,
-                'type': 'OrderedCollection',
+                'type': [
+                    'AnnotationCollection',
+                    'BasicContainer'
+                ],
                 'generated': '1984-11-19T00:00:00Z',
                 'generator': current_app.config.get('GENERATOR')
             }
@@ -144,81 +119,45 @@ class TestSearchAPI(Test):
 
     @with_context
     @freeze_time("1984-11-19")
-    def test_search_page_with_annotation_collections(self):
-        """Test search page with AnnotationCollections."""
-        collection = CollectionFactory()
-        endpoint = '/search/collection/?page=0'
-        res = self.app_get_json_ld(endpoint)
-        assert_equal(json.loads(res.data), {
-            '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id': url_for('api.search', tablename='collection', page=0),
-            'type': 'OrderedCollectionPage',
-            'startIndex': 0,
-            'items': [
-                {
-                    'id': url_for('api.collections',
-                                  collection_id=collection.id),
-                    'type': collection.data['type'],
-                    'created': '1984-11-19T00:00:00Z',
-                    'generated': '1984-11-19T00:00:00Z',
-                    'generator': current_app.config.get('GENERATOR'),
-                    'total': 0
-                }
-            ],
-            'partOf': {
-                'id': url_for('api.search', tablename='collection'),
-                'total': 1,
-                'type': 'OrderedCollection',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
-            }
-        })
-
-    @with_context
-    @freeze_time("1984-11-19")
-    def test_search_by_contains_for_annotation_collections(self):
-        """Test search by contains for AnnotationCollections."""
-        collection1 = CollectionFactory(data={
-            'type': ['AnnotationCollection', 'BasicContainer'],
-            'label': 'foo'
-        })
-        collection2 = CollectionFactory()
-        assert_not_equal(collection2.data.get('label'), 'foo')
-        contains = json.dumps({"label": "foo"})
-        endpoint = '/search/collection/?contains={}'.format(contains)
+    def test_search_by_contains(self):
+        """Test search by contains."""
+        anno_data = {
+            'body': 'foo',
+            'target': 'bar'
+        }
+        anno1 = AnnotationFactory(data=anno_data)
+        anno2 = AnnotationFactory()
+        assert_not_equal(anno1.data.get('body'), anno2.data.get('body'))
+        contains = json.dumps(anno_data)
+        endpoint = '/search/?contains={}&iris=1'.format(contains)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), {
             "@context": "http://www.w3.org/ns/anno.jsonld",
-            "id": url_for('api.search', tablename='collection',
-                          contains=contains),
-            "type": "OrderedCollection",
+            "id": url_for('api.search', contains=contains, iris=1),
+            "type": [
+                'AnnotationCollection', 
+                'BasicContainer'
+            ],
             "generated": "1984-11-19T00:00:00Z",
             'generator': current_app.config.get('GENERATOR'),
             "total": 1,
             'first': {
-                'id': url_for('api.search', tablename='collection', page=0,
+                'id': url_for('api.search', page=0, iris=1, 
                               contains=contains),
-                'type': 'OrderedCollectionPage',
+                'type': 'AnnotationPage',
                 'startIndex': 0,
                 'items': [
-                    {
-                        'id': url_for('api.collections',
-                                      collection_id=collection1.id),
-                        'type': collection1.data['type'],
-                        'label': collection1.data['label'],
-                        'created': '1984-11-19T00:00:00Z',
-                        'generated': '1984-11-19T00:00:00Z',
-                        'generator': current_app.config.get('GENERATOR'),
-                        'total': 0
-                    }
+                    url_for('api.annotations',
+                            collection_id=anno1.collection.id,
+                            annotation_id=anno1.id)
                 ]
             }
         })
 
     @with_context
     @freeze_time("1984-11-19")
-    def test_full_text_search_for_annotations(self):
-        """Test full text search for Annotations."""
+    def test_full_text_search(self):
+        """Test full text search."""
         annotation1 = AnnotationFactory(data={
             'type': 'Annotation',
             'body': 'foo',
@@ -240,19 +179,20 @@ class TestSearchAPI(Test):
         })
 
         fts = 'body::foo'
-        endpoint = '/search/annotation/?iris=1&fts={}'.format(fts)
+        endpoint = '/search/?iris=1&fts={}'.format(fts)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), {
             "@context": "http://www.w3.org/ns/anno.jsonld",
-            "id": url_for('api.search', tablename='annotation', fts=fts,
-                          iris=1),
-            "type": "OrderedCollection",
+            "id": url_for('api.search', fts=fts, iris=1),
+            "type": [
+                'AnnotationCollection', 
+                'BasicContainer'
+            ],
             "generated": "1984-11-19T00:00:00Z",
             'generator': current_app.config.get('GENERATOR'),
             "total": 2,
             'first': {
-                'id': url_for('api.search', tablename='annotation', page=0,
-                              fts=fts, iris=1),
+                'id': url_for('api.search', page=0, fts=fts, iris=1),
                 'type': 'AnnotationPage',
                 'startIndex': 0,
                 'items': [
@@ -268,8 +208,8 @@ class TestSearchAPI(Test):
 
     @with_context
     @freeze_time("1984-11-19")
-    def test_full_text_search_within_category_for_annotations(self):
-        """Test full text within category for Annotations."""
+    def test_full_text_search_within_collection(self):
+        """Test full text within collection."""
         collection1 = CollectionFactory()
         collection2 = CollectionFactory()
         annotation1 = AnnotationFactory(data={
@@ -295,18 +235,20 @@ class TestSearchAPI(Test):
         fts = 'body::foo'
         query = u'iris=1&fts={0}&collection.id={1}'.format(fts, collection1.id)
         query_dict = {'fts': fts, 'iris': 1, 'collection.id': collection1.id}
-        endpoint = u'/search/annotation/?{}'.format(query)
+        endpoint = u'/search/?{}'.format(query)
         res = self.app_get_json_ld(endpoint)
         assert_equal(json.loads(res.data), {
             "@context": "http://www.w3.org/ns/anno.jsonld",
-            "id": url_for('api.search', tablename='annotation', **query_dict),
-            "type": "OrderedCollection",
+            "id": url_for('api.search', **query_dict),
+            "type": [
+                'AnnotationCollection', 
+                'BasicContainer'
+            ],
             "generated": "1984-11-19T00:00:00Z",
             'generator': current_app.config.get('GENERATOR'),
             "total": 1,
             'first': {
-                'id': url_for('api.search', tablename='annotation', page=0,
-                              **query_dict),
+                'id': url_for('api.search', page=0, **query_dict),
                 'type': 'AnnotationPage',
                 'startIndex': 0,
                 'items': [
