@@ -3,7 +3,7 @@
 
 import json
 from sqlalchemy import func
-from sqlalchemy.sql import and_
+from sqlalchemy.sql import and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.base import _entity_descriptor
 from jsonschema.exceptions import ValidationError
@@ -63,6 +63,35 @@ class Repository(object):
         except (IntegrityError, ValidationError) as err:
             self.db.session.rollback()
             raise err
+
+    def batch_delete(self, model_cls, ids):
+        """Mark a list of objects as deleted."""
+        batch_clause = self._get_batch_clause(model_cls, ids)
+        try:
+            self.db.session.execute(model_cls.__table__.update()
+                                                       .values(deleted=True)
+                                                       .where(batch_clause))
+            self.db.session.commit()
+        except (IntegrityError, ValidationError) as err:
+            self.db.session.rollback()
+            raise err
+
+    def _validate_batch_clause(self, model_cls, batch_clause, ids):
+        """Confirm that all IDs exist for the batch clause."""
+        query = model_cls.__table__.select().where(batch_clause)
+        count = self.db.session.execute(query).rowcount
+        if count != len(ids):
+            msg = 'The query contains IDs that cannot be found in the database'
+            raise ValueError(msg)
+
+    def _get_batch_clause(self, model_cls, ids):
+        """Return OR clauses for batch operations by ID."""
+        clauses = []
+        for _id in ids:
+            clauses.append((_entity_descriptor(model_cls, 'id') == _id))
+        batch_clause = or_(*clauses)
+        self._validate_batch_clause(model_cls, batch_clause, ids)
+        return batch_clause
 
     def search(self, model_cls, contains=None, fts=None, **kwargs):
         """Search for objects."""

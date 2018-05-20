@@ -87,7 +87,7 @@ class Test(object):
                                 headers=headers,
                                 content_type=content_type)
 
-    def app_delete_json_ld(self, url, follow_redirects=False,
+    def app_delete_json_ld(self, url, follow_redirects=False, data=None,
                            headers=None):
         content_type = 'application/ld+json'
         if not headers:
@@ -96,4 +96,5 @@ class Test(object):
         return self.app.delete(url,
                                follow_redirects=follow_redirects,
                                headers=headers,
+                               data=json.dumps(data),
                                content_type=content_type)

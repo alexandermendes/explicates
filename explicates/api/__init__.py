@@ -11,6 +11,7 @@ from explicates.api.annotations import AnnotationsAPI
 from explicates.api.index import IndexAPI
 from explicates.api.search import SearchAPI
 from explicates.api.export import ExportAPI
+from explicates.api.batch import BatchAPI
 
 
 blueprint = Blueprint('api', __name__)
@@ -27,3 +28,4 @@ register_api(AnnotationsAPI, 'annotations',
              '/annotations/<collection_id>/<annotation_id>/')
 register_api(SearchAPI, 'search', '/search/<tablename>/')
 register_api(ExportAPI, 'export', '/export/<collection_id>/')
+register_api(BatchAPI, 'batch', '/batch/')
