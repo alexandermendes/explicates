@@ -40,7 +40,7 @@ class SearchAPI(APIBase, MethodView):
         filters = self._get_valid_filters()
         filters['contains'] = request.args.get('contains')
         filters['fts'] = request.args.get('fts')
-        print 'foo'
+
         try:
             results = repo.search(Annotation, **filters)
         except (ValueError, ProgrammingError) as err:
@@ -50,8 +50,8 @@ class SearchAPI(APIBase, MethodView):
             "type": [
                 "AnnotationCollection",
                 "BasicContainer"
-            ],
-            "total": len(results)
+            ]
         })
-        container = self._get_container(tmp_collection, items=results)
+        container = self._get_container(tmp_collection, items=results, 
+                                        total=len(results))
         return self._jsonld_response(container)

@@ -180,7 +180,7 @@ class APIBase(object):
         params.pop('page', None)
         return params.to_dict(flat=True)
 
-    def _get_container(self, obj, items=None):
+    def _get_container(self, obj, items=None, total=None):
         """Return a container for Annotations."""
         out = obj.dictize()
         minimal, iris = self._get_container_preferences()
@@ -188,6 +188,9 @@ class APIBase(object):
         params['iris'] = 1 if iris or params.get('iris') == '1' else None
 
         out['id'] = self._get_iri(obj, **params)
+
+        if total:
+            out['total'] = total
 
         page = request.args.get('page')
         if page:
