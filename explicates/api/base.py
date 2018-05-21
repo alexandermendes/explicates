@@ -51,6 +51,11 @@ class APIBase(object):
         """Create and return a domain object."""
         data = request.get_json()
         slug = request.headers.get('Slug')
+
+        # Move posted ID to via
+        if data.get('id'):
+            data['via'] = data.pop('id')
+
         try:
             obj = model_cls(id=slug, data=data, **kwargs)
             repo.save(model_cls, obj)

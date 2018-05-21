@@ -139,6 +139,21 @@ class TestAnnotationsAPI(Test):
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         annotation = repo.get(Annotation, 1)
         assert_equal(annotation.id, slug)
+    
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_annotation_created_with_id_moved_to_via(self):
+        """Test Annotation created with ID moved to via."""
+        collection = CollectionFactory(id='foo')
+        endpoint = '/annotations/{}/'.format(collection.id)
+        old_id = 'bar'
+        data = dict(type='Annotation', body='baz', target='http://example.org',
+                    id=old_id)
+        res = self.app_post_json_ld(endpoint, data=data)
+        annotation = repo.get(Annotation, 1)
+        assert_equal(annotation._data.get('via'), old_id)
+        assert_not_equal(annotation.id, old_id)
+        assert_not_equal(annotation.dictize()['id'], old_id)
 
     @with_context
     def test_annotation_deleted(self):

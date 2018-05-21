@@ -78,6 +78,20 @@ class TestCollectionsAPI(Test):
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         collection = repo.get(Collection, 1)
         assert_equal(collection.id, slug)
+    
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_collection_created_with_id_moved_to_via(self):
+        """Test Collection created with ID moved to via."""
+        endpoint = '/annotations/'
+        old_id = 'foo'
+        data = dict(type='Annotation', body='bar', target='http://example.org',
+                    id=old_id)
+        res = self.app_post_json_ld(endpoint, data=data)
+        collection = repo.get(Collection, 1)
+        assert_equal(collection._data.get('via'), old_id)
+        assert_not_equal(collection.id, old_id)
+        assert_not_equal(collection.dictize()['id'], old_id)
 
     @with_context
     @freeze_time("1984-11-19")
