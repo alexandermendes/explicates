@@ -68,6 +68,10 @@ class BaseDomainObject(object):
             elif isinstance(obj, datetime.datetime):
                 obj = obj.isoformat()
             out[col.name] = obj
+        
+        # Add data
+        if self._data:
+            out.update(self._data)
 
         # Add hybrid properties
         for item in sa_inspect(self.__class__).all_orm_descriptors:
@@ -82,10 +86,6 @@ class BaseDomainObject(object):
         generator = current_app.config.get('GENERATOR')
         if generator:
             out['generator'] = generator
-
-        # Add data
-        if self._data:
-            out.update(self._data)
         
         # Add ID
         if self.iri:
