@@ -20,7 +20,6 @@ def create_app():
     setup_blueprint(app)
     setup_error_handler(app)
     setup_cors(app)
-    import explicates.model.event_listeners
     return app
 
 
