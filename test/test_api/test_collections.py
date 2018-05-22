@@ -1,20 +1,18 @@
 # -*- coding: utf8 -*-
 
+import os
 import json
 from nose.tools import *
+from mock import patch, call
 from freezegun import freeze_time
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
+from jsonschema.exceptions import ValidationError
 
 from explicates.core import repo
 from explicates.model.collection import Collection
 from explicates.model.annotation import Annotation
-
-try:
-    from urllib import urlencode
-except ImportError:  # py3
-    from urllib.parse import urlencode
 
 
 class TestCollectionsAPI(Test):
@@ -572,3 +570,35 @@ class TestCollectionsAPI(Test):
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 1)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
+    
+    @with_context
+    @patch('explicates.api.base.validate_json')
+    def test_collection_validated_before_create(self, mock_validate):
+        """Test Collection validated before creation."""
+        endpoint = '/annotations/'
+        bad_data = {'foo': 'bar'}
+        mock_validate.side_effect = ValidationError('Bad Data')
+        res = self.app_post_json_ld(endpoint, data=bad_data)
+        assert_equal(res.status_code, 400)
+        schema_path = os.path.join(current_app.root_path, 'schemas', 
+                                   'collection.json')
+        schema = json.load(open(schema_path))
+        mock_validate.assert_called_once_with(bad_data, schema)
+        collections = repo.filter_by(Annotation)
+        assert_equal(len(collections), 0)
+
+    @with_context
+    @patch('explicates.api.base.validate_json')
+    def test_collection_validated_before_update(self, mock_validate):
+        """Test Collection validated before update."""
+        collection = CollectionFactory()
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        bad_data = {'foo': 'bar'}
+        mock_validate.side_effect = ValidationError('Bad Data')
+        res = self.app_put_json_ld(endpoint, data=bad_data)
+        assert_equal(res.status_code, 400)
+        schema_path = os.path.join(current_app.root_path, 'schemas', 
+                                   'collection.json')
+        schema = json.load(open(schema_path))
+        mock_validate.assert_called_once_with(bad_data, schema)
+        assert_not_equal(collection._data, bad_data)

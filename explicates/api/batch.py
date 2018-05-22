@@ -5,7 +5,6 @@ import json
 from flask import request, abort
 from flask.views import MethodView
 from sqlalchemy.exc import IntegrityError
-from jsonschema.exceptions import ValidationError
 
 try:
     from urllib import unquote
@@ -42,6 +41,6 @@ class BatchAPI(APIBase, MethodView):
         annotation_ids = [self._get_base_id(anno) for anno in json_data]
         try:
             repo.batch_delete(Annotation, annotation_ids)
-        except (IntegrityError, ValidationError, ValueError) as err:
+        except (IntegrityError, ValueError) as err:
             abort(400, err.message)
         return self._jsonld_response(None, status_code=204)

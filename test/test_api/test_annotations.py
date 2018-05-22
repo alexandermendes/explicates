@@ -1,11 +1,14 @@
 # -*- coding: utf8 -*-
 
+import os
 import json
 from nose.tools import *
+from mock import patch, call
 from freezegun import freeze_time
 from base import Test, with_context
 from factories import CollectionFactory, AnnotationFactory
 from flask import current_app, url_for
+from jsonschema.exceptions import ValidationError
 
 from explicates.core import repo
 from explicates.model.collection import Collection
@@ -205,3 +208,37 @@ class TestAnnotationsAPI(Test):
         # Test Link header
         link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
         assert_equal(res.headers.get('Link'), link)
+    
+    @with_context
+    @patch('explicates.api.base.validate_json')
+    def test_annotation_validated_before_create(self, mock_validate):
+        """Test Annotation validated before creation."""
+        collection = CollectionFactory()
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        bad_data = {'foo': 'bar'}
+        mock_validate.side_effect = ValidationError('Bad Data')
+        res = self.app_post_json_ld(endpoint, data=bad_data)
+        assert_equal(res.status_code, 400)
+        schema_path = os.path.join(current_app.root_path, 'schemas', 
+                                   'annotation.json')
+        schema = json.load(open(schema_path))
+        mock_validate.assert_called_once_with(bad_data, schema)
+        annotations = repo.filter_by(Annotation)
+        assert_equal(len(annotations), 0)
+
+    @with_context
+    @patch('explicates.api.base.validate_json')
+    def test_annotation_validated_before_update(self, mock_validate):
+        """Test Annotation validated before update."""
+        annotation = AnnotationFactory()
+        endpoint = u'/annotations/{}/{}/'.format(annotation.collection.id, 
+                                                 annotation.id)
+        bad_data = {'foo': 'bar'}
+        mock_validate.side_effect = ValidationError('Bad Data')
+        res = self.app_put_json_ld(endpoint, data=bad_data)
+        assert_equal(res.status_code, 400)
+        schema_path = os.path.join(current_app.root_path, 'schemas', 
+                                   'annotation.json')
+        schema = json.load(open(schema_path))
+        mock_validate.assert_called_once_with(bad_data, schema)
+        assert_not_equal(annotation._data, bad_data)

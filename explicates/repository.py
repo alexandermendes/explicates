@@ -6,7 +6,6 @@ from sqlalchemy import func
 from sqlalchemy.sql import and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.base import _entity_descriptor
-from jsonschema.exceptions import ValidationError
 
 
 class Repository(object):
@@ -37,7 +36,7 @@ class Repository(object):
         try:
             self.db.session.add(obj)
             self.db.session.commit()
-        except (IntegrityError, ValidationError) as err:
+        except IntegrityError as err:
             self.db.session.rollback()
             raise err
 
@@ -48,7 +47,7 @@ class Repository(object):
         try:
             self.db.session.merge(obj)
             self.db.session.commit()
-        except (IntegrityError, ValidationError) as err:
+        except IntegrityError as err:
             self.db.session.rollback()
             raise err
 
@@ -60,7 +59,7 @@ class Repository(object):
         try:
             self.db.session.merge(obj)
             self.db.session.commit()
-        except (IntegrityError, ValidationError) as err:
+        except IntegrityError as err:
             self.db.session.rollback()
             raise err
 
@@ -72,7 +71,7 @@ class Repository(object):
                                                        .values(deleted=True)
                                                        .where(batch_clause))
             self.db.session.commit()
-        except (IntegrityError, ValidationError) as err:
+        except IntegrityError as err:
             self.db.session.rollback()
             raise err
 

@@ -7,8 +7,11 @@ Design notes:
   Web Annotation profile, more formats may be added in future.
 """
 
+import os
+import json
 from flask import current_app
 from flask import abort, request, jsonify, make_response, url_for
+from jsonschema import validate as validate_json
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
 
@@ -49,28 +52,28 @@ class APIBase(object):
 
     def _create(self, model_cls, **kwargs):
         """Create and return a domain object."""
-        data = request.get_json()
+        data = self._get_validated_data(model_cls)
         slug = request.headers.get('Slug')
 
         # Move posted ID to via
-        if data.get('id'):
+        if data and data.get('id'):
             data['via'] = data.pop('id')
 
         try:
             obj = model_cls(id=slug, data=data, **kwargs)
             repo.save(model_cls, obj)
-        except (ValidationError, IntegrityError, TypeError) as err:
+        except (IntegrityError, TypeError) as err:
             abort(400, err.message)
         return obj
 
     def _update(self, obj):
         """Update a domain object."""
-        data = request.get_json()
+        data = self._get_validated_data(obj.__class__)
         try:
             obj.data = data
             model_cls = obj.__class__
             repo.update(model_cls, obj)
-        except (ValidationError, IntegrityError, TypeError) as err:
+        except (IntegrityError, TypeError) as err:
             abort(400, err.message)
 
     def _delete(self, obj):
@@ -78,8 +81,26 @@ class APIBase(object):
         try:
             model_cls = obj.__class__
             repo.delete(model_cls, obj.key)
-        except (ValidationError, IntegrityError, TypeError) as err:
+        except (IntegrityError, TypeError) as err:
             abort(400, err.message)
+    
+    def _get_validated_data(self, model_cls):
+        data = request.get_json()
+        try:
+            self._validate_data(data, model_cls)
+        except ValidationError as err:
+            abort(400, err.message)
+        return data
+        
+    def _validate_data(self, obj, model_cls):
+        """Validate data according JSON schema for the model class."""
+        schema_fn = '{}.json'.format(model_cls.__name__.lower())
+        here = os.path.dirname(os.path.abspath(__file__))
+        schemas_dir = os.path.join(os.path.dirname(here), 'schemas')
+        schema_path = os.path.join(schemas_dir, schema_fn)
+        with open(schema_path, 'rb') as json_file:
+            schema = json.load(json_file)
+            validate_json(obj, schema)
 
     def _jsonld_response(self, rv, status_code=200, headers=None):
         """Return a JSON-LD Response.
