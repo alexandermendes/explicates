@@ -27,5 +27,5 @@ class BaseFactory(factory.Factory):
 
 
 # Import the factories
-from annotation import AnnotationFactory
-from collection import CollectionFactory
+from .annotation import AnnotationFactory
+from .collection import CollectionFactory
