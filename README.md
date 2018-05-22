@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/alexandermendes/explicates.svg?branch=master)](https://travis-ci.org/alexandermendes/explicates)
 [![Coverage Status](https://coveralls.io/repos/github/alexandermendes/explicates/badge.svg?branch=master)](https://coveralls.io/github/alexandermendes/explicates?branch=master)
+
 > A PostgreSQL-backed Web Annotation server.
 
 ## Setup
@@ -62,7 +63,8 @@ returned as an AnnotationCollection.
 The following parameters are provided:
 
 - `contains`: Search for objects that contain some nested value
-(e.g. `contains={"motivation":"commenting", "body":{"value":"foo"}}`)
+(e.g. `contains={"motivation":"commenting"}`)
+- `fts`: Full text search (e.g. `fts=body::foo`)
 
 ### Export
 
