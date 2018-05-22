@@ -335,7 +335,6 @@ class TestCollectionsAPI(Test):
         collection = collections[0]
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        print res.data
         assert_equal(res.status_code, 204)
         assert_equal(collection.deleted, True)
 
