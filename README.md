@@ -1,8 +1,7 @@
 # Explicates
 
-[![Coverage Status](https://coveralls.io/repos/github/alexandermendes/explicates/badge.svg?branch=master)](https://coveralls.io/github/alexandermendes/explicates?branch=master)
 [![Build Status](https://travis-ci.org/alexandermendes/explicates.svg?branch=master)](https://travis-ci.org/alexandermendes/explicates)
-
+[![Coverage Status](https://coveralls.io/repos/github/alexandermendes/explicates/badge.svg?branch=master)](https://coveralls.io/github/alexandermendes/explicates?branch=master)
 > A PostgreSQL-backed Web Annotation server.
 
 ## Setup
