@@ -2,6 +2,7 @@
 """Collection model."""
 
 from flask import url_for
+from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -19,11 +20,18 @@ class Collection(db.Model, Base):
 
     __tablename__ = 'collection'
 
-    annotations = relationship(Annotation, backref='collection')
+    annotations = relationship(Annotation, backref='collection', 
+                               lazy='dynamic')
 
     @hybrid_property
     def total(self):
-        return len(self.annotations)
+        return self.annotations.count()
+    
+    @total.expression
+    def total(cls):
+        return (select([func.count(Annotation.id)]).
+                where(Annotation.collection_key == cls.key).
+                label("total"))
 
     @hybrid_property
     def iri(self):

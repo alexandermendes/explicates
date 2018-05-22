@@ -53,9 +53,9 @@ class CollectionsAPI(APIBase, MethodView):
         """
         collection = self._get_collection(collection_id)
         if repo.count(Collection) == 1:
-            msg = 'The last collection on the server so cannot be deleted'
+            msg = 'The last collection on the server cannot be deleted'
             abort(400, msg)
-        elif collection.annotations:
+        elif collection.total > 0:
             msg = 'The collection is not empty so cannot be deleted'
             abort(400, msg)
         self._delete(collection)

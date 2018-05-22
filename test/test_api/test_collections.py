@@ -50,7 +50,7 @@ class TestCollectionsAPI(Test):
         assert_not_equal(collection, None)
 
         _id = url_for('api.collections', collection_id=collection.id)
-        assert_equal(json.loads(res.data), {
+        assert_dict_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
             'type': data['type'],
@@ -85,8 +85,7 @@ class TestCollectionsAPI(Test):
         """Test Collection created with ID moved to via."""
         endpoint = '/annotations/'
         old_id = 'foo'
-        data = dict(type='Annotation', body='bar', target='http://example.org',
-                    id=old_id)
+        data = dict(type=['AnnotationCollection', 'BasicContainer'], id=old_id)
         res = self.app_post_json_ld(endpoint, data=data)
         collection = repo.get(Collection, 1)
         assert_equal(collection._data.get('via'), old_id)
@@ -133,7 +132,7 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -186,7 +185,7 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -221,7 +220,7 @@ class TestCollectionsAPI(Test):
                   '"http://www.w3.org/ns/oa#PreferContainedIRIs"')
         headers = dict(prefer=prefer)
         res = self.app_get_json_ld(endpoint, headers=headers)
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -253,7 +252,7 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint + '?iris=1')
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -280,7 +279,7 @@ class TestCollectionsAPI(Test):
                   '"http://www.w3.org/ns/ldp#PreferMinimalContainer"')
         headers = dict(prefer=prefer)
         res = self.app_get_json_ld(endpoint, headers=headers)
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -309,7 +308,7 @@ class TestCollectionsAPI(Test):
                   ' http://www.w3.org/ns/oa#PreferContainedIRIs"')
         headers = dict(prefer=prefer)
         res = self.app_get_json_ld(endpoint, headers=headers)
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     def test_last_collection_cannot_be_deleted(self):
@@ -338,6 +337,7 @@ class TestCollectionsAPI(Test):
         collection = collections[0]
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
+        print res.data
         assert_equal(res.status_code, 204)
         assert_equal(collection.deleted, True)
 
@@ -392,7 +392,7 @@ class TestCollectionsAPI(Test):
         }
 
         # Test data
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
         # Test 200
         assert_equal(res.status_code, 200)
@@ -464,7 +464,7 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint + '?page=0')
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -521,7 +521,7 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint + '?page={}'.format(current_page))
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -556,7 +556,7 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint + '?page=0&iris=1')
-        assert_equal(json.loads(res.data), expected)
+        assert_dict_equal(json.loads(res.data), expected)
 
     @with_context
     def test_404_when_page_does_not_exist(self):

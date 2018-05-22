@@ -185,76 +185,90 @@ class APIBase(object):
         params.pop('page', None)
         return params.to_dict(flat=True)
 
-    def _get_container(self, obj, items=None, total=None):
+    def _get_container(self, collection, items=None, total=None):
         """Return a container for Annotations."""
-        out = obj.dictize()
+        out = collection.dictize()
         minimal, iris = self._get_container_preferences()
         params = self._get_query_params()
         params['iris'] = 1 if iris or params.get('iris') == '1' else None
 
-        out['id'] = self._get_iri(obj, **params)
+        out['id'] = self._get_iri(collection, **params)
 
+        # Defining total manually is useful for search
+        # results returned in fake containers
         if total:
             out['total'] = total
-
-        page = request.args.get('page')
-        if page:
-            return self._get_page(int(page), obj, items, partof=out, **params)
+        
+        page = self._get_page_arg()
+        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+        n_pages = self._get_n_pages(items, out['total'], per_page)
 
         if items:
-            if minimal:
-                out['first'] = self._get_iri(obj, page=0, **params)
+            items = self._slice_annotations(items, int(per_page), page)
+            if isinstance(page, int) and not items:
+                abort(404)
+            elif isinstance(page, int):
+                return self._get_page(page, n_pages, per_page, collection, 
+                                    items, partof=out, **params)
+            elif minimal:
+                out['first'] = self._get_iri(collection, page=0, **params)
             else:
-                out['first'] = self._get_page(0, obj, items, **params)
-
-            last_page = self._get_last_page(items)
-            if last_page > 0:
-                out['last'] = self._get_iri(obj, page=last_page, **params)
+                out['first'] = self._get_page(0, n_pages, per_page, collection, 
+                                              items, **params)
+            if n_pages > 1:
+                out['last'] = self._get_iri(collection, page=n_pages - 1, 
+                                            **params)
 
         return out
-
-    def _get_last_page(self, items):
-        """Get the last page number (zero-based)."""
-        total = len(items)
-        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        last_page = 0 if total <= 0 else (total - 1) // per_page
-        return last_page
-
-    def _get_page(self, page, obj, items, partof=None, **params):
-        """Return an AnnotationPage."""
-        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
+    
+    def _slice_annotations(self, items, per_page, page=0):
+        """Return a slice of items. """
         start = page * per_page if page > 0 else 0
-        page_items = items[start:start + per_page]
-        if not page_items:
-            abort(404)
+        return items[start:start + per_page]
+    
+    def _get_page_arg(self):
+        """Return the page query param and check it's an int."""
+        page = request.args.get('page')
+        if page:
+            try:
+                page = int(request.args.get('page', 0))
+            except ValueError:
+                abort(400, 'page must be a valid integer')
+        return page
 
-        page_iri = self._get_iri(obj, page=page, **params)
+    def _get_n_pages(self, items, total, per_page):
+        """Return the number of pages."""
+        n = 0 if total <= 0 else (total - 1) // per_page
+        return n + 1
+
+    def _get_page(self, page, n_pages, per_page, collection, items, 
+                  partof=None, **params):
+        """Return an AnnotationPage."""
+        page_iri = self._get_iri(collection, page=page, **params)
         data = {
             'id': page_iri,
             'type': 'AnnotationPage',
             'startIndex': 0
         }
 
-        last_page = self._get_last_page(items)
-        if last_page > page:
-            data['next'] = self._get_iri(obj, page=page + 1, **params)
         if page > 0:
-            data['prev'] = self._get_iri(obj, page=page - 1, **params)
+            data['prev'] = self._get_iri(collection, page=page - 1, **params)
+        if page < n_pages - 1:
+            data['next'] = self._get_iri(collection, page=page + 1, **params)
 
         if partof:
             data['partOf'] = partof
 
-        per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
-        items = self._decorate_page_items(page_items, params.get('iris'))
+        items = self._decorate_page_items(items, params.get('iris'))
         data['items'] = items
         return data
 
-    def _decorate_page_items(self, page_items, iris=False):
+    def _decorate_page_items(self, items, iris=False):
         """Dictize and decorate a list of page items."""
         out = []
-        for page_item in page_items:
-            item_dict = page_item.dictize()
-            item_dict['id'] = self._get_iri(page_item)
+        for item in items:
+            item_dict = item.dictize()
+            item_dict['id'] = self._get_iri(item)
             if iris:
                 out.append(item_dict['id'])
             else:
