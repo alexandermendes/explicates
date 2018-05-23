@@ -26,6 +26,8 @@
         - python-virtualenv
         - python-setuptools
         - python-pip
+        - python3-pip
+        - python3-nose
 
     - name: upgrade pip
       become_user: "{{explicates_user}}"

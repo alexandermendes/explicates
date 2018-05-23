@@ -47,6 +47,18 @@ settings. To change any settings make a copy of the template:
 cp settings.py.tmpl settings.py
 ```
 
+## Testing
+
+Explicates is tested against Python 2.7 and 3.4.
+
+```bash
+# python 2
+nosetests test/
+
+# python 3
+python3 -m "nose"
+```
+
 ## Usage
 
 Proper documentation to follow.

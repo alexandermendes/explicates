@@ -29,7 +29,7 @@ class BatchAPI(APIBase, MethodView):
         iri = annotation.get('id')
         if not iri:
             abort(400, 'Invalid Annotation passed in request')
-        return unquote(iri.rstrip('/').split('/')[-1].encode())
+        return unquote(iri).rstrip('/').split('/')[-1]
 
     def delete(self):
         """Batch delete items."""

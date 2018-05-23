@@ -14,6 +14,7 @@ from flask import abort, request, jsonify, make_response, url_for
 from jsonschema import validate as validate_json
 from jsonschema.exceptions import ValidationError
 from sqlalchemy.exc import IntegrityError
+from past.builtins import basestring
 
 from explicates.core import repo
 from explicates.model.annotation import Annotation
@@ -34,7 +35,6 @@ class APIBase(object):
 
     def _get_iri(self, obj, **kwargs):
         """Get the IRI for an object."""
-
         if isinstance(obj, Annotation):
             kwargs.pop('iris', None)
             return url_for('api.annotations', annotation_id=obj.id,
@@ -83,7 +83,7 @@ class APIBase(object):
             repo.delete(model_cls, obj.key)
         except (IntegrityError, TypeError) as err:
             abort(400, err.message)
-    
+
     def _get_validated_data(self, model_cls):
         data = request.get_json()
         try:
@@ -91,7 +91,7 @@ class APIBase(object):
         except ValidationError as err:
             abort(400, err.message)
         return data
-        
+
     def _validate_data(self, obj, model_cls):
         """Validate data according JSON schema for the model class."""
         schema_fn = '{}.json'.format(model_cls.__name__.lower())
@@ -219,7 +219,7 @@ class APIBase(object):
         # results returned in fake containers
         if total:
             out['total'] = total
-        
+
         page = self._get_page_arg()
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
         n_pages = self._get_n_pages(items, out['total'], per_page)
@@ -229,24 +229,24 @@ class APIBase(object):
             if isinstance(page, int) and not items:
                 abort(404)
             elif isinstance(page, int):
-                return self._get_page(page, n_pages, per_page, collection, 
+                return self._get_page(page, n_pages, per_page, collection,
                                     items, partof=out, **params)
             elif minimal:
                 out['first'] = self._get_iri(collection, page=0, **params)
             else:
-                out['first'] = self._get_page(0, n_pages, per_page, collection, 
+                out['first'] = self._get_page(0, n_pages, per_page, collection,
                                               items, **params)
             if n_pages > 1:
-                out['last'] = self._get_iri(collection, page=n_pages - 1, 
+                out['last'] = self._get_iri(collection, page=n_pages - 1,
                                             **params)
 
         return out
-    
+
     def _slice_annotations(self, items, per_page, page=0):
         """Return a slice of items. """
-        start = page * per_page if page > 0 else 0
+        start = page * per_page if page and page > 0 else 0
         return items[start:start + per_page]
-    
+
     def _get_page_arg(self):
         """Return the page query param and check it's an int."""
         page = request.args.get('page')
@@ -262,7 +262,7 @@ class APIBase(object):
         n = 0 if total <= 0 else (total - 1) // per_page
         return n + 1
 
-    def _get_page(self, page, n_pages, per_page, collection, items, 
+    def _get_page(self, page, n_pages, per_page, collection, items,
                   partof=None, **params):
         """Return an AnnotationPage."""
         page_iri = self._get_iri(collection, page=page, **params)

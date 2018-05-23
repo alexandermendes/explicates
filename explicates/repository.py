@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.sql import and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.base import _entity_descriptor
+from future.utils import iteritems
 
 
 class Repository(object):
@@ -126,7 +127,7 @@ class Repository(object):
     def _get_relationship_clauses(self, model_cls, **kwargs):
         """Return relationship clauses."""
         clauses = []
-        relationships = {k: v for k, v in kwargs.iteritems() if '.' in k}
+        relationships = {k: v for k, v in iteritems(kwargs) if '.' in k}
         for k, v in relationships.items():
             parts = k.split('.')
             if len(parts) == 2:
