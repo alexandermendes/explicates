@@ -3,6 +3,7 @@
 
 from flask.views import MethodView
 
+from explicates.core import repo
 from explicates.api.base import APIBase
 from explicates.model.collection import Collection
 from explicates.model.annotation import Annotation
@@ -31,11 +32,15 @@ class AnnotationsAPI(APIBase, MethodView):
     def put(self, collection_id, annotation_id):
         """Update an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
+        annotation.collection.update()
+        repo.save(Collection, annotation.collection)
         self._update(annotation)
         return self._jsonld_response(annotation)
 
     def delete(self, collection_id, annotation_id):
         """Delete an Annotation."""
         annotation = self._get_annotation(collection_id, annotation_id)
+        annotation.collection.update()
+        repo.save(Collection, annotation.collection)
         self._delete(annotation)
         return self._jsonld_response(None, status_code=204)

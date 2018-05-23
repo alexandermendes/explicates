@@ -33,6 +33,8 @@ class CollectionsAPI(APIBase, MethodView):
         """Create an Annotation."""
         collection = self._get_collection(collection_id)
         annotation = self._create(Annotation, collection=collection)
+        collection.update()
+        repo.save(Collection, collection)
         extra_headers = {'Location': annotation.iri}
         return self._jsonld_response(annotation, status_code=201,
                                      headers=extra_headers)

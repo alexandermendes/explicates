@@ -131,6 +131,17 @@ class TestAnnotationsAPI(Test):
         assert_equal(res.headers.get('Link'), link)
 
     @with_context
+    def test_collection_modified_when_annotation_created(self):
+        """Test Collection modified time updated when Annotation created."""
+        collection = CollectionFactory()
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        data = dict(type='Annotation', body='bar', target='http://example.org')
+        self.app_post_json_ld(endpoint, data=data)
+        annotation = repo.get(Annotation, 1)
+        assert_not_equal(annotation.created, None)
+        assert_equal(collection.modified, annotation.created)
+
+    @with_context
     @freeze_time("1984-11-19")
     def test_annotation_created_with_slug(self):
         """Test Annotation created with slug."""
@@ -142,7 +153,7 @@ class TestAnnotationsAPI(Test):
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         annotation = repo.get(Annotation, 1)
         assert_equal(annotation.id, slug)
-    
+
     @with_context
     @freeze_time("1984-11-19")
     def test_annotation_created_with_id_moved_to_via(self):
@@ -166,9 +177,20 @@ class TestAnnotationsAPI(Test):
         endpoint = u'/annotations/{}/{}/'.format(collection.id,
                                                  annotation.id)
         res = self.app_delete_json_ld(endpoint)
-
         assert_equal(annotation.deleted, True)
         assert_equal(res.status_code, 204)
+
+    @with_context
+    def test_collection_modified_when_annotation_deleted(self):
+        """Test Collection modified time updated when Annotation deleted."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
+        self.app_delete_json_ld(endpoint)
+        assert_equal(annotation.deleted, True)
+        assert_not_equal(annotation.modified, None)
+        assert_equal(collection.modified, annotation.modified)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -208,7 +230,21 @@ class TestAnnotationsAPI(Test):
         # Test Link header
         link = '<http://www.w3.org/ns/ldp#Resource>; rel="type"'
         assert_equal(res.headers.get('Link'), link)
-    
+
+    @with_context
+    def test_collection_modified_when_annotation_updated(self):
+        """Test Collection modified time updated when Annotation updated."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+        data = annotation.dictize().copy()
+        data['body'] = "My new body"
+        endpoint = u'/annotations/{}/{}/'.format(collection.id,
+                                                 annotation.id)
+        self.app_put_json_ld(endpoint, data=data)
+        assert_not_equal(annotation.modified, None)
+        assert_equal(collection.modified, annotation.modified)
+
+
     @with_context
     @patch('explicates.api.base.validate_json')
     def test_annotation_validated_before_create(self, mock_validate):
@@ -219,7 +255,7 @@ class TestAnnotationsAPI(Test):
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_post_json_ld(endpoint, data=bad_data)
         assert_equal(res.status_code, 400)
-        schema_path = os.path.join(current_app.root_path, 'schemas', 
+        schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'annotation.json')
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)
@@ -231,13 +267,13 @@ class TestAnnotationsAPI(Test):
     def test_annotation_validated_before_update(self, mock_validate):
         """Test Annotation validated before update."""
         annotation = AnnotationFactory()
-        endpoint = u'/annotations/{}/{}/'.format(annotation.collection.id, 
+        endpoint = u'/annotations/{}/{}/'.format(annotation.collection.id,
                                                  annotation.id)
         bad_data = {'foo': 'bar'}
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_put_json_ld(endpoint, data=bad_data)
         assert_equal(res.status_code, 400)
-        schema_path = os.path.join(current_app.root_path, 'schemas', 
+        schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'annotation.json')
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)

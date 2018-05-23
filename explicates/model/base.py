@@ -68,7 +68,7 @@ class BaseDomainObject(object):
             elif isinstance(obj, datetime.datetime):
                 obj = obj.isoformat()
             out[col.name] = obj
-        
+
         # Add data
         if self._data:
             out.update(self._data)
@@ -86,9 +86,13 @@ class BaseDomainObject(object):
         generator = current_app.config.get('GENERATOR')
         if generator:
             out['generator'] = generator
-        
+
         # Add ID
         if self.iri:
             out['id'] = self.iri
 
         return out
+
+    def update(self):
+        """Set the modified time to now."""
+        self.modified = make_timestamp()
