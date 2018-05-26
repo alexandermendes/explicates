@@ -45,8 +45,8 @@ class Search(object):
         return (self.db.session.query(Annotation)
                 .join(Collection)
                 .filter(*clauses)
-                .limit(limit)
                 .order_by(order_by)
+                .limit(limit)
                 .all())
 
     def _parse_json(self, key, data):
