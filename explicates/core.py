@@ -15,6 +15,7 @@ def create_app():
     configure_app(app)
     setup_db(app)
     setup_repository(app)
+    setup_search(app)
     setup_exporter(app)
     setup_profiler(app)
     setup_blueprint(app)
@@ -60,6 +61,13 @@ def setup_repository(app):
     from explicates.repository import Repository
     global repo
     repo = Repository(db)
+
+
+def setup_search(app):
+    """Setup search."""
+    from explicates.search import Search
+    global search
+    search = Search(db)
 
 
 def setup_db(app):

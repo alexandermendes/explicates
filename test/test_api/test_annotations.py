@@ -131,6 +131,7 @@ class TestAnnotationsAPI(Test):
         assert_equal(res.headers.get('Link'), link)
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_collection_modified_when_annotation_created(self):
         """Test Collection modified time updated when Annotation created."""
         collection = CollectionFactory()
@@ -181,6 +182,7 @@ class TestAnnotationsAPI(Test):
         assert_equal(res.status_code, 204)
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_collection_modified_when_annotation_deleted(self):
         """Test Collection modified time updated when Annotation deleted."""
         collection = CollectionFactory()
@@ -232,6 +234,7 @@ class TestAnnotationsAPI(Test):
         assert_equal(res.headers.get('Link'), link)
 
     @with_context
+    @freeze_time("1984-11-19")
     def test_collection_modified_when_annotation_updated(self):
         """Test Collection modified time updated when Annotation updated."""
         collection = CollectionFactory()
