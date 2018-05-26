@@ -26,7 +26,7 @@ class Search(object):
         self.db = db
 
     def search(self, contains=None, collection=None, limit=None,
-               range=None, order_by='created'):
+               range=None, order_by='created', offset=0):
         """Search for Annotations."""
         clauses = []
         if contains:
@@ -47,6 +47,7 @@ class Search(object):
                 .filter(*clauses)
                 .order_by(order_by)
                 .limit(limit)
+                .offset(offset)
                 .all())
 
     def _parse_json(self, key, data):
