@@ -222,7 +222,7 @@ class APIBase(object):
             if isinstance(page, int) and not items:
                 abort(404)
             elif isinstance(page, int):
-                return self._get_page(page, n_pages, per_page, collection,
+                return self._get_page(page, n_pages, per_page, collection_base,
                                     items, partof=out, **params)
             elif minimal:
                 out['first'] = self._get_iri(collection_base, page=0, **params)
