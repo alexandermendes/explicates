@@ -1,4 +1,5 @@
 language: python
+group: edge
 python:
   - "2.7"
   - "3.4"
@@ -16,6 +17,14 @@ script:
   - alembic -c alembictest.ini stamp head
   - alembic -c alembictest.ini upgrade head
   - nosetests -x test/
+  - mkdocs build --clean
 after_success:
   - pip install coveralls
   - coveralls
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  local_dir: site/
+  on:
+    branch: master
