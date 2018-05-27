@@ -131,4 +131,7 @@ The `fts_phrase` query accepts the following parameters for each field:
 |----------|-------------------------------------------------------|
 | query    | The search query (required)                           |
 | prefix   | Treat the query as a prefix (default `True`)          |
-| distance | Allowed distance between tokens in the format `<n>`   |
+| distance | The distance between tokens (default `1`)             |
+
+Note that all phrase queries will be treated as prefixes; to search for
+exact phrases use `contains` instead.

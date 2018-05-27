@@ -117,7 +117,7 @@ class TestSearch(Test):
 
     def test_search_by_fts_default(self):
         """Test search by fts with default settings."""
-        anno1 = AnnotationFactory(data={'body': 'foo'})
+        anno1 = AnnotationFactory(data={'body': {'source': 'foo'}})
         anno2 = AnnotationFactory(data={'body': 'bar'})
         fts_query = {
             'body': {
@@ -129,20 +129,20 @@ class TestSearch(Test):
 
     def test_search_by_fts_without_prefix(self):
         """Test search by fts without prefix."""
-        AnnotationFactory(data={'body': 'foo'})
-        AnnotationFactory(data={'body': 'bar'})
+        anno1 = AnnotationFactory(data={'body': 'qux'})
+        AnnotationFactory(data={'body': 'quxx'})
         fts_query = {
             'body': {
-                'query': 'fo',
+                'query': 'qux',
                 'prefix': False
             }
         }
         results = self.search.search(fts=fts_query)
-        assert_equal(results, [])
+        assert_equal(results, [anno1])
 
     def test_search_by_fts_default_with_or(self):
         """Test search by fts with default settings with or."""
-        anno1 = AnnotationFactory(data={'body': 'foo'})
+        anno1 = AnnotationFactory(data={'body': {'source': 'foo'}})
         anno2 = AnnotationFactory(data={'body': 'bar'})
         anno3 = AnnotationFactory(data={'body': 'baz'})
         fts_query = {
@@ -154,29 +154,29 @@ class TestSearch(Test):
         results = self.search.search(fts=fts_query)
         assert_equal(results, [anno1, anno2])
 
-    # def test_search_by_fts_phrase(self):
-    #     """Test search by fts phrase."""
-    #     anno1 = AnnotationFactory(data={'body': 'foo bar'})
-    #     anno2 = AnnotationFactory(data={'body': 'foo baz qux'})
-    #     fts_query = {
-    #         'body': {
-    #             'query': 'foo bar',
-    #             'phrase': True
-    #         }
-    #     }
-    #     results = self.search.search(fts=fts_query)
-    #     assert_equal(results, [anno1, anno2])
+    def test_search_by_fts_phrase(self):
+        """Test search by fts phrase."""
+        anno1 = AnnotationFactory(data={'body': {'source': 'foo bar baz'}})
+        anno2 = AnnotationFactory(data={'body': 'foo bar baz qux'})
+        AnnotationFactory(data={'body': 'foo baz'})
+        fts_phrase_query = {
+            'body': {
+                'query': 'foo bar baz'
+            }
+        }
+        results = self.search.search(fts_phrase=fts_phrase_query)
+        assert_equal(results, [anno1, anno2])
 
-    # def test_search_by_fts_phrase_without_prefix(self):
-    #     """Test search by fts phrase without prefix."""
-    #     anno1 = AnnotationFactory(data={'body': 'foo bar'})
-    #     anno2 = AnnotationFactory(data={'body': 'foo baz qux'})
-    #     fts_query = {
-    #         'body': {
-    #             'query': 'foo bar',
-    #             'phrase': True,
-    #             'prefix': False
-    #         }
-    #     }
-    #     results = self.search.search(fts=fts_query)
-    #     assert_equal(results, [anno1])
+    def test_search_by_fts_phrase_with_distance(self):
+        """Test search by fts phrase with distance."""
+        anno1 = AnnotationFactory(data={'body': 'foo bar baz qux'})
+        AnnotationFactory(data={'body': 'foo bar qux'})
+        AnnotationFactory(data={'body': 'foo qux'})
+        fts_phrase_query = {
+            'body': {
+                'query': 'foo qux',
+                'distance': 3
+            }
+        }
+        results = self.search.search(fts_phrase=fts_phrase_query)
+        assert_equal(results, [anno1])
