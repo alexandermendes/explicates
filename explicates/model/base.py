@@ -17,10 +17,6 @@ from explicates.model.utils import make_timestamp, make_uuid
 class BaseDomainObject(object):
     """Base domain object class."""
 
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
     #: The object's primary key.
     key = Column(Integer, primary_key=True)
 
