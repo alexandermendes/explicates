@@ -67,17 +67,6 @@ Proper documentation to follow.
 
 The Web Annotation endpoints are served from `/annotations/`.
 
-### Search
-
-A search service for Annotations is implemented at `/search/`. Results are
-returned as an AnnotationCollection.
-
-The following parameters are provided:
-
-- `contains`: Search for objects that contain some nested value
-(e.g. `contains={"motivation":"commenting"}`)
-- `fts`: Full text search (e.g. `fts=body::foo`)
-
 ### Export
 
 The following endpoint is provided to export the data for the purposes of
