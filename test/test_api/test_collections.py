@@ -321,7 +321,7 @@ class TestCollectionsAPI(Test):
     def test_non_empty_collection_cannot_be_deleted(self):
         """Test non-empty Collection cannot be deleted."""
         collection = CollectionFactory()
-
+        CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)

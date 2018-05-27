@@ -28,7 +28,7 @@ def configure_app(app):
     """Configure app."""
     app.config.from_object(default_settings)
     app.config.from_envvar('EXPLICATES_SETTINGS', silent=True)
-    if not os.environ.get('EXPLICATES_SETTINGS'):
+    if not os.environ.get('EXPLICATES_SETTINGS'):  # pragma: no cover
         here = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(os.path.dirname(here), 'settings.py')
         if os.path.exists(config_path):
