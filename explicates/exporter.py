@@ -6,7 +6,6 @@ import string
 import tempfile
 import zipfile
 import unidecode
-import flatten_json
 from flask import current_app
 from sqlalchemy import and_
 from werkzeug.utils import secure_filename
@@ -47,8 +46,6 @@ class Exporter(object):
             anno = Annotation(**dict(row))
             anno.collection = collection
             anno_dict = anno.dictize()
-            if flatten:
-                anno_dict = flatten_json.flatten(anno_dict)
             out = json.dumps(anno_dict)
             yield out if first else ', ' + out
             first = False
