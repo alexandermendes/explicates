@@ -7,11 +7,15 @@ from sqlalchemy.sql import and_, or_
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm.base import _entity_descriptor
 from future.utils import iteritems
+
 try:  # pragma: no cover
     from urllib.parse import unquote
-    from json.decoder import JSONDecodeError
 except ImportError:  # pragma: no cover
     from urllib import unquote
+
+try:  # pragma: no cover
+    from json.decoder import JSONDecodeError
+except ImportError:  # pragma: no cover
     JSONDecodeError = ValueError
 
 from explicates.model.collection import Collection

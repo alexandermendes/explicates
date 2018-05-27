@@ -5,6 +5,7 @@ import json
 from flask import request, abort
 from flask.views import MethodView
 from sqlalchemy.exc import IntegrityError
+
 try:  # pragma: no cover
     from urllib.parse import unquote
 except ImportError:  # pragma: no cover
