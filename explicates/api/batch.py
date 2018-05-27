@@ -5,11 +5,10 @@ import json
 from flask import request, abort
 from flask.views import MethodView
 from sqlalchemy.exc import IntegrityError
-
-try:
-    from urllib import unquote
-except ImportError:  # py3
+try:  # pragma: no cover
     from urllib.parse import unquote
+except ImportError:  # pragma: no cover
+    from urllib import unquote
 
 from explicates.core import repo
 from explicates.api.base import APIBase
