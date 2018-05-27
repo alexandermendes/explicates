@@ -2,7 +2,7 @@
 
 import json
 from nose.tools import *
-from base import Test, db
+from base import Test, db, with_context
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.sql import and_
 from datetime import datetime, timedelta
@@ -23,6 +23,7 @@ class TestSearch(Test):
         clause = self.search._get_collection_clause(iri)
         assert_equal(str(clause), 'collection.id = :id_1')
 
+    @with_context
     def test_search_by_collection(self):
         """Test search by collection."""
         anno = AnnotationFactory()
@@ -42,6 +43,7 @@ class TestSearch(Test):
         data = '{""}'
         assert_raises(ValueError, self.search._get_contains_clause, data)
 
+    @with_context
     def test_search_by_contains(self):
         """Test search by contains."""
         data = {'foo': 'bar'}
@@ -83,6 +85,7 @@ class TestSearch(Test):
         data = '{""}'
         assert_raises(ValueError, self.search._get_range_clauses, data)
 
+    @with_context
     def test_search_by_range_lt(self):
         """Test search by range less than."""
         anno_now = AnnotationFactory()
@@ -98,6 +101,7 @@ class TestSearch(Test):
         results = self.search.search(range=range_query)
         assert_equal(results, [anno_yesterday])
 
+    @with_context
     def test_search_by_range_gt(self):
         """Test search by range greater than."""
         anno = AnnotationFactory(data={'body': 43})
@@ -115,6 +119,7 @@ class TestSearch(Test):
         data = '{""}'
         assert_raises(ValueError, self.search._get_fts_clauses, data)
 
+    @with_context
     def test_search_by_fts_default(self):
         """Test search by fts with default settings."""
         anno1 = AnnotationFactory(data={'body': {'source': 'foo'}})
@@ -127,6 +132,7 @@ class TestSearch(Test):
         results = self.search.search(fts=fts_query)
         assert_equal(results, [anno1])
 
+    @with_context
     def test_search_by_fts_without_prefix(self):
         """Test search by fts without prefix."""
         anno1 = AnnotationFactory(data={'body': 'qux'})
@@ -140,6 +146,7 @@ class TestSearch(Test):
         results = self.search.search(fts=fts_query)
         assert_equal(results, [anno1])
 
+    @with_context
     def test_search_by_fts_default_with_or(self):
         """Test search by fts with default settings with or."""
         anno1 = AnnotationFactory(data={'body': {'source': 'foo'}})
@@ -154,6 +161,7 @@ class TestSearch(Test):
         results = self.search.search(fts=fts_query)
         assert_equal(results, [anno1, anno2])
 
+    @with_context
     def test_search_by_fts_phrase(self):
         """Test search by fts phrase."""
         anno1 = AnnotationFactory(data={'body': {'source': 'foo bar baz'}})
@@ -167,6 +175,7 @@ class TestSearch(Test):
         results = self.search.search(fts_phrase=fts_phrase_query)
         assert_equal(results, [anno1, anno2])
 
+    @with_context
     def test_search_by_fts_phrase_with_distance(self):
         """Test search by fts phrase with distance."""
         anno1 = AnnotationFactory(data={'body': 'foo bar baz qux'})

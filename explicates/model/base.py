@@ -56,7 +56,8 @@ class BaseDomainObject(object):
             'deleted',
             'collection_key',
             'data',
-            'iri'
+            'iri',
+            'language'
         ]
         out = {}
 

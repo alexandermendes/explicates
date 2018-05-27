@@ -21,3 +21,21 @@ CORS_RESOURCES = {
         "supports_credentials": True
     }
 }
+FTS_DEFAULT = 'english'
+FTS_LANGUAGE_MAP = {
+    'da': 'danish',
+    'nl': 'dutch',
+    'fi': 'finnish',
+    'fr': 'french',
+    'de': 'german',
+    'hu': 'hungarian',
+    'it': 'italian',
+    'no': 'norwegian',
+    'pt': 'portuguese',
+    'ro': 'romanian',
+    'ru': 'russian',
+    'es': 'spanish',
+    'sv': 'swedish',
+    'tr': 'turkish',
+    'en': 'english'
+}
