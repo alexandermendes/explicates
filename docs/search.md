@@ -66,3 +66,19 @@ The `range` query accepts the following parameters:
 | gt  | Greater-than             |
 | lte | Less-than or equal to    |
 | lt  | Less-than                |
+
+## contains
+
+Return Annotations that contain a specific value. The query below will
+return all Annotations that contain a `body` where the `id` is
+`https://example.org/page1/`.
+
+```json
+{
+    "contains": {
+        "body": {
+            "id": "https://example.org/page1/"
+        }
+    }
+}
+```
