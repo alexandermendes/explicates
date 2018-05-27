@@ -79,6 +79,10 @@ def setup_db(app):
             return db.session
         options = dict(bind=engine, scopefunc=_app_ctx_stack.__ident_func__)
         slave_session = db.create_scoped_session(options=options)
+
+        for idx in indexes:
+            idx.create(bind=engine)
+
         return slave_session
 
     db.app = app
