@@ -247,7 +247,6 @@ class TestAnnotationsAPI(Test):
         assert_not_equal(annotation.modified, None)
         assert_equal(collection.modified, annotation.modified)
 
-
     @with_context
     @patch('explicates.api.base.validate_json')
     def test_annotation_validated_before_create(self, mock_validate):

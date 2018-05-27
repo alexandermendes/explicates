@@ -34,6 +34,7 @@ def upgrade():
     """)
     op.execute(sql)
 
+
 def downgrade():
     op.drop_index('idx_annotation_body')
     op.drop_index('idx_annotation_target')

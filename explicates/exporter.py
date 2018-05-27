@@ -24,8 +24,9 @@ class Exporter(object):
         table = Annotation.__table__
         where_clauses = [
             table.c.collection_key == collection.key,
-            table.c.deleted == False
+            not table.c.deleted
         ]
+
         query = table.select().where(and_(*where_clauses))
         exec_opts = dict(stream_results=True)
         res = db.session.connection(execution_options=exec_opts).execute(query)

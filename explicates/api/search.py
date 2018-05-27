@@ -26,7 +26,6 @@ class SearchAPI(APIBase, MethodView):
                       'range', 'order_by', 'offset']
         return {k: v for k, v in data.items() if k in valid_keys}
 
-
     def get(self):
         """Search Annotations."""
         data = request.args.to_dict(flat=True)

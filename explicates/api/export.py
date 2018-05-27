@@ -61,4 +61,4 @@ class ExportAPI(APIBase, MethodView):
             return self._zip_response(collection_id, data_gen)
 
         return Response(stream_with_context(data_gen),
-                                            mimetype='application/ld+json')
+                        mimetype='application/ld+json')

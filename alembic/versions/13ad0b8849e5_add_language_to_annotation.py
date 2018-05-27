@@ -21,5 +21,6 @@ def upgrade():
     sql = "update annotation set language='english'"
     op.execute(sql)
 
+
 def downgrade():
     op.drop_column('annotation', 'language')

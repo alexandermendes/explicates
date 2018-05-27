@@ -25,7 +25,7 @@ class TestBaseAPI(Test):
         annotations = AnnotationFactory.create_batch(4, collection=collection)
         out = self.api_base._slice_annotations(collection.annotations, 2, 0)
         assert_equal(out, annotations[:2])
-    
+
     @with_context
     def test_offset_slice_annotations(self):
         """Test offset slice of Annotations returned."""

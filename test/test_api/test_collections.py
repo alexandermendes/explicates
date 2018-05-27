@@ -76,7 +76,7 @@ class TestCollectionsAPI(Test):
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         collection = repo.get(Collection, 1)
         assert_equal(collection.id, slug)
-    
+
     @with_context
     @freeze_time("1984-11-19")
     def test_collection_created_with_id_moved_to_via(self):
@@ -148,8 +148,8 @@ class TestCollectionsAPI(Test):
             items.append(
                 {
                     'id': url_for('api.annotations',
-                                    collection_id=collection.id,
-                                    annotation_id=anno.id),
+                                  collection_id=collection.id,
+                                  annotation_id=anno.id),
                     'type': 'Annotation',
                     'body': anno.data['body'],
                     'target': anno.data['target'],
@@ -436,8 +436,8 @@ class TestCollectionsAPI(Test):
             'items': [
                 {
                     'id': url_for('api.annotations',
-                                    collection_id=collection.id,
-                                    annotation_id=annotation.id),
+                                  collection_id=collection.id,
+                                  annotation_id=annotation.id),
                     'type': 'Annotation',
                     'body': annotation.data['body'],
                     'target': annotation.data['target'],
@@ -481,8 +481,8 @@ class TestCollectionsAPI(Test):
             items.append(
                 {
                     'id': url_for('api.annotations',
-                                    collection_id=collection.id,
-                                    annotation_id=anno.id),
+                                  collection_id=collection.id,
+                                  annotation_id=anno.id),
                     'type': 'Annotation',
                     'body': anno.data['body'],
                     'target': anno.data['target'],
@@ -569,7 +569,7 @@ class TestCollectionsAPI(Test):
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 1)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 404)
-    
+
     @with_context
     @patch('explicates.api.base.validate_json')
     def test_collection_validated_before_create(self, mock_validate):
@@ -579,7 +579,7 @@ class TestCollectionsAPI(Test):
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_post_json_ld(endpoint, data=bad_data)
         assert_equal(res.status_code, 400)
-        schema_path = os.path.join(current_app.root_path, 'schemas', 
+        schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'collection.json')
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)
@@ -596,7 +596,7 @@ class TestCollectionsAPI(Test):
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_put_json_ld(endpoint, data=bad_data)
         assert_equal(res.status_code, 400)
-        schema_path = os.path.join(current_app.root_path, 'schemas', 
+        schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'collection.json')
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)

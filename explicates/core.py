@@ -73,6 +73,7 @@ def setup_search(app):
 def setup_db(app):
     """Setup database."""
     from explicates.model.indexes import indexes
+
     def create_slave_session(db, bind):
         slave = app.config.get('SQLALCHEMY_BINDS')['slave']
         if slave == app.config.get('SQLALCHEMY_DATABASE_URI'):

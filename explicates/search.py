@@ -18,7 +18,6 @@ from explicates.model.collection import Collection
 from explicates.model.annotation import Annotation
 
 
-
 class Search(object):
     """Search class for Annotations."""
 

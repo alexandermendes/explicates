@@ -157,7 +157,7 @@ class APIBase(object):
             namespaces.append('ldp#IndirectContainer')
 
         links = [dict(url='http://www.w3.org/ns/{}'.format(ns), rel='type')
-                      for ns in namespaces]
+                 for ns in namespaces]
         containers = ['BasicContainer', 'DirectContainer', 'IndirectContainer']
         if set(containers).intersection(set(types)):
             links.append({
@@ -223,7 +223,7 @@ class APIBase(object):
                 abort(404)
             elif isinstance(page, int):
                 return self._get_page(page, n_pages, per_page, collection_base,
-                                    items, partof=out, **params)
+                                      items, partof=out, **params)
             elif minimal:
                 out['first'] = self._get_iri(collection_base, page=0, **params)
             else:
