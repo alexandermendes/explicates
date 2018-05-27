@@ -37,7 +37,7 @@ class Repository(object):
         try:
             self.db.session.add(obj)
             self.db.session.commit()
-        except IntegrityError as err:
+        except IntegrityError as err:  # pragma: no cover
             self.db.session.rollback()
             raise err
 
@@ -48,19 +48,18 @@ class Repository(object):
         try:
             self.db.session.merge(obj)
             self.db.session.commit()
-        except IntegrityError as err:
+        except IntegrityError as err:  # pragma: no cover
             self.db.session.rollback()
             raise err
 
     def delete(self, model_cls, key):
         """Mark an object as deleted."""
         obj = self.db.session.query(model_cls).get(key)
-        self._validate_can_be(model_cls, 'deleted', obj)
         obj.deleted = True
         try:
             self.db.session.merge(obj)
             self.db.session.commit()
-        except IntegrityError as err:
+        except IntegrityError as err:  # pragma: no cover
             self.db.session.rollback()
             raise err
 
@@ -72,7 +71,7 @@ class Repository(object):
                                                        .values(deleted=True)
                                                        .where(batch_clause))
             self.db.session.commit()
-        except IntegrityError as err:
+        except IntegrityError as err:  # pragma: no cover
             self.db.session.rollback()
             raise err
 
@@ -80,7 +79,7 @@ class Repository(object):
         """Confirm that all IDs exist for the batch clause."""
         query = model_cls.__table__.select().where(batch_clause)
         count = self.db.session.execute(query).rowcount
-        if count != len(ids):
+        if count < len(ids):
             msg = 'The query contains IDs that cannot be found in the database'
             raise ValueError(msg)
 
