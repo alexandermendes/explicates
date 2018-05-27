@@ -29,6 +29,8 @@ def get_language(context):
             return current_app.config['FTS_DEFAULT']
 
         lang = body.get('language')
+        if not lang:
+            return current_app.config['FTS_DEFAULT']
         if isinstance(lang, list):
             lang = lang[0]
         try:
