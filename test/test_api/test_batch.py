@@ -22,7 +22,7 @@ class TestBatchAPI(Test):
         data = [anno.dictize() for anno in annotations]
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint, data=data)
-        assert_equal(res.status_code, 204)
+        assert_equal(res.status_code, 204, res.data)
         annotations = repo.filter_by(Annotation, deleted=False)
         assert_equal(annotations, [])
 
@@ -31,7 +31,7 @@ class TestBatchAPI(Test):
         """Test batch delete Annotations with no data."""
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
 
     @with_context
     def test_batch_delete_annotations_with_invalid_data(self):
@@ -39,4 +39,4 @@ class TestBatchAPI(Test):
         endpoint = '/batch/'
         data = dict(foo='bar')
         res = self.app_delete_json_ld(endpoint, data=data)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)

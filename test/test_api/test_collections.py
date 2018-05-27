@@ -26,7 +26,7 @@ class TestCollectionsAPI(Test):
         """Test 404 when Collection does not exist."""
         endpoint = '/annotations/invalid-collection/'
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 404)
+        assert_equal(res.status_code, 404, res.data)
 
     @with_context
     def test_410_when_collection_used_to_exist(self):
@@ -34,7 +34,7 @@ class TestCollectionsAPI(Test):
         collection = CollectionFactory(deleted=True)
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 410)
+        assert_equal(res.status_code, 410, res.data)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -60,7 +60,7 @@ class TestCollectionsAPI(Test):
         })
 
         # Test 201
-        assert_equal(res.status_code, 201)
+        assert_equal(res.status_code, 201, res.data)
 
         # Test Location header contains Collection IRI
         assert_equal(res.headers.get('Location'), _id)
@@ -314,7 +314,7 @@ class TestCollectionsAPI(Test):
         collection = CollectionFactory()
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
         assert_equal(collection.deleted, False)
 
     @with_context
@@ -325,7 +325,7 @@ class TestCollectionsAPI(Test):
         annotation = AnnotationFactory(collection=collection)
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
         assert_equal(collection.deleted, False)
 
     @with_context
@@ -335,7 +335,7 @@ class TestCollectionsAPI(Test):
         collection = collections[0]
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 204)
+        assert_equal(res.status_code, 204, res.data)
         assert_equal(collection.deleted, True)
 
     @with_context
@@ -392,7 +392,7 @@ class TestCollectionsAPI(Test):
         assert_dict_equal(json.loads(res.data), expected)
 
         # Test 200
-        assert_equal(res.status_code, 200)
+        assert_equal(res.status_code, 200, res.data)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -562,13 +562,13 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 0)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 404)
+        assert_equal(res.status_code, 404, res.data)
 
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
         AnnotationFactory.create_batch(per_page, collection=collection)
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 1)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 404)
+        assert_equal(res.status_code, 404, res.data)
 
     @with_context
     @patch('explicates.api.base.validate_json')
@@ -578,7 +578,7 @@ class TestCollectionsAPI(Test):
         bad_data = {'foo': 'bar'}
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_post_json_ld(endpoint, data=bad_data)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
         schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'collection.json')
         schema = json.load(open(schema_path))
@@ -595,7 +595,7 @@ class TestCollectionsAPI(Test):
         bad_data = {'foo': 'bar'}
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_put_json_ld(endpoint, data=bad_data)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
         schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'collection.json')
         schema = json.load(open(schema_path))
