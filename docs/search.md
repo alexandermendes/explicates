@@ -103,11 +103,11 @@ in `some keywords`.
 
 The `fts` query accepts the following parameters for each field:
 
-| key      | description                                           |
-|----------|-------------------------------------------------------|
-| query    | The search query (required)                           |
-| operator | Join tokens with `and`, `or` or `not` (default `and`) |
-| prefix   | Treat each token as a prefix (default `True`)         |
+| key      | description                                    |
+|----------|------------------------------------------------|
+| query    | The search query (required)                    |
+| operator | Join tokens with `and` or `or` (default `and`) |
+| prefix   | Treat each token as a prefix (default `True`)  |
 
 !!! info "Full-text search language"
 
@@ -135,11 +135,11 @@ phrase that begins with `Some partial phras`.
 
 The `fts_phrase` query accepts the following parameters for each field:
 
-| key      | description                                           |
-|----------|-------------------------------------------------------|
-| query    | The search query (required)                           |
-| prefix   | Treat the query as a prefix (default `True`)          |
-| distance | The distance between tokens (default `1`)             |
+| key      | description                                  |
+|----------|----------------------------------------------|
+| query    | The search query (required)                  |
+| prefix   | Treat the query as a prefix (default `True`) |
+| distance | The distance between tokens (default `1`)    |
 
 !!! note "Exact phrase searches"
 

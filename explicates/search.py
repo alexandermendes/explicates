@@ -135,8 +135,6 @@ class Search(object):
                 word_clauses.append(clause)
             if operator == 'or':
                 clauses.append(or_(*word_clauses))
-            elif operator == 'not':
-                clauses.append(not_(*word_clauses))
             else:
                 clauses.append(and_(*word_clauses))
 
