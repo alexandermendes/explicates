@@ -48,7 +48,9 @@ class Search(object):
             range_clauses = self._get_range_clauses(range)
             clauses.append(and_(*range_clauses))
 
-        joined_clauses = and_(*clauses)
+        if len(clauses) > 1:
+            clauses = and_(*clauses)
+
         return (self.db.session.query(Annotation)
                 .join(Collection)
                 .filter(*clauses)
