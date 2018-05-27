@@ -133,6 +133,18 @@ class TestSearch(Test):
         assert_equal(results, [anno1])
 
     @with_context
+    def test_search_by_fts_does_not_include_keys(self):
+        """Test search by fts does not include keys."""
+        anno1 = AnnotationFactory(data={'body': {'source': 'foo'}})
+        fts_query = {
+            'body': {
+                'query': 'source'
+            }
+        }
+        results = self.search.search(fts=fts_query)
+        assert_equal(results, [])
+
+    @with_context
     def test_search_by_fts_without_prefix(self):
         """Test search by fts without prefix."""
         anno1 = AnnotationFactory(data={'body': 'qux'})

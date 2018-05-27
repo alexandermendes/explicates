@@ -72,14 +72,15 @@ def setup_search(app):
 
 def setup_db(app):
     """Setup database."""
+    from explicates.model.indexes import indexes
     def create_slave_session(db, bind):
         slave = app.config.get('SQLALCHEMY_BINDS')['slave']
         if slave == app.config.get('SQLALCHEMY_DATABASE_URI'):
             return db.session
-        engine = db.get_engine(db.app, bind=bind)
         options = dict(bind=engine, scopefunc=_app_ctx_stack.__ident_func__)
         slave_session = db.create_scoped_session(options=options)
         return slave_session
+
     db.app = app
     db.init_app(app)
     db.slave_session = create_slave_session(db, bind='slave')

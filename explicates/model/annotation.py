@@ -3,7 +3,7 @@
 
 from flask import url_for, current_app
 from sqlalchemy.schema import Column, ForeignKey
-from sqlalchemy import Integer, Text
+from sqlalchemy import Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -53,7 +53,7 @@ class Annotation(db.Model, Base):
                             nullable=False)
 
     #: The language used for full-text searches.
-    language = Column(Text, nullable=False, default=get_language)
+    language = Column(String, nullable=False, default=get_language)
 
     @hybrid_property
     def iri(self):

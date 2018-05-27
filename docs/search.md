@@ -109,6 +109,14 @@ The `fts` query accepts the following parameters for each field:
 | operator | Join tokens with `and`, `or` or `not` (default `and`) |
 | prefix   | Treat each token as a prefix (default `True`)         |
 
+!!! info "Full-text search language"
+
+    The dictionary used for full-text searches is defined for each Annotation
+    by the first `language` code found in the Annotation's `body`. If no
+    such language code is found then the server default is used. See the
+    [Configuration](/setup/configuration.md) section for more details.
+
+
 ## fts_phrase
 
 Return Annotations where the specified keys contain a `query` phrase. The
@@ -133,5 +141,7 @@ The `fts_phrase` query accepts the following parameters for each field:
 | prefix   | Treat the query as a prefix (default `True`)          |
 | distance | The distance between tokens (default `1`)             |
 
-Note that all phrase queries will be treated as prefixes; to search for
-exact phrases use `contains` instead.
+!!! note "Exact phrase searches"
+
+    Note that all phrase queries will be treated as prefixes; to search for
+    exact phrases use [`contains`](/search.md#contains) instead.
