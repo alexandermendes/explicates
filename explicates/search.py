@@ -4,7 +4,7 @@
 import json
 from sqlalchemy import func
 from sqlalchemy.sql import and_, or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm.base import _entity_descriptor
 from future.utils import iteritems
 try:
@@ -25,7 +25,7 @@ class Search(object):
     def __init__(self, db):
         self.db = db
 
-    def search(self, contains=None, collection=None, limit=None,
+    def search(self, contains=None, collection=None, fts=None, limit=None,
                range=None, order_by='created', offset=0):
         """Search for Annotations."""
         clauses = []
@@ -36,6 +36,10 @@ class Search(object):
         if collection:
             collection_clause = self._get_collection_clause(collection)
             clauses.append(collection_clause)
+
+        if fts:
+            fts_clauses = self._get_fts_clauses(fts)
+            clauses.append(and_(*fts_clauses))
 
         if range:
             range_clauses = self._get_range_clauses(range)
@@ -74,44 +78,117 @@ class Search(object):
 
     def _get_range_clauses(self, data):
         """Return range clauses."""
-        query = self._parse_json('range', data)
+        q = self._parse_json('range', data)
         err_base = 'invalid "range" clause'
         clauses = []
-        for col, operators in query.items():
-            desc = _entity_descriptor(Annotation, col)
+        for col, operators in q.items():
+            vector = self._get_vector(col)
             if not isinstance(operators, dict):
                 msg = '{0}: {1} is not {2}'.format(err_base, col, dict)
                 raise ValueError(msg)
             for op, value in operators.items():
                 if op == 'lte':
-                    clauses.append(desc <= value)
+                    clauses.append(vector <= str(value))
                     continue
                 elif op == 'lt':
-                    clauses.append(desc < value)
+                    clauses.append(vector < str(value))
                     continue
                 elif op == 'gte':
-                    clauses.append(desc >= value)
+                    clauses.append(vector >= str(value))
                     continue
                 elif op == 'gt':
-                    clauses.append(desc > value)
+                    clauses.append(vector > str(value))
                     continue
                 msg = '{0}: {1} is not a known operator'.format(err_base, op)
                 raise ValueError(msg)
         return clauses
 
-    # def _get_fts_clauses(self, model_cls, query):
-    #     """Return full-text search clauses."""
-    #     clauses = []
-    #     pairs = query.split('|') if query else []
-    #     for pair in pairs:
-    #         if pair != '':
-    #             if '::' in pair:
-    #                 k, v = pair.split("::")
-    #                 vector = _entity_descriptor(model_cls, '_data')[k].astext
-    #             else:
-    #                 v = pair
-    #                 vector = _entity_descriptor(model_cls, '_data')
+    def _get_fts_clauses(self, data):
+        """Return full-text search clauses."""
+        q = self._parse_json('fts', data)
+        err_base = 'invalid "fts" clause'
+        clauses = []
+        for col, settings in q.items():
+            vector = self._get_vector(col)
 
-    #             clause = func.to_tsvector(vector).match(v, postgresql_regconfig='english')
+            # Check params
+            if not isinstance(settings, dict):
+                msg = '{0}: {1} is not {2}'.format(err_base, col, dict)
+                raise ValueError(msg)
+            query = settings.get('query')  # required
+            if not query:
+                msg = '{0}: "query" is required'.format(err_base)
+                raise ValueError(msg)
+            operator = settings.get('operator', 'and')
+            prefix = settings.get('prefix', True)
+
+            # Generate clauses
+            tokens = query.split()
+            word_clauses = []
+            for t in tokens:
+                if prefix:
+                    t += ':*'
+                clause = func.to_tsvector(vector).match(t)
+                word_clauses.append(clause)
+            if operator == 'or':
+                clauses.append(or_(*word_clauses))
+            elif operator == 'not':
+                clauses.append(not_(*word_clauses))
+            else:
+                clauses.append(and_(*word_clauses))
+
+            return clauses
+
+    # def _get_fts_phrase_clauses(self, data):
+    #     """Return full-text search phrase clauses."""
+    #     q = self._parse_json('fts', data)
+    #     err_base = 'invalid "fts" clause'
+    #     clauses = []
+    #     for col, settings in q.items():
+    #         vector = self._get_vector(col)
+
+    #         if not isinstance(settings, dict):
+    #             msg = '{0}: {1} is not {2}'.format(err_base, col, dict)
+    #             raise ValueError(msg)
+    #         query = settings.get('query')  # required
+    #         if not query:
+    #             msg = '{0}: "query" is required'.format(err_base)
+    #             raise ValueError(msg)
+    #         operator = settings.get('operator', 'and')
+    #         phrase = settings.get('phrase', None)
+    #         prefix = settings.get('prefix', True)
+
+    #         if not phrase:
+    #             tokens = query.split()
+    #             word_clauses = []
+    #             for t in tokens:
+    #                 if prefix:
+    #                     t += ':*'
+    #                 clause = func.to_tsvector(vector).match(t)
+    #                 word_clauses.append(clause)
+    #             if operator == 'or':
+    #                 clauses.append(or_(*word_clauses))
+    #             elif operator == 'not':
+    #                 clauses.append(not_(*word_clauses))
+    #             else:
+    #                 clauses.append(and_(*word_clauses))
+    #         else:
+    #             tokens = query.split()
+    #             word_clauses = []
+    #             query_str = ' <-> '.join(tokens)
+    #             if prefix:
+    #                 query_str = "'" + query_str + ":*'"
+    #             print(query_str)
+    #             ts_query = func.to_tsquery(query_str)
+    #             clause = func.to_tsvector(vector).op('@@')(ts_query)
+    #             print(str(clause))
     #             clauses.append(clause)
-    #     return clauses
+
+    #         return clauses
+
+    def _get_vector(self, col):
+        """Return the query vector."""
+        try:
+            return _entity_descriptor(Annotation, col)
+        except InvalidRequestError:
+            return _entity_descriptor(Annotation, '_data')[col]

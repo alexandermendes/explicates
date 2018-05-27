@@ -68,11 +68,10 @@ class TestSearch(Test):
             'AND annotation.created < :created_4'
         ))
 
-    def test_range_clauses_with_invalid_key(self):
-        """Test range clauses with invalid JSON."""
+    def test_range_clauses_with_invalid_settings(self):
+        """Test range clauses with invalid settings."""
         data = '{"foo": "bar"}'
-        assert_raises(InvalidRequestError, self.search._get_range_clauses,
-                      data)
+        assert_raises(ValueError, self.search._get_range_clauses, data)
 
     def test_range_clauses_with_invalid_operator(self):
         """Test range clauses with invalid operator."""
@@ -101,12 +100,83 @@ class TestSearch(Test):
 
     def test_search_by_range_gt(self):
         """Test search by range greater than."""
-        anno = AnnotationFactory()
+        anno = AnnotationFactory(data={'body': 43})
         AnnotationFactory()
         range_query = {
-            'created': {
-                'gt': anno.created
+            'body': {
+                'gt': 42
             }
         }
         results = self.search.search(range=range_query)
+        assert_equal(results, [anno])
+
+    def test_fts_clauses_with_invalid_json(self):
+        """Test fts clauses with invalid JSON."""
+        data = '{""}'
+        assert_raises(ValueError, self.search._get_fts_clauses, data)
+
+    def test_search_by_fts_default(self):
+        """Test search by fts with default settings."""
+        anno1 = AnnotationFactory(data={'body': 'foo'})
+        anno2 = AnnotationFactory(data={'body': 'bar'})
+        fts_query = {
+            'body': {
+                'query': 'fo'
+            }
+        }
+        results = self.search.search(fts=fts_query)
+        assert_equal(results, [anno1])
+
+    def test_search_by_fts_without_prefix(self):
+        """Test search by fts without prefix."""
+        AnnotationFactory(data={'body': 'foo'})
+        AnnotationFactory(data={'body': 'bar'})
+        fts_query = {
+            'body': {
+                'query': 'fo',
+                'prefix': False
+            }
+        }
+        results = self.search.search(fts=fts_query)
         assert_equal(results, [])
+
+    def test_search_by_fts_default_with_or(self):
+        """Test search by fts with default settings with or."""
+        anno1 = AnnotationFactory(data={'body': 'foo'})
+        anno2 = AnnotationFactory(data={'body': 'bar'})
+        anno3 = AnnotationFactory(data={'body': 'baz'})
+        fts_query = {
+            'body': {
+                'query': 'foo bar',
+                'operator': 'or'
+            }
+        }
+        results = self.search.search(fts=fts_query)
+        assert_equal(results, [anno1, anno2])
+
+    # def test_search_by_fts_phrase(self):
+    #     """Test search by fts phrase."""
+    #     anno1 = AnnotationFactory(data={'body': 'foo bar'})
+    #     anno2 = AnnotationFactory(data={'body': 'foo baz qux'})
+    #     fts_query = {
+    #         'body': {
+    #             'query': 'foo bar',
+    #             'phrase': True
+    #         }
+    #     }
+    #     results = self.search.search(fts=fts_query)
+    #     assert_equal(results, [anno1, anno2])
+
+    # def test_search_by_fts_phrase_without_prefix(self):
+    #     """Test search by fts phrase without prefix."""
+    #     anno1 = AnnotationFactory(data={'body': 'foo bar'})
+    #     anno2 = AnnotationFactory(data={'body': 'foo baz qux'})
+    #     fts_query = {
+    #         'body': {
+    #             'query': 'foo bar',
+    #             'phrase': True,
+    #             'prefix': False
+    #         }
+    #     }
+    #     results = self.search.search(fts=fts_query)
+    #     assert_equal(results, [anno1])

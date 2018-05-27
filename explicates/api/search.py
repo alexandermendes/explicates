@@ -20,13 +20,22 @@ class SearchAPI(APIBase, MethodView):
         'Allow': 'GET,OPTIONS,HEAD'
     }
 
+    def _filter_valid_params(self, data):
+        """Return the valid search parameters."""
+        valid_keys = ['contains', 'collection', 'fts', 'limit', 'range',
+                      'order_by', 'offset']
+        return {k: v for k, v in data.items() if k in valid_keys}
+
+
     def get(self):
         """Search Annotations."""
         data = request.args.to_dict(flat=True)
         if request.data:
             data = json.loads(request.data)
+        params = self._filter_valid_params(data)
+
         try:
-            results = search.search(**data)
+            results = search.search(**params)
         except (ValueError, ProgrammingError) as err:
             abort(400, err.message)
 
@@ -36,6 +45,7 @@ class SearchAPI(APIBase, MethodView):
                 "BasicContainer"
             ]
         })
+        print(params)
         container = self._get_container(tmp_collection, items=results,
-                                        total=len(results))
+                                        total=len(results), **params)
         return self._jsonld_response(container)

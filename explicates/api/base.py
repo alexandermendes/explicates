@@ -197,23 +197,16 @@ class APIBase(object):
 
         return minimal, iris
 
-    def _get_query_params(self, iris=None):
-        """Return a copy of the request arguments.
-
-        Remove page as this will be dealt with seperately.
-        """
-        params = request.args.copy()
-        params.pop('page', None)
-        return params.to_dict(flat=True)
-
-    def _get_container(self, collection, items=None, total=None):
+    def _get_container(self, collection_base, items=None, total=None,
+                       **params):
         """Return a container for Annotations."""
-        out = collection.dictize()
+        out = collection_base.dictize()
         minimal, iris = self._get_container_preferences()
-        params = self._get_query_params()
-        params['iris'] = 1 if iris or params.get('iris') == '1' else None
+        if not params:
+            params = {}
+        params['iris'] = 1 if iris or request.args.get('iris') == '1' else None
 
-        out['id'] = self._get_iri(collection, **params)
+        out['id'] = self._get_iri(collection_base, **params)
 
         # Defining total manually is useful for search
         # results returned in fake containers
@@ -232,12 +225,12 @@ class APIBase(object):
                 return self._get_page(page, n_pages, per_page, collection,
                                     items, partof=out, **params)
             elif minimal:
-                out['first'] = self._get_iri(collection, page=0, **params)
+                out['first'] = self._get_iri(collection_base, page=0, **params)
             else:
-                out['first'] = self._get_page(0, n_pages, per_page, collection,
-                                              items, **params)
+                out['first'] = self._get_page(0, n_pages, per_page,
+                                              collection_base, items, **params)
             if n_pages > 1:
-                out['last'] = self._get_iri(collection, page=n_pages - 1,
+                out['last'] = self._get_iri(collection_base, page=n_pages - 1,
                                             **params)
 
         return out
@@ -262,10 +255,10 @@ class APIBase(object):
         n = 0 if total <= 0 else (total - 1) // per_page
         return n + 1
 
-    def _get_page(self, page, n_pages, per_page, collection, items,
+    def _get_page(self, page, n_pages, per_page, collection_base, items,
                   partof=None, **params):
         """Return an AnnotationPage."""
-        page_iri = self._get_iri(collection, page=page, **params)
+        page_iri = self._get_iri(collection_base, page=page, **params)
         data = {
             'id': page_iri,
             'type': 'AnnotationPage',
@@ -273,9 +266,11 @@ class APIBase(object):
         }
 
         if page > 0:
-            data['prev'] = self._get_iri(collection, page=page - 1, **params)
+            data['prev'] = self._get_iri(collection_base, page=page - 1,
+                                         **params)
         if page < n_pages - 1:
-            data['next'] = self._get_iri(collection, page=page + 1, **params)
+            data['next'] = self._get_iri(collection_base, page=page + 1,
+                                         **params)
 
         if partof:
             data['partOf'] = partof
