@@ -119,6 +119,16 @@ class TestSearch(Test):
         data = '{""}'
         assert_raises(ValueError, self.search._get_fts_clauses, data)
 
+    def test_fts_clauses_with_invalid_settings(self):
+        """Test fts clauses with invalid settings."""
+        data = '{"foo": "bar"}'
+        assert_raises(ValueError, self.search._get_fts_clauses, data)
+
+    def test_fts_clauses_with_missing_query(self):
+        """Test fts clauses with invalid settings."""
+        data = '{"foo": {"bar":"baz"}}'
+        assert_raises(ValueError, self.search._get_fts_clauses, data)
+
     @with_context
     def test_search_by_fts_default(self):
         """Test search by fts with default settings."""
@@ -172,6 +182,16 @@ class TestSearch(Test):
         }
         results = self.search.search(fts=fts_query)
         assert_equal(results, [anno1, anno2])
+
+    def test_fts_phrase_clauses_with_invalid_settings(self):
+        """Test fts phrase clauses with invalid settings."""
+        data = '{"foo": "bar"}'
+        assert_raises(ValueError, self.search._get_fts_phrase_clauses, data)
+
+    def test_fts_phrase_clauses_with_missing_query(self):
+        """Test fts phrase clauses with invalid settings."""
+        data = '{"foo": {"bar":"baz"}}'
+        assert_raises(ValueError, self.search._get_fts_phrase_clauses, data)
 
     @with_context
     def test_search_by_fts_phrase(self):
