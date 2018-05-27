@@ -165,7 +165,6 @@ class TestSearch(Test):
         results = self.search.search(fts=fts_query)
         assert_equal(results, [anno1])
 
-
     @with_context
     def test_search_by_fts_does_not_include_keys(self):
         """Test search by fts does not include keys."""
