@@ -52,6 +52,16 @@ class TestSearch(Test):
         results = self.search.search(contains=data)
         assert_equal(results, [anno])
 
+    @with_context
+    def test_search_by_collection_and_contains(self):
+        """Test search by collection and contains."""
+        data = {'foo': 'bar'}
+        anno = AnnotationFactory(data=data)
+        AnnotationFactory(data={'baz': 'qux'})
+        collection_iri = anno.collection.id
+        results = self.search.search(collection=collection_iri, contains=data)
+        assert_equal(results, [anno])
+
     def test_ranges_clause(self):
         """Test range clauses."""
         data = {
@@ -143,6 +153,20 @@ class TestSearch(Test):
         assert_equal(results, [anno1])
 
     @with_context
+    def test_search_by_fts_different_case(self):
+        """Test search by fts with different case."""
+        anno1 = AnnotationFactory(data={'body': {'source': 'FOO'}})
+        anno2 = AnnotationFactory(data={'body': 'bar'})
+        fts_query = {
+            'body': {
+                'query': 'fo'
+            }
+        }
+        results = self.search.search(fts=fts_query)
+        assert_equal(results, [anno1])
+
+
+    @with_context
     def test_search_by_fts_does_not_include_keys(self):
         """Test search by fts does not include keys."""
         anno1 = AnnotationFactory(data={'body': {'source': 'foo'}})
@@ -221,3 +245,9 @@ class TestSearch(Test):
         }
         results = self.search.search(fts_phrase=fts_phrase_query)
         assert_equal(results, [anno1])
+
+    def test_collection_clause(self):
+        """Test collection clause."""
+        iri = 'foo'
+        clause = self.search._get_collection_clause(iri)
+        assert_equal(str(clause), 'collection.id = :id_1')
