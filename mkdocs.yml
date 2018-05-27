@@ -15,3 +15,4 @@ markdown_extensions:
 pages:
   - Introduction: 'index.md'
   - Search: 'search.md'
+  - Export: 'export.md'
