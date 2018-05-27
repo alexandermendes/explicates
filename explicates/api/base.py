@@ -63,7 +63,7 @@ class APIBase(object):
             obj = model_cls(id=slug, data=data, **kwargs)
             repo.save(model_cls, obj)
         except (IntegrityError, TypeError) as err:
-            abort(400, err.message)
+            abort(400, err)
         return obj
 
     def _update(self, obj):
@@ -74,7 +74,7 @@ class APIBase(object):
             model_cls = obj.__class__
             repo.update(model_cls, obj)
         except (IntegrityError, TypeError) as err:
-            abort(400, err.message)
+            abort(400, err)
 
     def _delete(self, obj):
         """Delete a domain object."""
@@ -82,14 +82,14 @@ class APIBase(object):
             model_cls = obj.__class__
             repo.delete(model_cls, obj.key)
         except (IntegrityError, TypeError) as err:
-            abort(400, err.message)
+            abort(400, err)
 
     def _get_validated_data(self, model_cls):
         data = request.get_json()
         try:
             self._validate_data(data, model_cls)
         except ValidationError as err:
-            abort(400, err.message)
+            abort(400, err)
         return data
 
     def _validate_data(self, obj, model_cls):

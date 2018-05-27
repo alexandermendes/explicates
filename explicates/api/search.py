@@ -37,7 +37,7 @@ class SearchAPI(APIBase, MethodView):
         try:
             results = search.search(**params)
         except (ValueError, ProgrammingError) as err:
-            abort(400, err.message)
+            abort(400, err)
 
         tmp_collection = Collection(data={
             "type": [
