@@ -17,7 +17,6 @@ def create_app():
     setup_repository(app)
     setup_search(app)
     setup_exporter(app)
-    setup_profiler(app)
     setup_blueprint(app)
     setup_error_handler(app)
     setup_cors(app)
@@ -115,12 +114,6 @@ def setup_error_handler(app):
         if code == 500 and app.debug:
             raise
         return response
-
-
-def setup_profiler(app):
-    if app.config.get('FLASK_PROFILER'):
-        print(" * Flask Profiler is enabled")
-        flask_profiler.init_app(app)
 
 
 def setup_cors(app):

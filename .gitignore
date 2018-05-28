@@ -42,8 +42,5 @@ alembic.ini
 htmlcov/*
 .coverage
 
-# Flask profiler
-flask_profiler.sql
-
 # Provisioning
 playbook.retry

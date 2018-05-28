@@ -7,7 +7,6 @@ requirements = [
     "alembic>=0.9.9, <1.0.0",
     "factory_boy>=2.4.1, <2.5",
     "jsonschema>=2.6.0, <3.0.0",
-    "flask_profiler>= 1.6, <1.6.1",
     "flask-cors>=3.0.2, <3.0.3",
     "unidecode>=1.0.22, <2.0.0",
     "zipstream>=1.1.4, <1.2.0",
