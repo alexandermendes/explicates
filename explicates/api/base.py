@@ -98,7 +98,7 @@ class APIBase(object):
         here = os.path.dirname(os.path.abspath(__file__))
         schemas_dir = os.path.join(os.path.dirname(here), 'schemas')
         schema_path = os.path.join(schemas_dir, schema_fn)
-        with open(schema_path, 'rb') as json_file:
+        with open(schema_path) as json_file:
             schema = json.load(json_file)
             validate_json(obj, schema)
 
