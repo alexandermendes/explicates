@@ -38,7 +38,6 @@ class TestIndexAPI(Test):
                     'type': collection1.data['type'],
                     'created': '1984-11-19T00:00:00Z',
                     'generated': '1984-11-19T00:00:00Z',
-                    'generator': current_app.config.get('GENERATOR'),
                     'total': 3
                 },
                 {
@@ -48,7 +47,6 @@ class TestIndexAPI(Test):
                     'type': collection2.data['type'],
                     'created': '1984-11-19T00:00:00Z',
                     'generated': '1984-11-19T00:00:00Z',
-                    'generator': current_app.config.get('GENERATOR'),
                     'total': 0
                 }
             ]

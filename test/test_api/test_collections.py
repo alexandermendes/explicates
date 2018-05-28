@@ -55,7 +55,6 @@ class TestCollectionsAPI(Test):
             'label': data['label'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 0
         })
 
@@ -105,7 +104,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -166,7 +164,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -199,7 +196,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -234,7 +230,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -265,7 +260,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': url_for('api.collections',
                              collection_id=collection.id,
@@ -293,7 +287,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': url_for('api.collections',
                              collection_id=collection.id,
@@ -365,7 +358,6 @@ class TestCollectionsAPI(Test):
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'modified': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -454,8 +446,7 @@ class TestCollectionsAPI(Test):
                     'AnnotationCollection'
                 ],
                 'created': '1984-11-19T00:00:00Z',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
+                'generated': '1984-11-19T00:00:00Z'
             }
         }
 
@@ -507,8 +498,7 @@ class TestCollectionsAPI(Test):
                     'AnnotationCollection'
                 ],
                 'created': '1984-11-19T00:00:00Z',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
+                'generated': '1984-11-19T00:00:00Z'
             },
             'next': url_for('api.collections', collection_id=collection.id,
                             page=current_page + 1),
@@ -546,8 +536,7 @@ class TestCollectionsAPI(Test):
                     'AnnotationCollection'
                 ],
                 'created': '1984-11-19T00:00:00Z',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
+                'generated': '1984-11-19T00:00:00Z'
             }
         }
 

@@ -66,6 +66,11 @@ class BaseDomainObject(object):
                 obj = obj.isoformat()
             out[col.name] = obj
 
+        # Add default generator to Annotations
+        generator = current_app.config.get('GENERATOR')
+        if generator and self.__class__.__name__ == 'Annotation':
+            out['generator'] = generator
+
         # Add data
         if self._data:
             out.update(self._data)
@@ -78,11 +83,6 @@ class BaseDomainObject(object):
 
         # Add generated
         out['generated'] = make_timestamp()
-
-        # Add generator
-        generator = current_app.config.get('GENERATOR')
-        if generator:
-            out['generator'] = generator
 
         # Add ID
         if self.iri:

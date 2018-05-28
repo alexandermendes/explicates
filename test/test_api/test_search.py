@@ -36,7 +36,6 @@ class TestSearchAPI(Test):
                 'BasicContainer'
             ],
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.search', page=0, **query),
