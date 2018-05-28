@@ -73,7 +73,7 @@ class APIBase(object):
             obj.data = data
             model_cls = obj.__class__
             repo.update(model_cls, obj)
-        except (IntegrityError, TypeError) as err:
+        except (IntegrityError, TypeError) as err:  # pragma: no cover
             abort(400, err)
 
     def _delete(self, obj):
@@ -81,7 +81,7 @@ class APIBase(object):
         try:
             model_cls = obj.__class__
             repo.delete(model_cls, obj.key)
-        except (IntegrityError, TypeError) as err:
+        except (IntegrityError, TypeError) as err:  # pragma: no cover
             abort(400, err)
 
     def _get_validated_data(self, model_cls):
@@ -181,7 +181,7 @@ class APIBase(object):
             return minimal, iris
         try:
             _return, include = prefer.split(';')
-        except ValueError:
+        except ValueError:  # pragma: no cover
             return minimal, iris
         if _return.strip() != 'return=representation':
             return minimal, iris
@@ -246,7 +246,7 @@ class APIBase(object):
         if page:
             try:
                 page = int(request.args.get('page', 0))
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 abort(400, 'page must be a valid integer')
         return page
 

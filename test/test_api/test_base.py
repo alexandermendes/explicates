@@ -33,3 +33,13 @@ class TestBaseAPI(Test):
         annotations = AnnotationFactory.create_batch(4, collection=collection)
         out = self.api_base._slice_annotations(collection.annotations, 2, 1)
         assert_equal(out, annotations[2:])
+
+    @with_context
+    def test_get_iri_with_unknown_object(self):
+        """Test get IRI with unknown object."""
+        assert_raises(TypeError, self.api_base._get_iri, {})
+
+    @with_context
+    def test_get_json_reponse_with_unknown_object(self):
+        """Test get JSON response with unknown object."""
+        assert_raises(TypeError, self.api_base._jsonld_response, [42])
