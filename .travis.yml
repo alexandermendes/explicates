@@ -17,7 +17,7 @@ script:
   - pycodestyle
   - alembic -c alembictest.ini stamp head
   - alembic -c alembictest.ini upgrade head
-  - nosetests -x test/
+  - nosetests test/
   - mkdocs build --clean
 after_success:
   - pip install coveralls
