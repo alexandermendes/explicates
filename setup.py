@@ -14,10 +14,7 @@ requirements = [
     "mkdocs>=0.17.1, <1.0.0",
     "mkdocs-material",
     "pymdown-extensions",
-    "markdown_include"
-]
-
-test_requirements = [
+    "markdown_include",
     "factory_boy>=2.4.1, <2.5",
     "nose",
     "mock",
@@ -28,12 +25,12 @@ test_requirements = [
     "pycodestyle"
 ]
 
+
 setup(
     name='explicates',
     version='0.1.0',
     packages=find_packages(),
     install_requires=requirements,
-    tests_require=test_requirements,
     author='Alexander Mendes',
     author_email='alexanderhmendes@gmail.com',
     description='A PostgreSQL-backed Web Annotation server',
