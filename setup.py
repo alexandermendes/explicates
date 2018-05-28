@@ -13,7 +13,8 @@ requirements = [
     "future>=0.16.0, <1.0.0",
     "mkdocs>=0.17.1, <1.0.0",
     "mkdocs-material",
-    "pymdown-extensions"
+    "pymdown-extensions",
+    "markdown_include"
 ]
 
 test_requirements = [

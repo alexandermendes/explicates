@@ -12,6 +12,8 @@ markdown_extensions:
       smart_enable: all
   - pymdownx.details
   - pymdownx.superfences
+  - markdown_include.include:
+      base_path: docs
 pages:
   - Introduction: 'index.md'
   - Setup: 'setup.md'

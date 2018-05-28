@@ -9,9 +9,8 @@ The Annotations are streamed back to the client as a JSON list. This endpoint
 is intended for programmatic use only. It is not recommended to access it via
 a web browser as, depending on the number of Annotations to be exported, it is
 likely the browser would run out of memory before the request finishes.
-
-You can add the URL parameter `zip=1` to download the Annotations as a ZIP
-file.
+However, you can add the URL parameter `zip=1` to download the Annotations as
+a ZIP file.
 
 !!! summary "Curl example"
 
