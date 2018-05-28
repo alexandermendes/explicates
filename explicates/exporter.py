@@ -23,7 +23,7 @@ class Exporter(object):
         table = Annotation.__table__
         where_clauses = [
             table.c.collection_key == collection.key,
-            not table.c.deleted
+            table.c.deleted != True
         ]
 
         query = table.select().where(and_(*where_clauses))
