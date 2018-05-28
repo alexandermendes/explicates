@@ -6,7 +6,6 @@ import string
 import tempfile
 import zipfile
 import unidecode
-import flatten_json
 from flask import current_app
 from sqlalchemy import and_
 from werkzeug.utils import secure_filename
@@ -24,8 +23,9 @@ class Exporter(object):
         table = Annotation.__table__
         where_clauses = [
             table.c.collection_key == collection.key,
-            table.c.deleted == False
+            table.c.deleted != True
         ]
+
         query = table.select().where(and_(*where_clauses))
         exec_opts = dict(stream_results=True)
         res = db.session.connection(execution_options=exec_opts).execute(query)
@@ -36,7 +36,7 @@ class Exporter(object):
             for row in chunk:
                 yield dict(row)
 
-    def generate_data(self, collection_id, flatten=False):
+    def generate_data(self, collection_id):
         """Return all Annotations as JSON-LD."""
         collection = repo.get_by(Collection, id=collection_id)
         data_gen = self._stream_annotation_data(collection)
@@ -46,8 +46,6 @@ class Exporter(object):
             anno = Annotation(**dict(row))
             anno.collection = collection
             anno_dict = anno.dictize()
-            if flatten:
-                anno_dict = flatten_json.flatten(anno_dict)
             out = json.dumps(anno_dict)
             yield out if first else ', ' + out
             first = False

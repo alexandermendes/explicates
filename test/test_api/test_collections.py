@@ -26,7 +26,7 @@ class TestCollectionsAPI(Test):
         """Test 404 when Collection does not exist."""
         endpoint = '/annotations/invalid-collection/'
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 404)
+        assert_equal(res.status_code, 404, res.data)
 
     @with_context
     def test_410_when_collection_used_to_exist(self):
@@ -34,7 +34,7 @@ class TestCollectionsAPI(Test):
         collection = CollectionFactory(deleted=True)
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 410)
+        assert_equal(res.status_code, 410, res.data)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -55,12 +55,11 @@ class TestCollectionsAPI(Test):
             'label': data['label'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 0
         })
 
         # Test 201
-        assert_equal(res.status_code, 201)
+        assert_equal(res.status_code, 201, res.data)
 
         # Test Location header contains Collection IRI
         assert_equal(res.headers.get('Location'), _id)
@@ -76,7 +75,7 @@ class TestCollectionsAPI(Test):
         res = self.app_post_json_ld(endpoint, data=data, headers=headers)
         collection = repo.get(Collection, 1)
         assert_equal(collection.id, slug)
-    
+
     @with_context
     @freeze_time("1984-11-19")
     def test_collection_created_with_id_moved_to_via(self):
@@ -105,7 +104,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -148,8 +146,8 @@ class TestCollectionsAPI(Test):
             items.append(
                 {
                     'id': url_for('api.annotations',
-                                    collection_id=collection.id,
-                                    annotation_id=anno.id),
+                                  collection_id=collection.id,
+                                  annotation_id=anno.id),
                     'type': 'Annotation',
                     'body': anno.data['body'],
                     'target': anno.data['target'],
@@ -166,7 +164,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': len(annotations),
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -199,7 +196,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -234,7 +230,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -265,7 +260,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': url_for('api.collections',
                              collection_id=collection.id,
@@ -293,7 +287,6 @@ class TestCollectionsAPI(Test):
             'type': collection.data['type'],
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': url_for('api.collections',
                              collection_id=collection.id,
@@ -314,18 +307,18 @@ class TestCollectionsAPI(Test):
         collection = CollectionFactory()
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
         assert_equal(collection.deleted, False)
 
     @with_context
     def test_non_empty_collection_cannot_be_deleted(self):
         """Test non-empty Collection cannot be deleted."""
         collection = CollectionFactory()
-
+        CollectionFactory()
         annotation = AnnotationFactory(collection=collection)
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
         assert_equal(collection.deleted, False)
 
     @with_context
@@ -335,7 +328,7 @@ class TestCollectionsAPI(Test):
         collection = collections[0]
         endpoint = u'/annotations/{}/'.format(collection.id)
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 204)
+        assert_equal(res.status_code, 204, res.data)
         assert_equal(collection.deleted, True)
 
     @with_context
@@ -365,7 +358,6 @@ class TestCollectionsAPI(Test):
             'created': '1984-11-19T00:00:00Z',
             'generated': '1984-11-19T00:00:00Z',
             'modified': '1984-11-19T00:00:00Z',
-            'generator': current_app.config.get('GENERATOR'),
             'total': 1,
             'first': {
                 'id': url_for('api.collections', collection_id=collection.id,
@@ -392,7 +384,7 @@ class TestCollectionsAPI(Test):
         assert_dict_equal(json.loads(res.data), expected)
 
         # Test 200
-        assert_equal(res.status_code, 200)
+        assert_equal(res.status_code, 200, res.data)
 
     @with_context
     @freeze_time("1984-11-19")
@@ -436,8 +428,8 @@ class TestCollectionsAPI(Test):
             'items': [
                 {
                     'id': url_for('api.annotations',
-                                    collection_id=collection.id,
-                                    annotation_id=annotation.id),
+                                  collection_id=collection.id,
+                                  annotation_id=annotation.id),
                     'type': 'Annotation',
                     'body': annotation.data['body'],
                     'target': annotation.data['target'],
@@ -454,8 +446,7 @@ class TestCollectionsAPI(Test):
                     'AnnotationCollection'
                 ],
                 'created': '1984-11-19T00:00:00Z',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
+                'generated': '1984-11-19T00:00:00Z'
             }
         }
 
@@ -481,8 +472,8 @@ class TestCollectionsAPI(Test):
             items.append(
                 {
                     'id': url_for('api.annotations',
-                                    collection_id=collection.id,
-                                    annotation_id=anno.id),
+                                  collection_id=collection.id,
+                                  annotation_id=anno.id),
                     'type': 'Annotation',
                     'body': anno.data['body'],
                     'target': anno.data['target'],
@@ -507,8 +498,7 @@ class TestCollectionsAPI(Test):
                     'AnnotationCollection'
                 ],
                 'created': '1984-11-19T00:00:00Z',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
+                'generated': '1984-11-19T00:00:00Z'
             },
             'next': url_for('api.collections', collection_id=collection.id,
                             page=current_page + 1),
@@ -546,8 +536,7 @@ class TestCollectionsAPI(Test):
                     'AnnotationCollection'
                 ],
                 'created': '1984-11-19T00:00:00Z',
-                'generated': '1984-11-19T00:00:00Z',
-                'generator': current_app.config.get('GENERATOR')
+                'generated': '1984-11-19T00:00:00Z'
             }
         }
 
@@ -562,14 +551,14 @@ class TestCollectionsAPI(Test):
 
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 0)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 404)
+        assert_equal(res.status_code, 404, res.data)
 
         per_page = current_app.config.get('ANNOTATIONS_PER_PAGE')
         AnnotationFactory.create_batch(per_page, collection=collection)
         endpoint = u'/annotations/{0}/?page={1}'.format(collection.id, 1)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(res.status_code, 404)
-    
+        assert_equal(res.status_code, 404, res.data)
+
     @with_context
     @patch('explicates.api.base.validate_json')
     def test_collection_validated_before_create(self, mock_validate):
@@ -578,8 +567,8 @@ class TestCollectionsAPI(Test):
         bad_data = {'foo': 'bar'}
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_post_json_ld(endpoint, data=bad_data)
-        assert_equal(res.status_code, 400)
-        schema_path = os.path.join(current_app.root_path, 'schemas', 
+        assert_equal(res.status_code, 400, res.data)
+        schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'collection.json')
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)
@@ -595,8 +584,8 @@ class TestCollectionsAPI(Test):
         bad_data = {'foo': 'bar'}
         mock_validate.side_effect = ValidationError('Bad Data')
         res = self.app_put_json_ld(endpoint, data=bad_data)
-        assert_equal(res.status_code, 400)
-        schema_path = os.path.join(current_app.root_path, 'schemas', 
+        assert_equal(res.status_code, 400, res.data)
+        schema_path = os.path.join(current_app.root_path, 'schemas',
                                    'collection.json')
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)

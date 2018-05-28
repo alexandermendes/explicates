@@ -22,6 +22,7 @@ def register_api(view, endpoint, url):
     view_func = view.as_view(endpoint)
     blueprint.add_url_rule(url, view_func=view_func)
 
+
 register_api(IndexAPI, 'index', '/annotations/')
 register_api(CollectionsAPI, 'collections', '/annotations/<collection_id>/')
 register_api(AnnotationsAPI, 'annotations',

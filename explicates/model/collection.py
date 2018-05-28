@@ -20,13 +20,13 @@ class Collection(db.Model, Base):
 
     __tablename__ = 'collection'
 
-    annotations = relationship(Annotation, backref='collection', 
+    annotations = relationship(Annotation, backref='collection',
                                lazy='dynamic')
 
     @hybrid_property
     def total(self):
         return self.annotations.count()
-    
+
     @total.expression
     def total(cls):
         return (select([func.count(Annotation.id)]).

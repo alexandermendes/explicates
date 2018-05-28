@@ -15,8 +15,8 @@ def create_app():
     configure_app(app)
     setup_db(app)
     setup_repository(app)
+    setup_search(app)
     setup_exporter(app)
-    setup_profiler(app)
     setup_blueprint(app)
     setup_error_handler(app)
     setup_cors(app)
@@ -27,7 +27,7 @@ def configure_app(app):
     """Configure app."""
     app.config.from_object(default_settings)
     app.config.from_envvar('EXPLICATES_SETTINGS', silent=True)
-    if not os.environ.get('EXPLICATES_SETTINGS'):
+    if not os.environ.get('EXPLICATES_SETTINGS'):  # pragma: no cover
         here = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(os.path.dirname(here), 'settings.py')
         if os.path.exists(config_path):
@@ -62,16 +62,29 @@ def setup_repository(app):
     repo = Repository(db)
 
 
+def setup_search(app):
+    """Setup search."""
+    from explicates.search import Search
+    global search
+    search = Search(db)
+
+
 def setup_db(app):
     """Setup database."""
+    from explicates.model.indexes import indexes
+
     def create_slave_session(db, bind):
         slave = app.config.get('SQLALCHEMY_BINDS')['slave']
         if slave == app.config.get('SQLALCHEMY_DATABASE_URI'):
             return db.session
-        engine = db.get_engine(db.app, bind=bind)
         options = dict(bind=engine, scopefunc=_app_ctx_stack.__ident_func__)
         slave_session = db.create_scoped_session(options=options)
+
+        for idx in indexes:
+            idx.create(bind=engine)
+
         return slave_session
+
     db.app = app
     db.init_app(app)
     db.slave_session = create_slave_session(db, bind='slave')
@@ -101,12 +114,6 @@ def setup_error_handler(app):
         if code == 500 and app.debug:
             raise
         return response
-
-
-def setup_profiler(app):
-    if app.config.get('FLASK_PROFILER'):
-        print(" * Flask Profiler is enabled")
-        flask_profiler.init_app(app)
 
 
 def setup_cors(app):

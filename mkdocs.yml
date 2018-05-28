@@ -1,0 +1,21 @@
+site_name: 'Explicates Documentation'
+theme:
+  name: 'material'
+repo_name: 'alexandermendes/explicates'
+repo_url: 'https://github.com/alexandermendes/explicates'
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.details
+  - pymdownx.superfences
+pages:
+  - Introduction: 'index.md'
+  - Setup: 'setup.md'
+  - Collections: 'collections.md'
+  - Annotations: 'annotations.md'
+  - Search: 'search.md'
+  - Export: 'export.md'

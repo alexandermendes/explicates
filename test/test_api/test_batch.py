@@ -17,21 +17,33 @@ class TestBatchAPI(Test):
     @with_context
     def test_batch_delete_annotations(self):
         """Test batch delete Annotations."""
-        collection = CollectionFactory()
-        annotations = AnnotationFactory.create_batch(1, collection=collection)
-        data = [anno.dictize() for anno in annotations]
+        annotations = AnnotationFactory.create_batch(3)
+        data = [anno.dictize() for anno in annotations][1:]
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint, data=data)
-        assert_equal(res.status_code, 204)
-        annotations = repo.filter_by(Annotation, deleted=False)
-        assert_equal(annotations, [])
+        assert_equal(res.status_code, 204, res.data)
+        annotations_after = repo.filter_by(Annotation, deleted=False)
+        assert_equal(annotations_after, [annotations[0]])
+
+    @with_context
+    def test_batch_delete_with_invalid_annotations(self):
+        """Test batch delete with invalid Annotations."""
+        data = [{
+            'id': 'foo'
+        }]
+        endpoint = '/batch/'
+        res = self.app_delete_json_ld(endpoint, data=data)
+        assert_equal(res.status_code, 400, res.data)
+        err_msg = ('400 Bad Request: The query contains IDs that cannot be '
+                   'found in the database')
+        assert_equal(json.loads(res.data)['message'], err_msg, res.data)
 
     @with_context
     def test_batch_delete_annotations_with_no_data(self):
         """Test batch delete Annotations with no data."""
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)
 
     @with_context
     def test_batch_delete_annotations_with_invalid_data(self):
@@ -39,4 +51,4 @@ class TestBatchAPI(Test):
         endpoint = '/batch/'
         data = dict(foo='bar')
         res = self.app_delete_json_ld(endpoint, data=data)
-        assert_equal(res.status_code, 400)
+        assert_equal(res.status_code, 400, res.data)

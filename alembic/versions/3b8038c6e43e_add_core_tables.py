@@ -28,7 +28,8 @@ def make_uuid():
 
 
 def upgrade():
-    op.create_table('collection',
+    op.create_table(
+        'collection',
         sa.Column('key', sa.Integer(), nullable=False),
         sa.Column('id', sa.Text(), nullable=False, unique=True,
                   default=make_uuid),
@@ -39,7 +40,8 @@ def upgrade():
         sa.PrimaryKeyConstraint('key')
     )
 
-    op.create_table('annotation',
+    op.create_table(
+        'annotation',
         sa.Column('key', sa.Integer(), nullable=False),
         sa.Column('id', sa.Text(), nullable=False, unique=True,
                   default=make_uuid),
@@ -51,6 +53,7 @@ def upgrade():
         sa.Column('collection_key', sa.Integer(),
                   sa.ForeignKey('collection.key'), nullable=False)
     )
+
 
 def downgrade():
     op.drop_table('annotation')

@@ -63,7 +63,7 @@ class APIBase(object):
             obj = model_cls(id=slug, data=data, **kwargs)
             repo.save(model_cls, obj)
         except (IntegrityError, TypeError) as err:
-            abort(400, err.message)
+            abort(400, err)
         return obj
 
     def _update(self, obj):
@@ -73,23 +73,23 @@ class APIBase(object):
             obj.data = data
             model_cls = obj.__class__
             repo.update(model_cls, obj)
-        except (IntegrityError, TypeError) as err:
-            abort(400, err.message)
+        except (IntegrityError, TypeError) as err:  # pragma: no cover
+            abort(400, err)
 
     def _delete(self, obj):
         """Delete a domain object."""
         try:
             model_cls = obj.__class__
             repo.delete(model_cls, obj.key)
-        except (IntegrityError, TypeError) as err:
-            abort(400, err.message)
+        except (IntegrityError, TypeError) as err:  # pragma: no cover
+            abort(400, err)
 
     def _get_validated_data(self, model_cls):
         data = request.get_json()
         try:
             self._validate_data(data, model_cls)
         except ValidationError as err:
-            abort(400, err.message)
+            abort(400, err)
         return data
 
     def _validate_data(self, obj, model_cls):
@@ -98,7 +98,7 @@ class APIBase(object):
         here = os.path.dirname(os.path.abspath(__file__))
         schemas_dir = os.path.join(os.path.dirname(here), 'schemas')
         schema_path = os.path.join(schemas_dir, schema_fn)
-        with open(schema_path, 'rb') as json_file:
+        with open(schema_path) as json_file:
             schema = json.load(json_file)
             validate_json(obj, schema)
 
@@ -157,7 +157,7 @@ class APIBase(object):
             namespaces.append('ldp#IndirectContainer')
 
         links = [dict(url='http://www.w3.org/ns/{}'.format(ns), rel='type')
-                      for ns in namespaces]
+                 for ns in namespaces]
         containers = ['BasicContainer', 'DirectContainer', 'IndirectContainer']
         if set(containers).intersection(set(types)):
             links.append({
@@ -181,7 +181,7 @@ class APIBase(object):
             return minimal, iris
         try:
             _return, include = prefer.split(';')
-        except ValueError:
+        except ValueError:  # pragma: no cover
             return minimal, iris
         if _return.strip() != 'return=representation':
             return minimal, iris
@@ -197,23 +197,16 @@ class APIBase(object):
 
         return minimal, iris
 
-    def _get_query_params(self, iris=None):
-        """Return a copy of the request arguments.
-
-        Remove page as this will be dealt with seperately.
-        """
-        params = request.args.copy()
-        params.pop('page', None)
-        return params.to_dict(flat=True)
-
-    def _get_container(self, collection, items=None, total=None):
+    def _get_container(self, collection_base, items=None, total=None,
+                       **params):
         """Return a container for Annotations."""
-        out = collection.dictize()
+        out = collection_base.dictize()
         minimal, iris = self._get_container_preferences()
-        params = self._get_query_params()
-        params['iris'] = 1 if iris or params.get('iris') == '1' else None
+        if not params:
+            params = {}
+        params['iris'] = 1 if iris or request.args.get('iris') == '1' else None
 
-        out['id'] = self._get_iri(collection, **params)
+        out['id'] = self._get_iri(collection_base, **params)
 
         # Defining total manually is useful for search
         # results returned in fake containers
@@ -229,15 +222,15 @@ class APIBase(object):
             if isinstance(page, int) and not items:
                 abort(404)
             elif isinstance(page, int):
-                return self._get_page(page, n_pages, per_page, collection,
-                                    items, partof=out, **params)
+                return self._get_page(page, n_pages, per_page, collection_base,
+                                      items, partof=out, **params)
             elif minimal:
-                out['first'] = self._get_iri(collection, page=0, **params)
+                out['first'] = self._get_iri(collection_base, page=0, **params)
             else:
-                out['first'] = self._get_page(0, n_pages, per_page, collection,
-                                              items, **params)
+                out['first'] = self._get_page(0, n_pages, per_page,
+                                              collection_base, items, **params)
             if n_pages > 1:
-                out['last'] = self._get_iri(collection, page=n_pages - 1,
+                out['last'] = self._get_iri(collection_base, page=n_pages - 1,
                                             **params)
 
         return out
@@ -253,7 +246,7 @@ class APIBase(object):
         if page:
             try:
                 page = int(request.args.get('page', 0))
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 abort(400, 'page must be a valid integer')
         return page
 
@@ -262,10 +255,10 @@ class APIBase(object):
         n = 0 if total <= 0 else (total - 1) // per_page
         return n + 1
 
-    def _get_page(self, page, n_pages, per_page, collection, items,
+    def _get_page(self, page, n_pages, per_page, collection_base, items,
                   partof=None, **params):
         """Return an AnnotationPage."""
-        page_iri = self._get_iri(collection, page=page, **params)
+        page_iri = self._get_iri(collection_base, page=page, **params)
         data = {
             'id': page_iri,
             'type': 'AnnotationPage',
@@ -273,9 +266,11 @@ class APIBase(object):
         }
 
         if page > 0:
-            data['prev'] = self._get_iri(collection, page=page - 1, **params)
+            data['prev'] = self._get_iri(collection_base, page=page - 1,
+                                         **params)
         if page < n_pages - 1:
-            data['next'] = self._get_iri(collection, page=page + 1, **params)
+            data['next'] = self._get_iri(collection_base, page=page + 1,
+                                         **params)
 
         if partof:
             data['partOf'] = partof

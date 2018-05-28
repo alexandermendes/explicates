@@ -26,7 +26,7 @@ class ExportAPI(APIBase, MethodView):
             import zlib
             assert zlib
             return zipfile.ZIP_DEFLATED
-        except Exception as ex:
+        except Exception as ex:  # pragma: no cover
             return zipfile.ZIP_STORED
 
     def _ascii_encode(self, collection_id):
@@ -42,7 +42,7 @@ class ExportAPI(APIBase, MethodView):
         json_fn = safe_name + '.json'
         zip_fn = safe_name + '.zip'
         z.write_iter(json_fn, generator)
-        response = Response(z, mimetype='application/zip')
+        response = Response(stream_with_context(z), mimetype='application/zip')
         content_disposition = 'attachment; filename={}'.format(zip_fn)
         response.headers['Content-Disposition'] = content_disposition
         return response
@@ -50,15 +50,10 @@ class ExportAPI(APIBase, MethodView):
     def get(self, collection_id):
         """Export the contents of an AnnotationCollection."""
         collection = self._get_domain_object(Collection, collection_id)
-        if not collection:
-            abort(404)
-
-        flatten = request.args.get('flatten', False)
         _zip = request.args.get('zip')
-
-        data_gen = exporter.generate_data(collection.id, flatten)
+        data_gen = exporter.generate_data(collection.id)
         if _zip == '1':
             return self._zip_response(collection_id, data_gen)
 
         return Response(stream_with_context(data_gen),
-                                            mimetype='application/ld+json')
+                        mimetype='application/ld+json')

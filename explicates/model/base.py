@@ -17,10 +17,6 @@ from explicates.model.utils import make_timestamp, make_uuid
 class BaseDomainObject(object):
     """Base domain object class."""
 
-    @declared_attr
-    def __tablename__(cls):
-        return cls.__name__.lower()
-
     #: The object's primary key.
     key = Column(Integer, primary_key=True)
 
@@ -56,7 +52,8 @@ class BaseDomainObject(object):
             'deleted',
             'collection_key',
             'data',
-            'iri'
+            'iri',
+            'language'
         ]
         out = {}
 
@@ -68,6 +65,11 @@ class BaseDomainObject(object):
             elif isinstance(obj, datetime.datetime):
                 obj = obj.isoformat()
             out[col.name] = obj
+
+        # Add default generator to Annotations
+        generator = current_app.config.get('GENERATOR')
+        if generator and self.__class__.__name__ == 'Annotation':
+            out['generator'] = generator
 
         # Add data
         if self._data:
@@ -81,11 +83,6 @@ class BaseDomainObject(object):
 
         # Add generated
         out['generated'] = make_timestamp()
-
-        # Add generator
-        generator = current_app.config.get('GENERATOR')
-        if generator:
-            out['generator'] = generator
 
         # Add ID
         if self.iri:

@@ -25,21 +25,6 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://explicates:tester@localhost/explicates'
 # The number of Annotations to display per page (default 1000)
 # ANNOTATIONS_PER_PAGE = 1000
 
-# Flask profiler settings
-# See https://github.com/muatik/flask-profiler
-# FLASK_PROFILER = {
-#   "enabled": True,
-#   "storage": {
-#       "engine": "sqlite"
-#   },
-#   "endpointRoot": "server/profiler",
-#   "basicAuth": {
-#       "enabled": True,
-#       "username": "admin",
-#       "password": "admin"
-#   }
-# }
-
 # CORS settings (defaults below)
 # See https://flask-cors.readthedocs.io/en/latest/
 # CORS_RESOURCES = {
@@ -57,4 +42,26 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://explicates:tester@localhost/explicates'
 #         "max_age": 21600,
 #         "supports_credentials": True
 #     }
+# }
+
+# Full-text search default language
+# FTS_DEFAULT = 'english'
+
+# Full-text search map of available PostgreSQL dictionaries
+# FTS_LANGUAGE_MAP = {
+#     'da': 'danish',
+#     'nl': 'dutch',
+#     'fi': 'finnish',
+#     'fr': 'french',
+#     'de': 'german',
+#     'hu': 'hungarian',
+#     'it': 'italian',
+#     'no': 'norwegian',
+#     'pt': 'portuguese',
+#     'ro': 'romanian',
+#     'ru': 'russian',
+#     'es': 'spanish',
+#     'sv': 'swedish',
+#     'tr': 'turkish',
+#     'en': 'english'
 # }
