@@ -30,7 +30,7 @@ class TestSearchAPI(Test):
         res = self.app_get_json_ld(endpoint, data=query)
         assert_dict_equal(json.loads(res.data), {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
-            'id':  url_for('api.search', **query),
+            'id': url_for('api.search', **query),
             'type': [
                 'AnnotationCollection',
                 'BasicContainer'
@@ -43,8 +43,8 @@ class TestSearchAPI(Test):
                 'items': [
                     {
                         'id': url_for('api.annotations',
-                                    collection_id=anno.collection.id,
-                                    annotation_id=anno.id),
+                                      collection_id=anno.collection.id,
+                                      annotation_id=anno.id),
                         'type': 'Annotation',
                         'body': anno.data['body'],
                         'target': anno.data['target'],
