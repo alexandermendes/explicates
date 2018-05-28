@@ -73,13 +73,11 @@ class TestSearch(Test):
             }
         }
         clauses = self.search._get_range_clauses(json.dumps(data))
+        assert_equal(len(clauses), 4)
         str_clauses = [str(c) for c in clauses]
-        assert_equal(str_clauses, [
-            'annotation.created >= :created_1',
-            'annotation.created <= :created_1',
-            'annotation.created > :created_1',
-            'annotation.created < :created_1'
-        ])
+        for op in ['<', '>', '<=', '>=']:
+            assert_in('annotation.created {} :created_1'.format(op),
+                      str_clauses)
 
     def test_range_clauses_with_invalid_settings(self):
         """Test range clauses with invalid settings."""
