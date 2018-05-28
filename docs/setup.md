@@ -22,9 +22,15 @@ python run.py
 
 ## Configuration
 
-See `settings.py.tmpl` for all available configuration
-settings. To change any settings make a copy of the template:
+The contents of the settings template file, `settings.py.tmpl`, are replicated
+below. To edit any of the settings make a copy of the template:
 
-```bash
+```
 cp settings.py.tmpl settings.py
+```
+
+The comments below indicate where any default values are used.
+
+```python
+{!../settings.py.tmpl!}
 ```
