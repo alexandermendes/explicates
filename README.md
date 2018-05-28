@@ -5,6 +5,8 @@
 
 > A PostgreSQL-backed Web Annotation server.
 
+[**Read the documentation**](https://alexandermendes.github.io/explicates/)
+
 ## Setup
 
 A virtual machine setup is provided for local development.
@@ -25,7 +27,7 @@ vagrant ssh
 python run.py
 ```
 
-By default the server will now be available at http://127.0.0.1:3000.
+The server should now be available at http://127.0.0.1:3000.
 
 ## Configuration
 
