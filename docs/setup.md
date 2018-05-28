@@ -22,9 +22,14 @@ python run.py
 
 ## Configuration
 
-See `settings.py.tmpl` for all available configuration
-settings; the contents of the file are replicated below. All of the settings
-commented out are optional; the comments indicate if any defaults are used.
+The contents of the settings template file, `settings.py.tmpl`, are replicated
+below. To edit any of the settings make a copy of the template:
+
+```
+cp settings.py.tmpl settings.py
+```
+
+The comments below indicate where any default values are used.
 
 ```python
 {!../settings.py.tmpl!}
