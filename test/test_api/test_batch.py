@@ -18,12 +18,12 @@ class TestBatchAPI(Test):
     def test_batch_delete_annotations(self):
         """Test batch delete Annotations."""
         annotations = AnnotationFactory.create_batch(3)
-        data = [anno.dictize() for anno in annotations]
+        data = [anno.dictize() for anno in annotations][1:]
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint, data=data)
         assert_equal(res.status_code, 204, res.data)
         annotations_after = repo.filter_by(Annotation, deleted=False)
-        assert_equal(annotations_after, [])
+        assert_equal(annotations_after, [annotations[0]])
 
     @with_context
     def test_batch_delete_with_invalid_annotations(self):

@@ -44,7 +44,6 @@ class SearchAPI(APIBase, MethodView):
                 "BasicContainer"
             ]
         })
-        print(params)
         container = self._get_container(tmp_collection, items=results,
                                         total=len(results), **params)
         return self._jsonld_response(container)
