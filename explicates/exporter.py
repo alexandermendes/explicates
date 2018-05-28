@@ -36,7 +36,7 @@ class Exporter(object):
             for row in chunk:
                 yield dict(row)
 
-    def generate_data(self, collection_id, flatten=False):
+    def generate_data(self, collection_id):
         """Return all Annotations as JSON-LD."""
         collection = repo.get_by(Collection, id=collection_id)
         data_gen = self._stream_annotation_data(collection)

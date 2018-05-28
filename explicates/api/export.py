@@ -53,10 +53,9 @@ class ExportAPI(APIBase, MethodView):
         if not collection:
             abort(404)
 
-        flatten = request.args.get('flatten', False)
         _zip = request.args.get('zip')
 
-        data_gen = exporter.generate_data(collection.id, flatten)
+        data_gen = exporter.generate_data(collection.id)
         if _zip == '1':
             return self._zip_response(collection_id, data_gen)
 
