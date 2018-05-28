@@ -14,5 +14,8 @@ markdown_extensions:
   - pymdownx.superfences
 pages:
   - Introduction: 'index.md'
+  - Setup: 'setup.md'
+  - Collections: 'collections.md'
+  - Annotations: 'annotations.md'
   - Search: 'search.md'
   - Export: 'export.md'

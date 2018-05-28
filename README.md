@@ -7,10 +7,7 @@
 
 ## Setup
 
-### Development
-
-A virtual machine setup is provided for easily getting a development server up
-and running.
+A virtual machine setup is provided for local development.
 
 Download and install
 [Vagrant](https://www.vagrantup.com/) >= 4.2.10 and
@@ -30,14 +27,6 @@ python run.py
 
 By default the server will now be available at http://127.0.0.1:3000.
 
-### Production
-
-The requirements for production servers are:
-
-- Ubuntu 18.04 LTS
-- Python 2.7 or >= 3.4
-- PostgreSQL >= 10
-
 ## Configuration
 
 See [settings.py.tmpl](settings.py.tmpl) for all available configuration
@@ -49,7 +38,7 @@ cp settings.py.tmpl settings.py
 
 ## Testing
 
-Explicates is tested against Python 2.7 and 3.4.
+Explicates is tested against [Python 2.7 and 3.4](https://travis-ci.org/alexandermendes/explicates):
 
 ```bash
 # python 2
@@ -58,11 +47,3 @@ nosetests test/
 # python 3
 python3 -m "nose"
 ```
-
-## Usage
-
-Proper documentation to follow.
-
-### Web Annotations
-
-The Web Annotation endpoints are served from `/annotations/`.
