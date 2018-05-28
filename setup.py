@@ -5,7 +5,6 @@ requirements = [
     "SQLAlchemy>=1.2.0, <1.3.0",
     "Flask-SQLAlchemy>=2.3.0, <2.4.0",
     "alembic>=0.9.9, <1.0.0",
-    "factory_boy>=2.4.1, <2.5",
     "jsonschema>=2.6.0, <3.0.0",
     "flask-cors>=3.0.2, <3.0.3",
     "unidecode>=1.0.22, <2.0.0",
@@ -15,6 +14,8 @@ requirements = [
     "mkdocs>=0.17.1, <1.0.0",
     "mkdocs-material",
     "pymdown-extensions",
+    "markdown_include",
+    "factory_boy>=2.4.1, <2.5",
     "nose",
     "mock",
     "rednose",
@@ -23,6 +24,7 @@ requirements = [
     "freezegun",
     "pycodestyle"
 ]
+
 
 setup(
     name='explicates',
