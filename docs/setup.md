@@ -118,7 +118,7 @@ cp alembic.ini.tmpl alembic.ini
 Install database dependencies:
 
 ```bash
-sudo apt-get install postgresql postgresql-server-dev-all python-psycopg2 libpq-dev git-core
+sudo apt-get install postgresql postgresql-server-dev-all python-psycopg2 libpq-dev
 ```
 
 Add a database user:
@@ -158,6 +158,7 @@ Remove the default server configuration:
 
 ```bash
 sudo rm -r /etc/nginx/sites-available/default
+sudo rm -r /etc/nginx/sites-enabled/default
 ```
 
 Edit a new server configuration file:
@@ -195,7 +196,6 @@ server {
 }
 ```
 
-
 Enable the Explicates configuration:
 
 ```bash
@@ -210,7 +210,7 @@ sudo service nginx restart
 
 ## Setting up uWSGI
 
-To setup [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/), first install it:
+Install uWSGI:
 
 ```bash
 pip install -U uwsgi
