@@ -208,7 +208,7 @@ Restart the NGINX server:
 sudo service nginx restart
 ```
 
-## Setting up uWSGI
+### Setting up uWSGI
 
 Install uWSGI:
 
@@ -238,7 +238,7 @@ threads = 2
 buffer-size = 65535
 ```
 
-## Setup Up Supervisor
+### Setup Up Supervisor
 
 Supervisor is used to run Explicates in the background and restart it when the
 server boots up.
@@ -280,14 +280,14 @@ sudo service supervisor start
 Your Annotation server should now be running at
 [http://your.domain.com](http://your.domain.com).
 
-## Security
+### Security
 
 There are lots of potential steps that you could take to secure your servers.
 Running through all of the options here is outside the scope of this guide,
 but here are some quick wins for the LibCrowds and Explicates servers
 (details might need to be modified a bit for the PYBOSSA server).
 
-### Firewall
+#### Firewall
 
 UFW, or Uncomplicated Firewall, is an easy way to manage a frontend firewall.
 
@@ -336,7 +336,7 @@ If the rules do indeed appear as above, enable the firewall:
 sudo ufw enable
 ```
 
-## Secure Sockets Layer (SSL)
+#### Secure Sockets Layer (SSL)
 
 [Let's Encrypt](https://letsencrypt.org) provide free SSL certificates. Use
 the [Certbot](https://certbot.eff.org/) client to set them up for your
