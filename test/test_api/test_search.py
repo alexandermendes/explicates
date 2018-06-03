@@ -24,11 +24,12 @@ class TestSearchAPI(Test):
         AnnotationFactory()
         query = {
             'contains': {
-                'body': anno_data['body']
+                u'body': u'foo'
             }
         }
         res = self.app_get_json_ld(endpoint, data=query)
-        assert_dict_equal(json.loads(res.data), {
+        data = json.loads(res.data.decode('utf8'))
+        assert_dict_equal(data, {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('api.search', **query),
             'type': [

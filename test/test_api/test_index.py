@@ -54,4 +54,5 @@ class TestIndexAPI(Test):
 
         endpoint = '/annotations/'
         res = self.app_get_json_ld(endpoint)
-        assert_dict_equal(json.loads(res.data), expected)
+        data = json.loads(res.data.decode('utf8'))
+        assert_dict_equal(data, expected)

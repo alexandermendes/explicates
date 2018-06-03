@@ -30,7 +30,7 @@ class SearchAPI(APIBase, MethodView):
         """Search Annotations."""
         data = request.args.to_dict(flat=True)
         if request.data:
-            data = json.loads(request.data)
+            data = json.loads(request.data.decode('utf8'))
         params = self._filter_valid_params(data)
 
         try:

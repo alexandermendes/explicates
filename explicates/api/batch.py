@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 """Batch API module."""
 
+import sys
 import json
 from flask import request, abort
 from flask.views import MethodView
@@ -35,7 +36,7 @@ class BatchAPI(APIBase, MethodView):
         """Batch delete items."""
         if not request.data:
             abort(400)
-        json_data = json.loads(request.data)
+        json_data = json.loads(request.data.decode('utf8'))
         if type(json_data) != list:
             abort(400)
         annotation_ids = [self._get_base_id(anno) for anno in json_data]

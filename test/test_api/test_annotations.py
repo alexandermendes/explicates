@@ -45,7 +45,8 @@ class TestAnnotationsAPI(Test):
         endpoint = u'/annotations/{}/{}/'.format(collection.id,
                                                  annotation.id)
         res = self.app_get_json_ld(endpoint)
-        assert_equal(json.loads(res.data), expected)
+        data = json.loads(res.data.decode('utf8'))
+        assert_equal(data, expected)
         assert_equal(res.status_code, 200, res.data)
 
     @with_context
@@ -109,7 +110,8 @@ class TestAnnotationsAPI(Test):
         _id = url_for('api.annotations',
                       collection_id=collection.id,
                       annotation_id=annotation.id)
-        assert_dict_equal(json.loads(res.data), {
+        data = json.loads(res.data.decode('utf8'))
+        assert_dict_equal(data, {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': _id,
             'type': 'Annotation',
@@ -212,7 +214,8 @@ class TestAnnotationsAPI(Test):
         assert_equal(annotation.modified, '1984-11-19T00:00:00Z')
 
         # Test data
-        assert_equal(json.loads(res.data), {
+        data = json.loads(res.data.decode('utf8'))
+        assert_equal(data, {
             '@context': 'http://www.w3.org/ns/anno.jsonld',
             'id': url_for('api.annotations',
                           collection_id=collection.id,

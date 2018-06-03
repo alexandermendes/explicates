@@ -30,7 +30,8 @@ class TestExportAPI(Test):
         endpoint = u'/export/{}/'.format(annotation.collection.id)
         res = self.app_get_json_ld(endpoint)
         assert_equal(res.status_code, 200, res.data)
-        assert_equal(json.loads(res.data), [
+        data = json.loads(res.data.decode('utf8'))
+        assert_equal(data, [
             {
                 'id': url_for('api.annotations',
                               collection_id=annotation.collection.id,

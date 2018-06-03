@@ -17,7 +17,10 @@ class TestBatchAPI(Test):
     @with_context
     def test_batch_delete_annotations(self):
         """Test batch delete Annotations."""
-        annotations = AnnotationFactory.create_batch(3)
+        annotations = [
+            AnnotationFactory(id='foo'),
+            AnnotationFactory(id='bar')
+        ]
         data = [anno.dictize() for anno in annotations][1:]
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint, data=data)
@@ -34,9 +37,10 @@ class TestBatchAPI(Test):
         endpoint = '/batch/'
         res = self.app_delete_json_ld(endpoint, data=data)
         assert_equal(res.status_code, 400, res.data)
-        err_msg = ('400 Bad Request: The query contains IDs that cannot be '
-                   'found in the database')
-        assert_equal(json.loads(res.data)['message'], err_msg, res.data)
+        err_msg = ("400 Bad Request: The query contains IDs that cannot be "
+                   "found in the database")
+        data = json.loads(res.data.decode('utf8'))
+        assert_equal(data['message'], err_msg, res.data)
 
     @with_context
     def test_batch_delete_annotations_with_no_data(self):

@@ -87,7 +87,7 @@ class Repository(object):
         """Return OR clauses for batch operations by ID."""
         clauses = []
         for _id in ids:
-            clauses.append((_entity_descriptor(model_cls, 'id') == _id))
+            clauses.append(_entity_descriptor(model_cls, 'id') == _id)
         batch_clause = or_(*clauses)
         self._validate_batch_clause(model_cls, batch_clause, ids)
         return batch_clause
