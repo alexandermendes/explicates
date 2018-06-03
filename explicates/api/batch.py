@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 """Batch API module."""
 
-import sys
 import json
 from flask import request, abort
 from flask.views import MethodView
