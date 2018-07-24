@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """Extensions module."""
 
 __all__ = ['db', 'cors', 'exporter']

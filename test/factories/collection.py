@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 from explicates.model.collection import Collection
 from . import BaseFactory, factory, repo
