@@ -218,7 +218,7 @@ class APIBase(object):
         n_pages = self._get_n_pages(items, out['total'], per_page)
 
         if items:
-            items = self._slice_annotations(items, int(per_page), page)
+            items = self._slice_items(items, int(per_page), page)
             if isinstance(page, int) and not items:
                 abort(404)
             elif isinstance(page, int):
@@ -235,7 +235,7 @@ class APIBase(object):
 
         return out
 
-    def _slice_annotations(self, items, per_page, page=0):
+    def _slice_items(self, items, per_page, page=0):
         """Return a slice of items. """
         start = page * per_page if page and page > 0 else 0
         return items[start:start + per_page]

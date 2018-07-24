@@ -48,3 +48,26 @@ class TestModelCollection(Test):
         db.session.add(annotation)
         db.session.commit()
         assert_equal(collection.total, 1)
+
+    @with_context
+    def test_total_does_not_count_deleted_annotations(self):
+        """Test Collection total count does not include deleted Annotations."""
+        collection_data = {
+            'type': [
+                'AnnotationCollection',
+                'BasicContainer'
+            ]
+        }
+        anno_data = {
+            'body': 'foo',
+            'target': 'bar'
+        }
+        collection = Collection(data=collection_data)
+        annotation = Annotation(collection=collection, data=anno_data)
+        deleted_annotation = Annotation(collection=collection, data=anno_data,
+                                        deleted=True)
+        db.session.add(collection)
+        db.session.add(annotation)
+        db.session.add(deleted_annotation)
+        db.session.commit()
+        assert_equal(collection.total, 1)

@@ -249,3 +249,40 @@ class TestSearch(Test):
         iri = 'foo'
         clause = self.search._get_collection_clause(iri)
         assert_equal(str(clause), 'collection.id = :id_1')
+
+    @with_context
+    def test_search_excludes_deleted_annotations_by_default(self):
+        """Test search excludes deleted Annotations by default."""
+        anno = AnnotationFactory()
+        AnnotationFactory(deleted=True)
+        results = self.search.search()
+        assert_equal(results, [anno])
+
+    @with_context
+    def test_search_excludes_deleted_annotations_explicitly(self):
+        """Test search excludes deleted Annotations explicitly."""
+        anno = AnnotationFactory()
+        AnnotationFactory(deleted=True)
+        results = self.search.search(deleted='exclude')
+        assert_equal(results, [anno])
+
+    @with_context
+    def test_search_includes_deleted_annotations(self):
+        """Test search includes deleted Annotations."""
+        anno1 = AnnotationFactory()
+        anno2 = AnnotationFactory(deleted=True)
+        results = self.search.search(deleted='include')
+        assert_equal(results, [anno1, anno2])
+
+    @with_context
+    def test_search_returns_only_deleted_annotations(self):
+        """Test search returns only deleted Annotations."""
+        anno = AnnotationFactory(deleted=True)
+        AnnotationFactory()
+        results = self.search.search(deleted='only')
+        assert_equal(results, [anno])
+
+    @with_context
+    def test_search_raises_when_invalid_deleted_value(self):
+        """Test search raises ValueError with invalid deleted argumement."""
+        assert_raises(ValueError, self.search._get_deleted_clause, 'foo')

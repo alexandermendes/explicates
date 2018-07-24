@@ -29,9 +29,13 @@ class Search(object):
         self.db = db
 
     def search(self, contains=None, collection=None, fts=None, fts_phrase=None,
-               limit=None, range=None, order_by='created', offset=0):
+               limit=None, range=None, order_by='created', offset=0,
+               deleted=None):
         """Search for Annotations."""
-        clauses = []
+        clauses = [Annotation.deleted == False]
+        if deleted:
+            clauses = self._get_deleted_clause(deleted)
+
         if contains:
             contains_clause = self._get_contains_clause(contains)
             clauses.append(contains_clause)
@@ -181,3 +185,17 @@ class Search(object):
             return _entity_descriptor(Annotation, col)
         except InvalidRequestError:
             return _entity_descriptor(Annotation, '_data')[col]
+
+    def _get_deleted_clause(self, data):
+        """Return the deleted clause."""
+        if data.lower() == 'exclude':
+            return [Annotation.deleted == False]
+        elif data.lower() == 'include':
+            return []
+        elif data.lower() == 'only':
+            return [Annotation.deleted == True]
+        else:
+            msg_base = 'invalid "deleted" clause'
+            msg_suffix = 'value must be "include", "exclude" or "only"'
+            msg = '{0}: {1}'.format(msg_base, msg_suffix)
+            raise ValueError(msg)

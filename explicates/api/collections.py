@@ -25,7 +25,7 @@ class CollectionsAPI(APIBase, MethodView):
     def get(self, collection_id):
         """Get a Collection."""
         collection = self._get_collection(collection_id)
-        items = collection.annotations
+        items = collection.annotations.filter(Annotation.deleted == False)
         container = self._get_container(collection, items=items)
         return self._jsonld_response(container)
 
@@ -43,7 +43,7 @@ class CollectionsAPI(APIBase, MethodView):
         """Update a Collection."""
         collection = self._get_collection(collection_id)
         self._update(collection)
-        items = collection.annotations
+        items = collection.annotations.filter(Annotation.deleted == False)
         container = self._get_container(collection, items=items)
         return self._jsonld_response(container)
 

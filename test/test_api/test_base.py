@@ -19,19 +19,19 @@ class TestBaseAPI(Test):
         self.api_base = APIBase()
 
     @with_context
-    def test_slice_annotations(self):
-        """Test first slice of Annotations returned."""
+    def test_slice_items(self):
+        """Test first slice of items returned."""
         collection = CollectionFactory()
         annotations = AnnotationFactory.create_batch(4, collection=collection)
-        out = self.api_base._slice_annotations(collection.annotations, 2, 0)
+        out = self.api_base._slice_items(collection.annotations, 2, 0)
         assert_equal(out, annotations[:2])
 
     @with_context
-    def test_offset_slice_annotations(self):
-        """Test offset slice of Annotations returned."""
+    def test_offset_slice_items(self):
+        """Test offset slice of items returned."""
         collection = CollectionFactory()
         annotations = AnnotationFactory.create_batch(4, collection=collection)
-        out = self.api_base._slice_annotations(collection.annotations, 2, 1)
+        out = self.api_base._slice_items(collection.annotations, 2, 1)
         assert_equal(out, annotations[2:])
 
     @with_context

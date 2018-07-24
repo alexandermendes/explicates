@@ -28,8 +28,9 @@ class Repository(object):
         return self.db.session.query(model_cls).filter_by(**attrs).all()
 
     def count(self, model_cls):
-        """Count all objects."""
-        return self.db.session.query(model_cls).count()
+        """Count all non-deleted objects."""
+        count_q = func.count(model_cls.key).filter(model_cls.deleted == False)
+        return self.db.session.execute(self.db.session.query(count_q)).scalar()
 
     def save(self, model_cls, obj):
         """Save an object."""

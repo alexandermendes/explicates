@@ -601,3 +601,43 @@ class TestCollectionsAPI(Test):
         schema = json.load(open(schema_path))
         mock_validate.assert_called_once_with(bad_data, schema)
         assert_not_equal(collection._data, bad_data)
+
+    @with_context
+    @freeze_time("1984-11-19")
+    def test_deleted_annotations_not_returned(self):
+        """Test deleted Annotation not returned in AnnotationCollection."""
+        collection = CollectionFactory()
+        annotation = AnnotationFactory(collection=collection)
+        AnnotationFactory(collection=collection, deleted=True)
+        expected = {
+            '@context': 'http://www.w3.org/ns/anno.jsonld',
+            'id': url_for('api.collections', collection_id=collection.id),
+            'type': collection.data['type'],
+            'created': '1984-11-19T00:00:00Z',
+            'generated': '1984-11-19T00:00:00Z',
+            'total': 1,
+            'first': {
+                'id': url_for('api.collections', collection_id=collection.id,
+                              page=0),
+                'type': 'AnnotationPage',
+                'startIndex': 0,
+                'items': [
+                    {
+                        'id': url_for('api.annotations',
+                                      collection_id=collection.id,
+                                      annotation_id=annotation.id),
+                        'type': 'Annotation',
+                        'body': annotation.data['body'],
+                        'target': annotation.data['target'],
+                        'created': '1984-11-19T00:00:00Z',
+                        'generated': '1984-11-19T00:00:00Z',
+                        'generator': current_app.config.get('GENERATOR')
+                    }
+                ]
+            }
+        }
+
+        endpoint = u'/annotations/{}/'.format(collection.id)
+        res = self.app_get_json_ld(endpoint)
+        data = json.loads(res.data.decode('utf8'))
+        assert_dict_equal(data, expected)

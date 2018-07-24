@@ -29,7 +29,7 @@ class BaseDomainObject(object):
     #: The time at which the object was modified, after creation.
     modified = Column(Text, onupdate=make_timestamp)
 
-    #: The time at which the object was deleted.
+    #: True if the object was deleted, False otherwise.
     deleted = Column(Boolean, default=False)
 
     #: The modifiable JSON data.

@@ -117,7 +117,6 @@ The `fts` query accepts the following parameters for each field:
     [Configuration](/setup.md#configuration) section for more details of
     the available dictionaries.
 
-
 ## fts_phrase
 
 Return Annotations where the specified keys contain a `query` phrase. The
@@ -146,3 +145,21 @@ The `fts_phrase` query accepts the following parameters for each field:
 
     Note that all phrase queries will be treated as prefixes; to search for
     exact phrases use [`contains`](/search.md#contains) instead.
+
+## deleted
+
+Return or include deleted Annotations.
+
+```json
+{
+    "deleted": "include"
+}
+```
+
+The `deleted` query accepts the following parameters:
+
+| key     | description                           |
+|---------|---------------------------------------|
+| exclude | Exclude deleted Annotations (default) |
+| include | Include deleted Annotations           |
+| only    | Return only deleted Annotations       |
