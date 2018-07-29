@@ -286,3 +286,12 @@ class TestSearch(Test):
     def test_search_raises_when_invalid_deleted_value(self):
         """Test search raises ValueError with invalid deleted argumement."""
         assert_raises(ValueError, self.search._get_deleted_clause, 'foo')
+
+    @with_context
+    def test_offset(self):
+        """Test search with offset."""
+        size = 5
+        offset = 2
+        annotations = AnnotationFactory.create_batch(size)
+        results = self.search.search(offset=offset)
+        assert_equal(len(results), size - offset)
