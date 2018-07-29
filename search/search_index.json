@@ -1,0 +1,174 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "Explicates is a Web Annotation server built with\n\nFlask\n and backed by\n\nPostgreSQL\n. It complies with the\n\nWeb Annotation Protocol\n and\nincludes additional endpoints for \nsearching\n and\n\nexporting\n the data.\n\n\nTo find our how to setup a local development server see the\n\nSetup\n section.",
+            "title": "Introduction"
+        },
+        {
+            "location": "/setup/",
+            "text": "The following page explains how to get an Explicates server up and running.\n\n\nInstallation\n\u00b6\n\n\nA virtual machine setup is provided for local development.\n\n\nDownload and install\n\nVagrant\n >= 4.2.10 and\n\nVirtualBox\n >= 1.2.1,\nthen run:\n\n\n# setup vm\n\nvagrant up\n\n\n# enter vm\n\nvagrant ssh\n\n\n# run\n\npython run.py\n\n\n\n\nConfiguration\n\u00b6\n\n\nThe contents of the settings template file, \nsettings.py.tmpl\n, are replicated\nbelow. To edit any of the settings make a copy of the template:\n\n\ncp settings.py.tmpl settings.py\n\n\n\n\nThe comments below indicate where any default values are used.\n\n\n# -*- coding: utf8 -*-\n\n\n\n# Development\n\n\nPORT\n \n=\n \n3000\n\n\n\n# ** IMPORTANT: Uncomment the lines below in production **\n\n\n# ENV = 'production'\n\n\n# SERVER_NAME = 'example.com'\n\n\n\n# Database URI\n\n\nSQLALCHEMY_DATABASE_URI\n \n=\n \n'postgresql://explicates:tester@localhost/explicates'\n\n\n\n# Database slave configuration\n\n\n# SQLALCHEMY_BINDS = {\n\n\n#     'slave': 'postgresql://user:password@server/db'\n\n\n# }\n\n\n\n# The agent responsible for generating the serialization of the Annotations.\n\n\n# See https://www.w3.org/TR/annotation-model/\n\n\n# GENERATOR = 'http://example.org/client1'\n\n\n\n# Require strict slashes at the end of all API endpoints (default below)\n\n\n# STRICT_SLASHES = False\n\n\n\n# The number of Annotations to display per page (default below)\n\n\n# ANNOTATIONS_PER_PAGE = 1000\n\n\n\n# CORS settings (defaults below)\n\n\n# See https://flask-cors.readthedocs.io/en/latest/\n\n\n# CORS_RESOURCES = {\n\n\n#     r\"/*\": {\n\n\n#         \"origins\": \"*\",\n\n\n#         \"allow_headers\": [\n\n\n#             'Content-Type',\n\n\n#             'Content-Length',\n\n\n#             'Authorization',\n\n\n#             'If-Match',\n\n\n#             'Prefer',\n\n\n#             'Accept',\n\n\n#             'Slug'\n\n\n#         ],\n\n\n#         \"max_age\": 21600,\n\n\n#         \"supports_credentials\": True\n\n\n#     }\n\n\n# }\n\n\n\n# Full-text search default language (default below)\n\n\n# FTS_DEFAULT = 'english'\n\n\n\n# Full-text search map of available PostgreSQL dictionaries (defaults below)\n\n\n# FTS_LANGUAGE_MAP = {\n\n\n#     'da': 'danish',\n\n\n#     'nl': 'dutch',\n\n\n#     'fi': 'finnish',\n\n\n#     'fr': 'french',\n\n\n#     'de': 'german',\n\n\n#     'hu': 'hungarian',\n\n\n#     'it': 'italian',\n\n\n#     'no': 'norwegian',\n\n\n#     'pt': 'portuguese',\n\n\n#     'ro': 'romanian',\n\n\n#     'ru': 'russian',\n\n\n#     'es': 'spanish',\n\n\n#     'sv': 'swedish',\n\n\n#     'tr': 'turkish',\n\n\n#     'en': 'english'\n\n\n# }\n\n\n\n\n\nDeployment\n\u00b6\n\n\nExplicates requires a server with PostgreSQL 10 (or higher) installed. The\nrecommended OS is Ubuntu 18.04. The guide following assumes you are starting\nwith a fresh Ubuntu 18.04 server.\n\n\nUpdate and upgrade the package index:\n\n\nsudo apt-get update\nsudo apt-get upgrade\n\n\n\n\nInstall Python and git\n\u00b6\n\n\nInstall Python:\n\n\nsudo apt install python\n\n\n\n\nInstall Python dependencies:\n\n\nsudo apt install python-virtualenv python-dev python-setuptools python-pip\n\n\n\n\nInstall git:\n\n\nsudo apt-get install git-core\n\n\n\n\nDownload and build Explicates\n\u00b6\n\n\nClone Explicates:\n\n\nmkdir /var/www\ngit clone https://github.com/alexandermendes/explicates /var/www/explicates\n\n\n\n\nCreate a virtual environment:\n\n\ncd\n /var/www/explicates\nvirtualenv env\n\n\n\n\nActivate the virtual environment:\n\n\nsource\n env/bin/activate\n\n\n\n\nInstall Explicates:\n\n\npip install -r requirements.txt\n\n\n\n\nCopy the settings template:\n\n\ncp settings.py.tmpl settings.py\n\n\n\n\n\n\nImportant\n\n\nYou should edit the settings file to uncomment \nENV\n and \nSERVER_NAME\n,\nwhere the server name is the location of your production server.\n\n\n\n\nCopy the alembic configuration:\n\n\ncp alembic.ini.tmpl alembic.ini\n\n\n\n\nSetup the database\n\u00b6\n\n\nInstall database dependencies:\n\n\nsudo apt-get install postgresql postgresql-server-dev-all python-psycopg2 libpq-dev\n\n\n\n\nAdd a database user:\n\n\nsudo -u postgres createuser -d -P explicates\n\n\n\n\nEnter the password \ntester\n when prompted.\n\n\n\n\nPassword choice\n\n\nIf you choose a different password you should also edit the database path\nin \nsettings.py\n and \nalembic.ini\n.\n\n\n\n\nCreate the database:\n\n\nsudo -u postgres createdb explicates -O explicates\n\n\n\n\nPopulate the database:\n\n\npython /var/www/explicates/bin/db_create.py\n\n\n\n\nSetup NGINX\n\u00b6\n\n\nInstall NGINX:\n\n\nsudo apt-get install nginx\n\n\n\n\nRemove the default server configuration:\n\n\nsudo rm -r /etc/nginx/sites-available/default\nsudo rm -r /etc/nginx/sites-enabled/default\n\n\n\n\nEdit a new server configuration file:\n\n\nvim /etc/nginx/sites-available/explicates\n\n\n\n\nCopy in the following and save the file:\n\n\nserver \n{\n\n  listen \n80\n default_server\n;\n\n  listen \n[\n::\n]\n:80 default_server\n;\n\n\n  \n# Change this to match your domain\n\n  server_name annotations.example.com\n;\n\n\n  client_body_buffer_size 10K\n;\n\n  client_header_buffer_size 1k\n;\n\n  client_max_body_size 10m\n;\n\n  large_client_header_buffers \n2\n 1k\n;\n\n\n  gzip             on\n;\n\n  gzip_comp_level  \n2\n;\n\n  gzip_types       text/plain application/json application/ld+json\n;\n\n  gzip_min_length  \n1000\n;\n\n  gzip_proxied     expired no-cache no-store private auth\n;\n\n\n  location / \n{\n\n    expires -1\n;\n\n    include uwsgi_params\n;\n\n    uwsgi_pass unix:/tmp/explicates.sock\n;\n\n  \n}\n\n\n}\n\n\n\n\n\nEnable the Explicates configuration:\n\n\nln -s /etc/nginx/sites-available/explicates /etc/nginx/sites-enabled/explicates\n\n\n\n\nRestart the NGINX server:\n\n\nsudo service nginx restart\n\n\n\n\nSetting up uWSGI\n\u00b6\n\n\nInstall uWSGI:\n\n\npip install -U uwsgi\n\n\n\n\nEdit a new server configuration file:\n\n\nvim /var/www/explicates/explicates.ini\n\n\n\n\nCopy in the following and save the file:\n\n\n[\nuwsgi\n]\n\n\nsocket\n \n=\n /tmp/explicates.sock\nchmod-socket \n=\n \n666\n\n\nchdir\n \n=\n /var/www/explicates\n\npythonpath\n \n=\n ..\n\nvirtualenv\n \n=\n /var/www/explicates/env\n\nmodule\n \n=\n run:app\ncpu-affinity \n=\n \n1\n\n\nprocesses\n \n=\n \n2\n\n\nthreads\n \n=\n \n2\n\nbuffer-size \n=\n \n65535\n\n\n\n\n\nSetup Up Supervisor\n\u00b6\n\n\nSupervisor is used to run Explicates in the background and restart it when the\nserver boots up.\n\n\nInstall supervisor:\n\n\nsudo apt-get install supervisor\n\n\n\n\nEdit a new Supervisor program configuration:\n\n\nvim /etc/supervisor/conf.d/explicates.conf\n\n\n\n\nCopy in the following and save the file:\n\n\n[program:explicates]\n\n\ncommand\n=\n/var/www/explicates/env/bin/uwsgi /var/www/explicates/explicates.ini\n\n\ndirectory\n=\n/var/www/explicates\n\n\nautostart\n=\ntrue\n\n\nautorestart\n=\ntrue\n\n\nlog_stdout\n=\ntrue\n\n\nlog_stderr\n=\ntrue\n\n\nlogfile\n=\n/var/log/explicates.log\n\n\nlogfile_maxbytes\n=\n10MB\n\n\nlogfile_backups\n=\n2\n\n\n\n\n\nRestart supervisor:\n\n\nsudo service supervisor stop\nsudo service supervisor start\n\n\n\n\nYour Annotation server should now be running at\n\nhttp://your.domain.com\n.\n\n\nSecurity\n\u00b6\n\n\nThere are lots of potential steps that you could take to secure your servers.\nRunning through all of the options here is outside the scope of this guide,\nbut here are some quick wins for the LibCrowds and Explicates servers\n(details might need to be modified a bit for the PYBOSSA server).\n\n\nFirewall\n\u00b6\n\n\nUFW, or Uncomplicated Firewall, is an easy way to manage a frontend firewall.\n\n\nInstall it:\n\n\nsudo apt-get install ufw\n\n\n\n\nDeny incoming and allow outgoing by default:\n\n\nsudo ufw default deny incoming\nsudo ufw default allow outgoing\n\n\n\n\nAllow connections:\n\n\nsudo ufw allow ssh\nsudo ufw allow \n22\n/tcp\n\n\n\n\nCheck the rules:\n\n\nufw status\n\n\n\n\nYou should see the following output:\n\n\nTo                         Action      From\n--                         ------      ----\n\n22\n                         ALLOW       Anywhere\n\n80\n                         ALLOW       Anywhere\n\n443\n                        ALLOW       Anywhere\n\n22\n \n(\nv6\n)\n                    ALLOW       Anywhere \n(\nv6\n)\n\n\n80\n \n(\nv6\n)\n                    ALLOW       Anywhere \n(\nv6\n)\n\n\n443\n \n(\nv6\n)\n                   ALLOW       Anywhere \n(\nv6\n)\n\n\n\n\n\nIf the rules do indeed appear as above, enable the firewall:\n\n\nsudo ufw \nenable\n\n\n\n\n\nSecure Sockets Layer (SSL)\n\u00b6\n\n\nLet's Encrypt\n provide free SSL certificates. Use\nthe \nCertbot\n client to set them up for your\noperating system.\n\n\nAfter following the Certbot guide, above, you can setup a scheduled task\nto automatically renew the certificates.\n\n\nEdit a new daily task:\n\n\nvim /etc/cron.daily/certrenew\n\n\n\n\nCopy in the following and save the file:\n\n\ncertbot renew\n\n\n\n\nMake the file executable:\n\n\nchmod +x /etc/cron.daily/certrenew\n\n\n\n\nYour certificate should now be checked for renewal daily.",
+            "title": "Setup"
+        },
+        {
+            "location": "/setup/#installation",
+            "text": "A virtual machine setup is provided for local development.  Download and install Vagrant  >= 4.2.10 and VirtualBox  >= 1.2.1,\nthen run:  # setup vm \nvagrant up # enter vm \nvagrant ssh # run \npython run.py",
+            "title": "Installation"
+        },
+        {
+            "location": "/setup/#configuration",
+            "text": "The contents of the settings template file,  settings.py.tmpl , are replicated\nbelow. To edit any of the settings make a copy of the template:  cp settings.py.tmpl settings.py  The comments below indicate where any default values are used.  # -*- coding: utf8 -*-  # Development  PORT   =   3000  # ** IMPORTANT: Uncomment the lines below in production **  # ENV = 'production'  # SERVER_NAME = 'example.com'  # Database URI  SQLALCHEMY_DATABASE_URI   =   'postgresql://explicates:tester@localhost/explicates'  # Database slave configuration  # SQLALCHEMY_BINDS = {  #     'slave': 'postgresql://user:password@server/db'  # }  # The agent responsible for generating the serialization of the Annotations.  # See https://www.w3.org/TR/annotation-model/  # GENERATOR = 'http://example.org/client1'  # Require strict slashes at the end of all API endpoints (default below)  # STRICT_SLASHES = False  # The number of Annotations to display per page (default below)  # ANNOTATIONS_PER_PAGE = 1000  # CORS settings (defaults below)  # See https://flask-cors.readthedocs.io/en/latest/  # CORS_RESOURCES = {  #     r\"/*\": {  #         \"origins\": \"*\",  #         \"allow_headers\": [  #             'Content-Type',  #             'Content-Length',  #             'Authorization',  #             'If-Match',  #             'Prefer',  #             'Accept',  #             'Slug'  #         ],  #         \"max_age\": 21600,  #         \"supports_credentials\": True  #     }  # }  # Full-text search default language (default below)  # FTS_DEFAULT = 'english'  # Full-text search map of available PostgreSQL dictionaries (defaults below)  # FTS_LANGUAGE_MAP = {  #     'da': 'danish',  #     'nl': 'dutch',  #     'fi': 'finnish',  #     'fr': 'french',  #     'de': 'german',  #     'hu': 'hungarian',  #     'it': 'italian',  #     'no': 'norwegian',  #     'pt': 'portuguese',  #     'ro': 'romanian',  #     'ru': 'russian',  #     'es': 'spanish',  #     'sv': 'swedish',  #     'tr': 'turkish',  #     'en': 'english'  # }",
+            "title": "Configuration"
+        },
+        {
+            "location": "/setup/#deployment",
+            "text": "Explicates requires a server with PostgreSQL 10 (or higher) installed. The\nrecommended OS is Ubuntu 18.04. The guide following assumes you are starting\nwith a fresh Ubuntu 18.04 server.  Update and upgrade the package index:  sudo apt-get update\nsudo apt-get upgrade",
+            "title": "Deployment"
+        },
+        {
+            "location": "/setup/#install-python-and-git",
+            "text": "Install Python:  sudo apt install python  Install Python dependencies:  sudo apt install python-virtualenv python-dev python-setuptools python-pip  Install git:  sudo apt-get install git-core",
+            "title": "Install Python and git"
+        },
+        {
+            "location": "/setup/#download-and-build-explicates",
+            "text": "Clone Explicates:  mkdir /var/www\ngit clone https://github.com/alexandermendes/explicates /var/www/explicates  Create a virtual environment:  cd  /var/www/explicates\nvirtualenv env  Activate the virtual environment:  source  env/bin/activate  Install Explicates:  pip install -r requirements.txt  Copy the settings template:  cp settings.py.tmpl settings.py   Important  You should edit the settings file to uncomment  ENV  and  SERVER_NAME ,\nwhere the server name is the location of your production server.   Copy the alembic configuration:  cp alembic.ini.tmpl alembic.ini",
+            "title": "Download and build Explicates"
+        },
+        {
+            "location": "/setup/#setup-the-database",
+            "text": "Install database dependencies:  sudo apt-get install postgresql postgresql-server-dev-all python-psycopg2 libpq-dev  Add a database user:  sudo -u postgres createuser -d -P explicates  Enter the password  tester  when prompted.   Password choice  If you choose a different password you should also edit the database path\nin  settings.py  and  alembic.ini .   Create the database:  sudo -u postgres createdb explicates -O explicates  Populate the database:  python /var/www/explicates/bin/db_create.py",
+            "title": "Setup the database"
+        },
+        {
+            "location": "/setup/#setup-nginx",
+            "text": "Install NGINX:  sudo apt-get install nginx  Remove the default server configuration:  sudo rm -r /etc/nginx/sites-available/default\nsudo rm -r /etc/nginx/sites-enabled/default  Edit a new server configuration file:  vim /etc/nginx/sites-available/explicates  Copy in the following and save the file:  server  { \n  listen  80  default_server ; \n  listen  [ :: ] :80 default_server ; \n\n   # Change this to match your domain \n  server_name annotations.example.com ; \n\n  client_body_buffer_size 10K ; \n  client_header_buffer_size 1k ; \n  client_max_body_size 10m ; \n  large_client_header_buffers  2  1k ; \n\n  gzip             on ; \n  gzip_comp_level   2 ; \n  gzip_types       text/plain application/json application/ld+json ; \n  gzip_min_length   1000 ; \n  gzip_proxied     expired no-cache no-store private auth ; \n\n  location /  { \n    expires -1 ; \n    include uwsgi_params ; \n    uwsgi_pass unix:/tmp/explicates.sock ; \n   }  }   Enable the Explicates configuration:  ln -s /etc/nginx/sites-available/explicates /etc/nginx/sites-enabled/explicates  Restart the NGINX server:  sudo service nginx restart",
+            "title": "Setup NGINX"
+        },
+        {
+            "location": "/setup/#setting-up-uwsgi",
+            "text": "Install uWSGI:  pip install -U uwsgi  Edit a new server configuration file:  vim /var/www/explicates/explicates.ini  Copy in the following and save the file:  [ uwsgi ]  socket   =  /tmp/explicates.sock\nchmod-socket  =   666  chdir   =  /var/www/explicates pythonpath   =  .. virtualenv   =  /var/www/explicates/env module   =  run:app\ncpu-affinity  =   1  processes   =   2  threads   =   2 \nbuffer-size  =   65535",
+            "title": "Setting up uWSGI"
+        },
+        {
+            "location": "/setup/#setup-up-supervisor",
+            "text": "Supervisor is used to run Explicates in the background and restart it when the\nserver boots up.  Install supervisor:  sudo apt-get install supervisor  Edit a new Supervisor program configuration:  vim /etc/supervisor/conf.d/explicates.conf  Copy in the following and save the file:  [program:explicates]  command = /var/www/explicates/env/bin/uwsgi /var/www/explicates/explicates.ini  directory = /var/www/explicates  autostart = true  autorestart = true  log_stdout = true  log_stderr = true  logfile = /var/log/explicates.log  logfile_maxbytes = 10MB  logfile_backups = 2   Restart supervisor:  sudo service supervisor stop\nsudo service supervisor start  Your Annotation server should now be running at http://your.domain.com .",
+            "title": "Setup Up Supervisor"
+        },
+        {
+            "location": "/setup/#security",
+            "text": "There are lots of potential steps that you could take to secure your servers.\nRunning through all of the options here is outside the scope of this guide,\nbut here are some quick wins for the LibCrowds and Explicates servers\n(details might need to be modified a bit for the PYBOSSA server).",
+            "title": "Security"
+        },
+        {
+            "location": "/setup/#firewall",
+            "text": "UFW, or Uncomplicated Firewall, is an easy way to manage a frontend firewall.  Install it:  sudo apt-get install ufw  Deny incoming and allow outgoing by default:  sudo ufw default deny incoming\nsudo ufw default allow outgoing  Allow connections:  sudo ufw allow ssh\nsudo ufw allow  22 /tcp  Check the rules:  ufw status  You should see the following output:  To                         Action      From\n--                         ------      ---- 22                          ALLOW       Anywhere 80                          ALLOW       Anywhere 443                         ALLOW       Anywhere 22   ( v6 )                     ALLOW       Anywhere  ( v6 )  80   ( v6 )                     ALLOW       Anywhere  ( v6 )  443   ( v6 )                    ALLOW       Anywhere  ( v6 )   If the rules do indeed appear as above, enable the firewall:  sudo ufw  enable",
+            "title": "Firewall"
+        },
+        {
+            "location": "/setup/#secure-sockets-layer-ssl",
+            "text": "Let's Encrypt  provide free SSL certificates. Use\nthe  Certbot  client to set them up for your\noperating system.  After following the Certbot guide, above, you can setup a scheduled task\nto automatically renew the certificates.  Edit a new daily task:  vim /etc/cron.daily/certrenew  Copy in the following and save the file:  certbot renew  Make the file executable:  chmod +x /etc/cron.daily/certrenew  Your certificate should now be checked for renewal daily.",
+            "title": "Secure Sockets Layer (SSL)"
+        },
+        {
+            "location": "/collections/",
+            "text": "Annotation Collections can be created, read, updated and deleted via the\nfollowing endpoints.\n\n\nPost\n\u00b6\n\n\nCreate an Annotation Collection.\n\n\nPOST /annotations/\n\n\n\n\n\nGet\n\u00b6\n\n\nReturns a Annotation Collection containing a minimal representation of all\nAnnotation Collections on the server.\n\n\nGET /annotations/\n\n\n\n\n\nPut\n\u00b6\n\n\nUpdate an Annotation Collection.\n\n\nPUT /annotations/my-container/\n\n\n\n\n\nDelete\n\u00b6\n\n\nDelete an Annotation Collection.\n\n\nDELETE /annotations/my-container/\n\n\n\n\n\n\n\nDeletion rules\n\n\nAnnotation Collections cannot be deleted if they are the last one\nremaining on the server, or if they contain Annotations.",
+            "title": "Collections"
+        },
+        {
+            "location": "/collections/#post",
+            "text": "Create an Annotation Collection.  POST /annotations/",
+            "title": "Post"
+        },
+        {
+            "location": "/collections/#get",
+            "text": "Returns a Annotation Collection containing a minimal representation of all\nAnnotation Collections on the server.  GET /annotations/",
+            "title": "Get"
+        },
+        {
+            "location": "/collections/#put",
+            "text": "Update an Annotation Collection.  PUT /annotations/my-container/",
+            "title": "Put"
+        },
+        {
+            "location": "/collections/#delete",
+            "text": "Delete an Annotation Collection.  DELETE /annotations/my-container/    Deletion rules  Annotation Collections cannot be deleted if they are the last one\nremaining on the server, or if they contain Annotations.",
+            "title": "Delete"
+        },
+        {
+            "location": "/annotations/",
+            "text": "Annotations can be created, read, updated and deleted via the following\nendpoints.\n\n\nPost\n\u00b6\n\n\nCreate an Annotation.\n\n\nPOST /annotations/<container_id>/\n\n\n\n\n\nGet\n\u00b6\n\n\nRead an Annotation.\n\n\nGET /annotations/<container_id>/<annotation_id>/\n\n\n\n\n\nPut\n\u00b6\n\n\nUpdate an Annotation.\n\n\nPUT /annotations/<container_id>/<annotation_id>/\n\n\n\n\n\nDelete\n\u00b6\n\n\nDelete an Annotation.\n\n\nDELETE /annotations/<container_id>/<annotation_id>/",
+            "title": "Annotations"
+        },
+        {
+            "location": "/annotations/#post",
+            "text": "Create an Annotation.  POST /annotations/<container_id>/",
+            "title": "Post"
+        },
+        {
+            "location": "/annotations/#get",
+            "text": "Read an Annotation.  GET /annotations/<container_id>/<annotation_id>/",
+            "title": "Get"
+        },
+        {
+            "location": "/annotations/#put",
+            "text": "Update an Annotation.  PUT /annotations/<container_id>/<annotation_id>/",
+            "title": "Put"
+        },
+        {
+            "location": "/annotations/#delete",
+            "text": "Delete an Annotation.  DELETE /annotations/<container_id>/<annotation_id>/",
+            "title": "Delete"
+        },
+        {
+            "location": "/search/",
+            "text": "Presented below are the available options for retrieving Annotations from the\nsearch endpoint at:\n\n\nGET /search/\n\n\n\n\n\nResults are returned as an AnnotationCollection that uses the usual\nstructure.\n\n\nThe queries should be sent as JSON, although Using URL parameters should also\nwork. If both a JSON body and URL parameters are sent with the request then\nthe JSON body will take preference.\n\n\nlimit\n\u00b6\n\n\nLimit the Annotations returned.\n\n\n{\n\n    \n\"limit\"\n:\n \n42\n\n\n}\n\n\n\n\n\noffset\n\u00b6\n\n\nOffset the first Annotation to be returned.\n\n\n{\n\n    \n\"offset\"\n:\n \n42\n\n\n}\n\n\n\n\n\ncollection\n\u00b6\n\n\nReturn Annotations that belong to the given AnnotationCollection.\n\n\n{\n\n    \n\"collection\"\n:\n \n\"https://example.org/annotations/my-container/\"\n\n\n}\n\n\n\n\n\nrange\n\u00b6\n\n\nReturn Annotations where the values for a set of keys fall within the\ngiven ranges. The query below will return all Annotations \ncreated\n between\n\n2018-05-15T00:00:00Z\n and \n2018-05-17T00:00:00Z\n. Note that when querying\na datetime field the ISO 8601 format shown here should be used.\n\n\n{\n\n    \n\"range\"\n:\n \n{\n\n        \n\"created\"\n:\n \n{\n\n            \n\"gte\"\n:\n \n\"2018-05-15T00:00:00Z\"\n,\n\n            \n\"lte\"\n:\n \n\"2018-05-17T00:00:00Z\"\n\n        \n}\n\n    \n}\n\n\n}\n\n\n\n\n\nThe \nrange\n query accepts the following parameters for each field:\n\n\n\n\n\n\n\n\nkey\n\n\ndescription\n\n\n\n\n\n\n\n\n\n\ngte\n\n\nGreater-than or equal to\n\n\n\n\n\n\ngt\n\n\nGreater-than\n\n\n\n\n\n\nlte\n\n\nLess-than or equal to\n\n\n\n\n\n\nlt\n\n\nLess-than\n\n\n\n\n\n\n\n\ncontains\n\u00b6\n\n\nReturn Annotations that contain a specific value. The query below will\nreturn all Annotations that contain a \nbody\n where the \nid\n is\n\nhttps://example.org/page1/\n.\n\n\n{\n\n    \n\"contains\"\n:\n \n{\n\n        \n\"body\"\n:\n \n{\n\n            \n\"id\"\n:\n \n\"https://example.org/page1/\"\n\n        \n}\n\n    \n}\n\n\n}\n\n\n\n\n\nfts\n\u00b6\n\n\nReturn Annotations where the specified keys contain a \nquery\n. The following\nquery will return all Annotations where the \nbody\n contains any of the words\nin \nsome keywords\n.\n\n\n{\n\n    \n\"fts\"\n:\n \n{\n\n        \n\"body\"\n:\n \n{\n\n            \n\"query\"\n:\n \n\"some keywords\"\n\n        \n}\n\n    \n}\n\n\n}\n\n\n\n\n\nThe \nfts\n query accepts the following parameters for each field:\n\n\n\n\n\n\n\n\nkey\n\n\ndescription\n\n\n\n\n\n\n\n\n\n\nquery\n\n\nThe search query (required)\n\n\n\n\n\n\noperator\n\n\nJoin tokens with \nand\n or \nor\n (default \nand\n)\n\n\n\n\n\n\nprefix\n\n\nTreat each token as a prefix (default \nTrue\n)\n\n\n\n\n\n\n\n\n\n\nFull-text search language\n\n\nThe dictionary used for full-text searches is defined for each Annotation\nby the first \nlanguage\n code found in the Annotation's \nbody\n. If no\nsuch language code is found then the server default is used. See the\n\nConfiguration\n section for more details of\nthe available dictionaries.\n\n\n\n\nfts_phrase\n\u00b6\n\n\nReturn Annotations where the specified keys contain a \nquery\n phrase. The\nfollowing query will return all Annotations where the \nbody\n contains the\nphrase that begins with \nSome partial phras\n.\n\n\n{\n\n    \n\"fts_phrase\"\n:\n \n{\n\n        \n\"body\"\n:\n \n{\n\n            \n\"query\"\n:\n \n\"Some partial phras\"\n\n        \n}\n\n    \n}\n\n\n}\n\n\n\n\n\nThe \nfts_phrase\n query accepts the following parameters for each field:\n\n\n\n\n\n\n\n\nkey\n\n\ndescription\n\n\n\n\n\n\n\n\n\n\nquery\n\n\nThe search query (required)\n\n\n\n\n\n\nprefix\n\n\nTreat the query as a prefix (default \nTrue\n)\n\n\n\n\n\n\ndistance\n\n\nThe distance between tokens (default \n1\n)\n\n\n\n\n\n\n\n\n\n\nExact phrase searches\n\n\nNote that all phrase queries will be treated as prefixes; to search for\nexact phrases use \ncontains\n instead.\n\n\n\n\ndeleted\n\u00b6\n\n\nReturn or include deleted Annotations.\n\n\n{\n\n    \n\"deleted\"\n:\n \n\"include\"\n\n\n}\n\n\n\n\n\nThe \ndeleted\n query accepts the following parameters:\n\n\n\n\n\n\n\n\nkey\n\n\ndescription\n\n\n\n\n\n\n\n\n\n\nexclude\n\n\nExclude deleted Annotations (default)\n\n\n\n\n\n\ninclude\n\n\nInclude deleted Annotations\n\n\n\n\n\n\nonly\n\n\nReturn only deleted Annotations",
+            "title": "Search"
+        },
+        {
+            "location": "/search/#limit",
+            "text": "Limit the Annotations returned.  { \n     \"limit\" :   42  }",
+            "title": "limit"
+        },
+        {
+            "location": "/search/#offset",
+            "text": "Offset the first Annotation to be returned.  { \n     \"offset\" :   42  }",
+            "title": "offset"
+        },
+        {
+            "location": "/search/#collection",
+            "text": "Return Annotations that belong to the given AnnotationCollection.  { \n     \"collection\" :   \"https://example.org/annotations/my-container/\"  }",
+            "title": "collection"
+        },
+        {
+            "location": "/search/#range",
+            "text": "Return Annotations where the values for a set of keys fall within the\ngiven ranges. The query below will return all Annotations  created  between 2018-05-15T00:00:00Z  and  2018-05-17T00:00:00Z . Note that when querying\na datetime field the ISO 8601 format shown here should be used.  { \n     \"range\" :   { \n         \"created\" :   { \n             \"gte\" :   \"2018-05-15T00:00:00Z\" , \n             \"lte\" :   \"2018-05-17T00:00:00Z\" \n         } \n     }  }   The  range  query accepts the following parameters for each field:     key  description      gte  Greater-than or equal to    gt  Greater-than    lte  Less-than or equal to    lt  Less-than",
+            "title": "range"
+        },
+        {
+            "location": "/search/#contains",
+            "text": "Return Annotations that contain a specific value. The query below will\nreturn all Annotations that contain a  body  where the  id  is https://example.org/page1/ .  { \n     \"contains\" :   { \n         \"body\" :   { \n             \"id\" :   \"https://example.org/page1/\" \n         } \n     }  }",
+            "title": "contains"
+        },
+        {
+            "location": "/search/#fts",
+            "text": "Return Annotations where the specified keys contain a  query . The following\nquery will return all Annotations where the  body  contains any of the words\nin  some keywords .  { \n     \"fts\" :   { \n         \"body\" :   { \n             \"query\" :   \"some keywords\" \n         } \n     }  }   The  fts  query accepts the following parameters for each field:     key  description      query  The search query (required)    operator  Join tokens with  and  or  or  (default  and )    prefix  Treat each token as a prefix (default  True )      Full-text search language  The dictionary used for full-text searches is defined for each Annotation\nby the first  language  code found in the Annotation's  body . If no\nsuch language code is found then the server default is used. See the Configuration  section for more details of\nthe available dictionaries.",
+            "title": "fts"
+        },
+        {
+            "location": "/search/#fts_phrase",
+            "text": "Return Annotations where the specified keys contain a  query  phrase. The\nfollowing query will return all Annotations where the  body  contains the\nphrase that begins with  Some partial phras .  { \n     \"fts_phrase\" :   { \n         \"body\" :   { \n             \"query\" :   \"Some partial phras\" \n         } \n     }  }   The  fts_phrase  query accepts the following parameters for each field:     key  description      query  The search query (required)    prefix  Treat the query as a prefix (default  True )    distance  The distance between tokens (default  1 )      Exact phrase searches  Note that all phrase queries will be treated as prefixes; to search for\nexact phrases use  contains  instead.",
+            "title": "fts_phrase"
+        },
+        {
+            "location": "/search/#deleted",
+            "text": "Return or include deleted Annotations.  { \n     \"deleted\" :   \"include\"  }   The  deleted  query accepts the following parameters:     key  description      exclude  Exclude deleted Annotations (default)    include  Include deleted Annotations    only  Return only deleted Annotations",
+            "title": "deleted"
+        },
+        {
+            "location": "/export/",
+            "text": "All Annotations in an Annotation Collection can be exported from the database\nvia the following endpoint:\n\n\nGET /export/<collection_id>/\n\n\n\n\n\nThe Annotations are streamed back to the client as a JSON list. This endpoint\nis intended for programmatic use only. It is not recommended to access it via\na web browser as, depending on the number of Annotations to be exported, it is\nlikely the browser would run out of memory before the request finishes.\nHowever, you can add the URL parameter \nzip=1\n to download the Annotations as\na ZIP file.\n\n\n\n\nCurl example\n\n\ncurl https://example.org/annotations/my-container/ > out.json\n\n\n\n\n\n\n\n\nPython pandas example\n\n\nimport\n \npandas\n\n\n\niri\n \n=\n \n'https://example.org/annotations/my-container/'\n\n\ndf\n \n=\n \npandas\n.\nread_json\n(\niri\n,\n \norient\n=\n'records'\n)",
+            "title": "Export"
+        }
+    ]
+}
