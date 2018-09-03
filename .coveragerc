@@ -1,3 +1,0 @@
-[report]
-omit = */test/*
-show_missing=True
